@@ -1,7 +1,11 @@
 package com.ismael.teams.ui
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,13 +21,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
 import com.ismael.teams.model.ChatPreview
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -166,11 +185,159 @@ fun UserIcon(
 fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
 ){
-
+    Row(
+        modifier = modifier
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        IconButton(
+            colors = IconButtonColors(
+                contentColor = Color.White,
+                containerColor = Color.Magenta,
+                disabledContainerColor = Color.Red,
+                disabledContentColor = Color.Red
+            ),
+            modifier = Modifier
+                .padding(top = 8.dp),
+            onClick = { /*TODO*/ }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null
+            )
+        }
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            label = {
+                Text(
+                    text = stringResource(R.string.type_message),
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.mood_24px),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+            },
+            modifier = Modifier
+                .weight(1f)
+                .padding(4.dp),
+        )
+        Icon(
+            painter = painterResource(R.drawable.photo_camera_24px),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 8.dp, end = 2.dp)
+                .size(30.dp)
+        )
+        Icon(
+            painter = painterResource(R.drawable.mic_24px),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 8.dp, end = 2.dp)
+                .size(30.dp)
+        )
+    }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun ChatFilterBottomSheet(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    val sheetState = rememberModalBottomSheetState()
+
+    if (isVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { onDismiss() },
+                sheetState = sheetState
+            ) {
+                Column(
+                    modifier = modifier
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {},
+                                onLongClick = {}
+                            )
+                            .fillMaxWidth(),
+                        ){
+                        Icon(
+                            painter = painterResource(R.drawable.mark_chat_unread_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(4.dp)
+                        )
+                        Text(
+                            text = "Unread",
+                            modifier = Modifier
+                            .padding(8.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {},
+                                onLongClick = {}
+                            )
+                            .fillMaxWidth(),
+
+                    ){
+                        Icon(
+                            painter = painterResource(R.drawable.meeting_room_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(4.dp)
+                        )
+                        Text(
+                            text = "Meeting",
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {},
+                                onLongClick = {}
+                            )
+                            .fillMaxWidth(),
+
+                        ){
+                        Icon(
+                            painter = painterResource(R.drawable.volume_off_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(4.dp)
+                        )
+                        Text(
+                            text = "Muted",
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+}
 @Preview(showBackground = true)
 @Composable
 private fun TeamsChatScreenPreview(){
-    ChatList(DataSource().loadChats())
+    ChatFilterBottomSheet(
+        true,
+        onDismiss = TODO(),
+        modifier = TODO()
+    )
 }

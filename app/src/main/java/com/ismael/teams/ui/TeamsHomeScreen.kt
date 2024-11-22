@@ -13,6 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -118,7 +122,8 @@ fun TeamsBottomNavigationBar(
 @Composable
 fun TeamsTopAppBar(
     currentScreen: TeamsScreen,
-    modifier: Modifier = Modifier
+    onFilterClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ){
     TopAppBar(
         title = {
@@ -143,7 +148,7 @@ fun TeamsTopAppBar(
             )
         },
         actions = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = { onFilterClick() } ) {
                 Icon(
                     painter = painterResource(R.drawable.filter_list_24px),
                     contentDescription = "Localized description"
@@ -168,7 +173,11 @@ fun TeamsTopAppBar(
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview(){
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     TeamsTopAppBar(
-        currentScreen = TeamsScreen.ChatList
+        currentScreen = TeamsScreen.ChatList,
+        onFilterClick = TODO(),
+        modifier = TODO(),
     )
 }

@@ -7,6 +7,9 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -38,11 +41,13 @@ fun TeamsApp(
     val currentScreen = TeamsScreen.valueOf(
         backStackEntry?.destination?.route ?: TeamsScreen.ChatList.name
     )
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TeamsTopAppBar(
-                currentScreen = currentScreen
+                currentScreen = currentScreen,
+                onFilterClick = {showBottomSheet = true},
             )
         },
         bottomBar = {
@@ -67,6 +72,12 @@ fun TeamsApp(
                 ChatList(
                     postList = DataSource().loadChats()
                 )
+                if (showBottomSheet) {
+                    ChatFilterBottomSheet(
+                        isVisible = showBottomSheet,
+                        onDismiss = { showBottomSheet = false }
+                    )
+                }
             }
         }
         
