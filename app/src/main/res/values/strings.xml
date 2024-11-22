@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Teams</string>
+    <string name="user_name">Ismael Nunes</string>
+    <string name="last_message_chat_1">Hola que tal?</string>
+    <string name="chat">Chat</string>
+    <string name="activity">Activity</string>
+    <string name="teams">Teams</string>
+    <string name="calls">Calls</string>
+    <string name="calendar">Calendar</string>
+</resources>
