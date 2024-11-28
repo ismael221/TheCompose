@@ -19,17 +19,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
+import com.ismael.teams.ui.utils.TeamsScreen
 
-
-enum class TeamsScreen(
-    @StringRes val title: Int
-) {
-    ChatList(title = R.string.chat),
-    ActivityList(title = R.string.activity),
-    CalendarList(title = R.string.calendar),
-    CallList(title = R.string.calls),
-    TeamsList(title = R.string.teams)
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -53,6 +44,7 @@ fun TeamsApp(
         bottomBar = {
             TeamsBottomNavigationBar(
                 currentScreen = currentScreen,
+                navController = navController
             )
         },
         floatingActionButton = {
@@ -78,6 +70,18 @@ fun TeamsApp(
                         onDismiss = { showBottomSheet = false }
                     )
                 }
+            }
+            composable(route = TeamsScreen.ActivityList.name){
+                ActivityList()
+            }
+            composable(route = TeamsScreen.CalendarList.name){
+
+            }
+            composable(route = TeamsScreen.CallList.name){
+
+            }
+            composable(route = TeamsScreen.TeamsList.name){
+
             }
         }
         

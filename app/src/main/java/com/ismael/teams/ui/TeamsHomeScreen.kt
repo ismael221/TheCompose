@@ -16,6 +16,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,24 +26,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ismael.teams.R
+import com.ismael.teams.ui.utils.TeamsScreen
 
 
 @Composable
 fun TeamsBottomNavigationBar(
     modifier: Modifier = Modifier,
     currentScreen: TeamsScreen,
+    navController: NavController,
 ){
     NavigationBar(
         modifier = modifier
     ) {
         var selected = false
-        var itemCount by remember { mutableStateOf(5) }
+        var itemCount by remember { mutableIntStateOf(5) }
 
 
         NavigationBarItem(
-            selected = false,
-            onClick = {  },
+            selected = currentScreen == TeamsScreen.ActivityList,
+            onClick = { navController.navigate(TeamsScreen.ActivityList.name)  },
             icon = {
                 BadgedBox(
                     badge = {
@@ -59,7 +63,7 @@ fun TeamsBottomNavigationBar(
                     }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.notifications_24px),
+                        painter = if (currentScreen == TeamsScreen.ActivityList) painterResource(R.drawable.notifications_filled) else painterResource(R.drawable.notifications_24px),
                         contentDescription = null
                     )
                 }
@@ -70,7 +74,7 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.ChatList,
-            onClick = {  },
+            onClick = { navController.navigate(TeamsScreen.ChatList.name) },
             icon = {
                 Icon(
                     painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(R.drawable.chat_24px),
@@ -82,11 +86,11 @@ fun TeamsBottomNavigationBar(
             }
         )
         NavigationBarItem(
-            selected = false,
-            onClick = { selected = !selected },
+            selected = currentScreen == TeamsScreen.CalendarList,
+            onClick = { navController.navigate(TeamsScreen.CalendarList.name) },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.calendar_month_24px),
+                    painter = if (currentScreen == TeamsScreen.CalendarList) painterResource(R.drawable.calendar_month_filled) else painterResource(R.drawable.calendar_month_24px),
                     contentDescription = null
                 )
             },
@@ -95,11 +99,11 @@ fun TeamsBottomNavigationBar(
             }
         )
         NavigationBarItem(
-            selected = false,
-            onClick = {  },
+            selected = currentScreen == TeamsScreen.TeamsList,
+            onClick = { navController.navigate(TeamsScreen.TeamsList.name) },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.groups_24px),
+                    painter = if (currentScreen == TeamsScreen.TeamsList) painterResource(R.drawable.groups_filled) else painterResource(R.drawable.groups_24px),
                     contentDescription = null
                 )
             },
@@ -108,11 +112,11 @@ fun TeamsBottomNavigationBar(
             }
         )
         NavigationBarItem(
-            selected = false,
-            onClick = {  },
+            selected = currentScreen == TeamsScreen.CallList,
+            onClick = { navController.navigate(TeamsScreen.CallList.name) },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.call_24px),
+                    painter =if (currentScreen == TeamsScreen.CallList) painterResource(R.drawable.call_filled_24px) else painterResource(R.drawable.call_24px),
                     contentDescription = null
                 )
             },
@@ -193,11 +197,5 @@ fun TeamsTopAppBar(
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview(){
-    var showBottomSheet by remember { mutableStateOf(false) }
 
-    TeamsTopAppBar(
-        currentScreen = TeamsScreen.ChatList,
-        onFilterClick = TODO(),
-        modifier = TODO(),
-    )
 }
