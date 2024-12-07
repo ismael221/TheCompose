@@ -332,12 +332,16 @@ fun ChatFilterBottomSheet(
         }
 
 }
+
+@Composable
+fun ChatBubble(
+    modifier: Modifier = Modifier
+){
+
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun TeamsChatScreenPreview(){
-    ChatFilterBottomSheet(
-        true,
-        onDismiss = TODO(),
-        modifier = TODO()
-    )
+    ChatBubble()
 }

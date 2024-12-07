@@ -2,6 +2,8 @@ package com.ismael.teams.ui
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Scaffold

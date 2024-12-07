@@ -12,10 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.compose.TeamsTheme
 import com.ismael.teams.data.DataSource
 import com.ismael.teams.ui.ChatList
 import com.ismael.teams.ui.TeamsApp
-import com.ismael.teams.ui.theme.TeamsTheme
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
