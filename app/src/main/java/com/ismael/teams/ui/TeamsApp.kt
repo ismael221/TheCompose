@@ -56,28 +56,21 @@ fun TeamsApp(
             .nestedScroll(secondaryAppBarScrollBehavior.nestedScrollConnection),
 
         topBar = {
+        Column {
             TeamsTopAppBar(
                 currentScreen = currentScreen,
                 onFilterClick = { showBottomSheet = true },
                 scrollBehavior = topAppBarScrollBehavior,
-                )
-            Spacer(
-                modifier.height(900.dp)
             )
+
             if (currentScreen == TeamsScreen.ActivityList) {
-                Column {
-                    TeamsTopAppBar(
-                        currentScreen = currentScreen,
-                        onFilterClick = { showBottomSheet = true },
-                        scrollBehavior = topAppBarScrollBehavior,
-                    )
-                    FiltersTopAppBar(
-                        onFilterClick = { showBottomSheet = true },
-                        currentScreen = currentScreen,
-                        scrollBehavior = secondaryAppBarScrollBehavior
-                    )
-                }
+                FiltersTopAppBar(
+                    onFilterClick = { showBottomSheet = true },
+                    currentScreen = currentScreen,
+                    scrollBehavior = secondaryAppBarScrollBehavior
+                )
             }
+        }
         },
         bottomBar = {
             TeamsBottomNavigationBar(

@@ -243,8 +243,7 @@ fun FiltersTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     modifier: Modifier = Modifier,
 ) {
-
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = {
             Text(
                 modifier = Modifier
