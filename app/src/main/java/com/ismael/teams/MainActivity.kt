@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+       // enableEdgeToEdge()
         setContent {
             TeamsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

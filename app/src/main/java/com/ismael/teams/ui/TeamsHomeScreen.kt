@@ -1,19 +1,31 @@
 package com.ismael.teams.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -22,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -149,53 +162,145 @@ fun TeamsTopAppBar(
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier,
 ){
-    TopAppBar(
-        title = {
-            Text(
-                modifier = Modifier
-                    .padding(8.dp),
-                text = stringResource(currentScreen.title)
+    Column(
+        modifier = Modifier
+    ) {
+        TopAppBar(
+            title = {
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    text = stringResource(currentScreen.title)
 
-            )
-        },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        modifier = modifier,
-        navigationIcon = {
+                )
+            },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+            modifier = modifier,
+            navigationIcon = {
 
-            UserIcon(
-                painter = painterResource(R.drawable.perfil),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 8.dp)
+                UserIcon(
+                    painter = painterResource(R.drawable.perfil),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                )
+            },
+            actions = {
+                if (currentScreen == TeamsScreen.ChatList){
+                    IconButton(onClick = { onFilterClick() } ) {
+                        Icon(
+                            painter = painterResource(R.drawable.filter_list_24px),
+                            contentDescription = "Localized description"
+                        )
+                    }
+                }
+                if (currentScreen == TeamsScreen.CallList){
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            painter = painterResource(R.drawable.voicemail_24px),
+                            contentDescription = "Localized description"
+                        )
+                    }
+
+                }
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Localized description"
+                    )
+                }
+                if (currentScreen != TeamsScreen.CallList){
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            painter = painterResource(R.drawable.more_vert_24px),
+                            contentDescription = "Localized description"
+                        )
+                    }
+                }
+
+            },
+        )
+        if (currentScreen == TeamsScreen.ActivityList){
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            TopAppBar(
+                title = {
+                    Text(
+                        modifier = Modifier
+                            .padding(8.dp),
+                        text = stringResource(R.string.unread_only),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                navigationIcon = {
+                    var checked by remember { mutableStateOf(false) }
+
+                    FilterSwitch(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                        scale = 0.8f,
+                    )
+
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                actions = {
+                    ElevatedButton(
+                        onClick = { /* do something */ },
+                        modifier = Modifier
+                            .height(35.dp)
+                            .width(130.dp)
+                            .padding(top = 2.dp, end = 4.dp)
+                    ) {
+
+                            Icon(
+                                painter = painterResource(R.drawable.filter_list_24px),
+                                contentDescription = "Localized description"
+                            )
+                            Text(
+                                text = "Filters",
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                            )
+
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
-        },
-        actions = {
-            IconButton(onClick = { onFilterClick() } ) {
-                Icon(
-                    painter = painterResource(R.drawable.filter_list_24px),
-                    contentDescription = "Localized description"
-                )
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Localized description"
-                )
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    painter = painterResource(R.drawable.more_vert_24px),
-                    contentDescription = "Localized description"
-                )
-            }
-        },
-    )
+        }
+    }
+}
+
+@Composable
+fun FilterSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    scale: Float,
+    modifier: Modifier = Modifier
+){
+    Box(
+        modifier = Modifier
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale
+            )
+    ){
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.size(40.dp)
+                .padding(start = 8.dp)
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview(){
-
+    TeamsTopAppBar(
+        currentScreen = TeamsScreen.ActivityList,
+        onFilterClick = {}
+    )
 }

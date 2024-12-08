@@ -8,4 +8,5 @@
     <string name="calls">Calls</string>
     <string name="calendar">Calendar</string>
     <string name="type_message">Type a message</string>
+    <string name="unread_only">Unread Only</string>
 </resources>
