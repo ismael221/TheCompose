@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 fun ChatList(
     postList: List<ChatPreview>,
     modifier: Modifier = Modifier
-){
+) {
     LazyColumn {
         item {
             Spacer(
@@ -71,7 +71,7 @@ fun ChatList(
         }
         items(
             items = postList,
-            key = {it.key}
+            key = { it.key }
         ) { post ->
             ChatCard(
                 chatPreview = post,
@@ -97,7 +97,7 @@ fun ChatList(
 fun ChatCard(
     chatPreview: ChatPreview,
     modifier: Modifier = Modifier,
-){
+) {
     Row(
         modifier = modifier
             .combinedClickable(
@@ -113,7 +113,8 @@ fun ChatCard(
             modifier = Modifier
                 .padding(8.dp),
             painter = painterResource(chatPreview.userImage),
-            contentDescription = null
+            contentDescription = null,
+            onclick = {}
         )
         Column(
             modifier = Modifier
@@ -153,7 +154,8 @@ fun NewChatFloatingActionButton(
         containerColor = containerColor,
         elevation = elevation,
 
-    ) {
+        ) {
+
         Icon(
             painter = painterResource(R.drawable.edit_square_24px),
             contentDescription = null
@@ -165,26 +167,30 @@ fun NewChatFloatingActionButton(
 fun UserIcon(
     modifier: Modifier = Modifier,
     painter: Painter,
-    contentDescription: String?
-){
-  Box(
-      modifier = modifier
-  ){
-    Image(
-        painter = painter,
-        contentDescription = contentDescription,
-        modifier = Modifier
-            .size(40.dp)
-            .clip(MaterialTheme.shapes.extraLarge),
-        contentScale = ContentScale.Crop
-    )
-  }
+    contentDescription: String?,
+    onclick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = contentDescription,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .clickable {
+                    onclick()
+                },
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
 fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
-){
+) {
     Row(
         modifier = modifier
             .padding(8.dp),
@@ -251,97 +257,105 @@ fun ChatFilterBottomSheet(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     val sheetState = rememberModalBottomSheetState()
 
     if (isVisible) {
-            ModalBottomSheet(
-                onDismissRequest = { onDismiss() },
-                sheetState = sheetState
+        ModalBottomSheet(
+            onDismissRequest = { onDismiss() },
+            sheetState = sheetState,
+        ) {
+            Column(
+                modifier = modifier
             ) {
-                Column(
-                    modifier = modifier
+                Row(
+                    modifier = Modifier
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = {}
+                        )
+                        .fillMaxWidth(),
                 ) {
-                    Row(
+                    Icon(
+                        painter = painterResource(R.drawable.mark_chat_unread_24px),
+                        contentDescription = null,
                         modifier = Modifier
-                            .combinedClickable(
-                                onClick = {},
-                                onLongClick = {}
-                            )
-                            .fillMaxWidth(),
-                        ){
-                        Icon(
-                            painter = painterResource(R.drawable.mark_chat_unread_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(4.dp)
-                        )
-                        Text(
-                            text = "Unread",
-                            modifier = Modifier
+                            .size(40.dp)
+                            .padding(4.dp)
+                    )
+                    Text(
+                        text = "Unread",
+                        modifier = Modifier
                             .padding(8.dp)
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .combinedClickable(
-                                onClick = {},
-                                onLongClick = {}
-                            )
-                            .fillMaxWidth(),
-
-                    ){
-                        Icon(
-                            painter = painterResource(R.drawable.meeting_room_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(4.dp)
-                        )
-                        Text(
-                            text = "Meeting",
-                            modifier = Modifier
-                                .padding(8.dp)
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .combinedClickable(
-                                onClick = {},
-                                onLongClick = {}
-                            )
-                            .fillMaxWidth(),
-
-                        ){
-                        Icon(
-                            painter = painterResource(R.drawable.volume_off_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(4.dp)
-                        )
-                        Text(
-                            text = "Muted",
-                            modifier = Modifier
-                                .padding(8.dp)
-                        )
-                    }
+                    )
                 }
+                Row(
+                    modifier = Modifier
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = {}
+                        )
+                        .fillMaxWidth(),
+
+                    ) {
+                    Icon(
+                        painter = painterResource(R.drawable.meeting_room_24px),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(4.dp)
+                    )
+                    Text(
+                        text = "Meeting",
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = {}
+                        )
+                        .fillMaxWidth(),
+
+                    ) {
+                    Icon(
+                        painter = painterResource(R.drawable.volume_off_24px),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(4.dp)
+                    )
+                    Text(
+                        text = "Muted",
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                }
+                Spacer(
+                    modifier = Modifier
+                        .height(60.dp)
+                )
             }
         }
+    }
 
 }
 
 @Composable
 fun ChatBubble(
     modifier: Modifier = Modifier
-){
+) {
 
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun TeamsChatScreenPreview(){
-    ChatBubble()
+private fun TeamsChatScreenPreview() {
+    UserIcon(
+        painter = painterResource(R.drawable.perfil),
+        contentDescription = null,
+        onclick = {}
+    )
 }

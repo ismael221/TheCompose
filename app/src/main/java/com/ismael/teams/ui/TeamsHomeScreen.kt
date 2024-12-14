@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.Typography
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +43,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
 import com.ismael.teams.ui.utils.TeamsScreen
 
@@ -86,7 +89,10 @@ fun TeamsBottomNavigationBar(
                 }
             },
             label = {
-                Text(text = "Activity")
+                Text(
+                    text = "Activity",
+                    style = AppTypography.bodySmall
+                )
             }
         )
         NavigationBarItem(
@@ -101,7 +107,10 @@ fun TeamsBottomNavigationBar(
                 )
             },
             label = {
-                Text(text = "Chat")
+                Text(
+                    text = "Chat",
+                    style = AppTypography.bodySmall
+                )
             }
         )
         NavigationBarItem(
@@ -116,7 +125,10 @@ fun TeamsBottomNavigationBar(
                 )
             },
             label = {
-                Text(text = "Calendar")
+                Text(
+                    text = "Calendar",
+                    style = AppTypography.bodySmall
+                )
             }
         )
         NavigationBarItem(
@@ -131,7 +143,10 @@ fun TeamsBottomNavigationBar(
                 )
             },
             label = {
-                Text(text = "Teams")
+                Text(
+                    text = "Teams",
+                    style = AppTypography.bodySmall
+                )
             }
         )
         NavigationBarItem(
@@ -146,7 +161,10 @@ fun TeamsBottomNavigationBar(
                 )
             },
             label = {
-                Text(text = "Calls")
+                Text(
+                    text = "Calls",
+                    style = AppTypography.bodySmall
+                )
             }
         )
         NavigationBarItem(
@@ -159,7 +177,10 @@ fun TeamsBottomNavigationBar(
                 )
             },
             label = {
-                Text(text = "More")
+                Text(
+                    text = "More",
+                    style = AppTypography.bodySmall
+                )
             }
         )
 
@@ -173,6 +194,7 @@ fun TeamsTopAppBar(
     currentScreen: TeamsScreen,
     onFilterClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    onUserIconClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
@@ -193,6 +215,7 @@ fun TeamsTopAppBar(
             UserIcon(
                 painter = painterResource(R.drawable.perfil),
                 contentDescription = null,
+                onclick = {onUserIconClick()},
                 modifier = Modifier
                     .padding(start = 8.dp)
             )
@@ -319,8 +342,8 @@ fun FilterSwitch(
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview() {
-    TeamsTopAppBar(
-        currentScreen = TeamsScreen.ActivityList,
-        onFilterClick = {}
+    TeamsBottomNavigationBar(
+        currentScreen = TeamsScreen.ChatList,
+        navController = rememberNavController()
     )
 }
