@@ -74,21 +74,42 @@ fun TeamsApp(
 
         Scaffold(
             modifier = Modifier
-                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+                .nestedScroll(secondaryAppBarScrollBehavior.nestedScrollConnection),
 
             topBar = {
-                TeamsTopAppBar(
-                    currentScreen = currentScreen,
-                    onFilterClick = { showBottomSheet = true },
-                    scrollBehavior = topAppBarScrollBehavior,
-                    onUserIconClick = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) open() else close()
+                val currentRoute = getCurrentRoute(navController)
+
+                Column {
+                    TeamsTopAppBar(
+                        currentScreen = currentScreen,
+                        onFilterClick = { showBottomSheet = true },
+                        scrollBehavior = topAppBarScrollBehavior,
+                        onUserIconClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
                             }
                         }
+                    )
+
+                    if(currentRoute=="ActivityList"){
+                        TopActivityTopAppBar(
+                            currentScreen = currentScreen,
+                            onFilterClick = { showBottomSheet = true },
+                            scrollBehavior = secondaryAppBarScrollBehavior,
+                            onUserIconClick = {
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
+                                    }
+                                }
+                            }
+                        )
                     }
-                )
+                }
+
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
