@@ -258,61 +258,6 @@ fun TeamsTopAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FiltersTopAppBar(
-    onFilterClick: () -> Unit,
-    currentScreen: TeamsScreen,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = {
-            Text(
-                modifier = Modifier
-                    .padding(8.dp),
-                text = stringResource(R.string.unread_only),
-                style = MaterialTheme.typography.bodySmall
-            )
-        },
-        navigationIcon = {
-            var checked by remember { mutableStateOf(false) }
-
-            FilterSwitch(
-                checked = checked,
-                onCheckedChange = { checked = it },
-                scale = 0.8f,
-            )
-
-        },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        actions = {
-            ElevatedButton(
-                onClick = { /* do something */ },
-                modifier = Modifier
-                    .height(35.dp)
-                    .width(130.dp)
-                    .padding(top = 2.dp, end = 4.dp)
-            ) {
-
-                Icon(
-                    painter = painterResource(R.drawable.filter_list_24px),
-                    contentDescription = "Localized description"
-                )
-                Text(
-                    text = "Filters",
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                )
-
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
-
-}
 
 @Composable
 fun FilterSwitch(

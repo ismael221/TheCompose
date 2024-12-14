@@ -66,7 +66,7 @@ fun ChatList(
     LazyColumn {
         item {
             Spacer(
-                modifier.height(90.dp)
+                modifier.height(60.dp)
             )
         }
         items(
@@ -155,7 +155,6 @@ fun NewChatFloatingActionButton(
         elevation = elevation,
 
         ) {
-
         Icon(
             painter = painterResource(R.drawable.edit_square_24px),
             contentDescription = null
@@ -353,9 +352,5 @@ fun ChatBubble(
 @Preview(showBackground = true)
 @Composable
 private fun TeamsChatScreenPreview() {
-    UserIcon(
-        painter = painterResource(R.drawable.perfil),
-        contentDescription = null,
-        onclick = {}
-    )
+    ChatList(DataSource().loadChats())
 }

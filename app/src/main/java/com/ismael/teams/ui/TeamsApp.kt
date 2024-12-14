@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -73,32 +74,21 @@ fun TeamsApp(
 
         Scaffold(
             modifier = Modifier
-                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-                .nestedScroll(secondaryAppBarScrollBehavior.nestedScrollConnection),
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
 
             topBar = {
-                Column {
-                    TeamsTopAppBar(
-                        currentScreen = currentScreen,
-                        onFilterClick = { showBottomSheet = true },
-                        scrollBehavior = topAppBarScrollBehavior,
-                        onUserIconClick = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
-                                }
+                TeamsTopAppBar(
+                    currentScreen = currentScreen,
+                    onFilterClick = { showBottomSheet = true },
+                    scrollBehavior = topAppBarScrollBehavior,
+                    onUserIconClick = {
+                        scope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
                             }
                         }
-                    )
-
-                    if (currentScreen == TeamsScreen.ActivityList) {
-                        FiltersTopAppBar(
-                            onFilterClick = { showBottomSheet = true },
-                            currentScreen = currentScreen,
-                            scrollBehavior = secondaryAppBarScrollBehavior
-                        )
                     }
-                }
+                )
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
@@ -107,11 +97,25 @@ fun TeamsApp(
                 )
             },
             floatingActionButton = {
-                NewChatFloatingActionButton(
-                    onclick = {},
-                    containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                )
+                val currentRoute = getCurrentRoute(navController)
+
+                when(currentRoute){
+                    "ChatList" ->  NewChatFloatingActionButton(
+                        onclick = {},
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                    )
+                    "CalendarList" -> NewCalendarEventActionButton(
+                        onclick = {},
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                    )
+                    "CallList" -> NewCallActionButton(
+                        onclick = {},
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                    )
+                }
             },
         ) {
 
@@ -148,6 +152,11 @@ fun TeamsApp(
     }
 }
 
+@Composable
+fun getCurrentRoute(navController: NavController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
+}
 
 @Composable
 @Preview(showBackground = true)
