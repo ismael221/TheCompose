@@ -10,5 +10,6 @@ enum class TeamsScreen(
     ActivityList(title = R.string.activity),
     CalendarList(title = R.string.calendar),
     CallList(title = R.string.calls),
-    TeamsList(title = R.string.teams)
+    TeamsList(title = R.string.teams),
+    SearchBarList(title = R.string.search)
 }

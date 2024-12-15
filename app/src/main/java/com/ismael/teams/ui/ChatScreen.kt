@@ -22,9 +22,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,10 +35,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,9 +59,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
 import com.ismael.teams.model.ChatPreview
+import com.ismael.teams.ui.utils.TeamsScreen
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -349,8 +361,85 @@ fun ChatBubble(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun ChatScreen(
+    navController: NavController,
+    scope: CoroutineScope = rememberCoroutineScope(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    modifier: Modifier = Modifier
+) {
+
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            SideNavBarItems()
+        }
+    ) {
+        var showBottomSheet by remember { mutableStateOf(false) }
+
+        Scaffold(
+            topBar = {
+                TeamsTopAppBar(
+                    currentScreen = TeamsScreen.ChatList,
+                    onFilterClick = { showBottomSheet = true },
+                    scrollBehavior = topAppBarScrollBehavior,
+                    onSearchBarClick = {
+                        navController.navigate(TeamsScreen.SearchBarList.name)
+                    },
+                    onUserIconClick = {
+                        scope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
+                        }
+                    }
+
+                )
+            },
+            bottomBar = {
+                TeamsBottomNavigationBar(
+                    currentScreen = TeamsScreen.ChatList,
+                    navController = navController
+                )
+            },
+            floatingActionButton = {
+                NewChatFloatingActionButton(
+                    onclick = { },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                )
+            },
+
+            modifier = modifier
+
+        ) {
+            ChatList(
+                postList = DataSource().loadChats()
+            )
+            if (showBottomSheet) {
+                ChatFilterBottomSheet(
+                    isVisible = showBottomSheet,
+                    onDismiss = { showBottomSheet = false }
+                )
+            }
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun TeamsChatScreenPreview() {
-    ChatList(DataSource().loadChats())
+    val navController: NavHostController = rememberNavController()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ChatScreen(
+        navController = navController,
+        scope = scope
+    )
 }

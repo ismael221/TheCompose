@@ -195,8 +195,11 @@ fun TeamsTopAppBar(
     onFilterClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onUserIconClick: () -> Unit,
+    onSearchBarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showSearch by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Text(
@@ -215,7 +218,7 @@ fun TeamsTopAppBar(
             UserIcon(
                 painter = painterResource(R.drawable.perfil),
                 contentDescription = null,
-                onclick = {onUserIconClick()},
+                onclick = { onUserIconClick() },
                 modifier = Modifier
                     .padding(start = 8.dp)
             )
@@ -238,7 +241,9 @@ fun TeamsTopAppBar(
                 }
 
             }
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(
+                onClick = { onSearchBarClick() }
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = "Localized description"
