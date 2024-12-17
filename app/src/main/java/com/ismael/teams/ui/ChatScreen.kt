@@ -271,6 +271,7 @@ fun ChatFilterBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState()
 
+
     if (isVisible) {
         ModalBottomSheet(
             onDismissRequest = { onDismiss() },
@@ -352,7 +353,7 @@ fun ChatFilterBottomSheet(
         }
     }
 
-}
+}   
 
 @Composable
 fun ChatBubble(

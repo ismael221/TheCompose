@@ -11,5 +11,6 @@ enum class TeamsScreen(
     CalendarList(title = R.string.calendar),
     CallList(title = R.string.calls),
     TeamsList(title = R.string.teams),
-    SearchBarList(title = R.string.search)
+    SearchBarList(title = R.string.search),
+    More(title = R.string.more)
 }

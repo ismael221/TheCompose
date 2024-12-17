@@ -168,8 +168,8 @@ fun TeamsBottomNavigationBar(
             }
         )
         NavigationBarItem(
-            selected = false,
-            onClick = { },
+            selected = currentScreen == TeamsScreen.More,
+            onClick = { navController.navigate(TeamsScreen.More.name) },
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.more_horiz_24px),

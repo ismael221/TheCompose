@@ -24,6 +24,7 @@ import com.ismael.teams.ui.ActivityScreen
 import com.ismael.teams.ui.CalendarScreen
 import com.ismael.teams.ui.CallScreen
 import com.ismael.teams.ui.ChatScreen
+import com.ismael.teams.ui.MoreScreen
 import com.ismael.teams.ui.SearchScreen
 import com.ismael.teams.ui.TeamsScreen
 import com.ismael.teams.ui.utils.TeamsScreen
@@ -46,9 +47,7 @@ fun TheComposeApp(
     val currentScreen = TeamsScreen.valueOf(
         backStackEntry?.destination?.route ?: TeamsScreen.ChatList.name
     )
-    var showBottomSheet by remember { mutableStateOf(false) }
 
-    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     //Todo Create diffrent TopBars for Each Screen
 
@@ -91,8 +90,17 @@ fun TheComposeApp(
                 scope = scope
             )
         }
+        composable(route = TeamsScreen.More.name) {
+            MoreScreen(
+                isVisible = true,
+                onDismiss = { },
+                navController = navController
+            )
+        }
         composable(route = TeamsScreen.SearchBarList.name) {
-            SearchScreen()
+            SearchScreen(
+                navController = navController,
+            )
         }
     }
 

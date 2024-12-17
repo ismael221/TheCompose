@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 
 
@@ -71,6 +73,7 @@ fun SearchInputArea(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTopAppbar(
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -78,7 +81,7 @@ fun SearchTopAppbar(
             SearchInputArea()
         },
         navigationIcon = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = { navController.navigateUp() }) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Localized description"
@@ -100,11 +103,14 @@ fun SearchTopAppbar(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
-            SearchTopAppbar()
+            SearchTopAppbar(
+                navController = navController
+            )
         },
         content = {
 
@@ -119,5 +125,5 @@ fun SearchScreen(
 @Composable
 @Preview(showBackground = true)
 fun SearchTopAppbarPreview() {
-    SearchTopAppbar()
+   // SearchTopAppbar()
 }
