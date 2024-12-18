@@ -372,6 +372,8 @@ fun ChatScreen(
     modifier: Modifier = Modifier
 ) {
 
+    var expanded by remember { mutableStateOf(false) }
+
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     ModalNavigationDrawer(
@@ -397,6 +399,9 @@ fun ChatScreen(
                                 if (isClosed) open() else close()
                             }
                         }
+                    },
+                    onDropdownMenuClick = {
+                        expanded = !expanded
                     }
 
                 )
@@ -427,6 +432,12 @@ fun ChatScreen(
                     onDismiss = { showBottomSheet = false }
                 )
             }
+
+            TopBarDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = !expanded },
+                currentScreen = TeamsScreen.ChatList,
+            )
         }
     }
 

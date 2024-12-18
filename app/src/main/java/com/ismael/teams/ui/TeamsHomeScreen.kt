@@ -4,15 +4,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +39,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -196,9 +201,11 @@ fun TeamsTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onUserIconClick: () -> Unit,
     onSearchBarClick: () -> Unit,
+    onDropdownMenuClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showSearch by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         title = {
@@ -241,6 +248,16 @@ fun TeamsTopAppBar(
                 }
 
             }
+            if (currentScreen == TeamsScreen.CalendarList) {
+                IconButton(
+                    onClick = { }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.videocam_24px),
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
             IconButton(
                 onClick = { onSearchBarClick() }
             ) {
@@ -249,8 +266,8 @@ fun TeamsTopAppBar(
                     contentDescription = "Localized description"
                 )
             }
-            if (currentScreen != TeamsScreen.CallList) {
-                IconButton(onClick = { /* do something */ }) {
+            if (currentScreen != TeamsScreen.CallList && currentScreen != TeamsScreen.CalendarList) {
+                IconButton(onClick = { onDropdownMenuClick() }) {
                     Icon(
                         painter = painterResource(R.drawable.more_vert_24px),
                         contentDescription = "Localized description"
@@ -288,12 +305,54 @@ fun FilterSwitch(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    currentScreen: TeamsScreen,
+    modifier: Modifier = Modifier
+) {
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd)
+            .padding(8.dp)
+
+    ) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onDismissRequest() }
+        ) {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.eyeglasses_24px),
+                        contentDescription = null
+                    )
+                },
+                text = { Text("Mark all as read") },
+                onClick = {}
+            )
+            if (currentScreen == TeamsScreen.ActivityList) {
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.swipe_right_alt_24px),
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("Swipe options") },
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview() {
-    TeamsBottomNavigationBar(
-        currentScreen = TeamsScreen.ChatList,
-        navController = rememberNavController()
-    )
+
 }

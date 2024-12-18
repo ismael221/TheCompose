@@ -11,4 +11,10 @@
     <string name="unread_only">Unread Only</string>
     <string name="search">SearchBar</string>
     <string name="more">More</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_description">Off</string>
+    <string name="settings">Settings</string>
+    <string name="addAccount">Add account</string>
+    <string name="statusMessage">Working hours: 10pm to 7am Brazil time</string>
+    <string name="showInChat">Show in chat</string>
 </resources>

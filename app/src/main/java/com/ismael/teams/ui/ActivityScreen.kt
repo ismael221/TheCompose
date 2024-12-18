@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -180,6 +181,8 @@ fun ActivityScreen(
     val secondaryAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
+    var expanded by remember { mutableStateOf(false) }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -200,6 +203,9 @@ fun ActivityScreen(
                         scrollBehavior = topAppBarScrollBehavior,
                         onSearchBarClick = {
                             navController.navigate(TeamsScreen.SearchBarList.name)
+                        },
+                        onDropdownMenuClick = {
+                            expanded = !expanded
                         },
                         onUserIconClick = {
                             scope.launch {
@@ -224,6 +230,13 @@ fun ActivityScreen(
             }
         ) {
             ActivityList()
+
+            TopBarDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = !expanded },
+                currentScreen = TeamsScreen.ActivityList,
+            )
+
         }
     }
 }
