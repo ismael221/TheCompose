@@ -78,10 +78,10 @@ fun ChatList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.SpaceEvenly,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
+
     ) {
         item {
             Spacer(
@@ -118,6 +118,8 @@ fun ChatCard(
     modifier: Modifier = Modifier,
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .combinedClickable(
                 onClick = {},
@@ -125,29 +127,42 @@ fun ChatCard(
             )
             .fillMaxWidth()
             .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = ".",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF945EF6),
-            fontSize = 35.sp,
+
+        ) {
+
+        Row(
             modifier = Modifier
-                .align(Alignment.Top)
-                .padding(bottom = 8.dp)
-        )
-        UserIcon(
-            modifier = Modifier
-                .padding(end = 8.dp),
-            painter = painterResource(chatPreview.userImage),
-            contentDescription = null,
-            onclick = {}
-        )
+        ) {
+            if (chatPreview.isUnread) {
+
+                Text(
+                    text = ".",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF945EF6),
+                    fontSize = 30.sp,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                )
+
+            } else {
+                Spacer(
+                    modifier = Modifier
+                        .width(8.dp)
+                )
+            }
+            UserIcon(
+                modifier = Modifier,
+                painter = painterResource(chatPreview.userImage),
+                contentDescription = null,
+                onclick = {}
+            )
+
+        }
+
         Column(
             modifier = Modifier
-                .padding(end =  24.dp)
+                .padding(end = 24.dp)
         ) {
             Text(
                 text = stringResource(chatPreview.username),
@@ -370,7 +385,7 @@ fun ChatFilterBottomSheet(
         }
     }
 
-}   
+}
 
 @Composable
 fun ChatBubble(
