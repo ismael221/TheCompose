@@ -17,4 +17,5 @@
     <string name="addAccount">Add account</string>
     <string name="statusMessage">Working hours: 10pm to 7am Brazil time</string>
     <string name="showInChat">Show in chat</string>
+    <string name="ChatWithUser">ChatWithUser</string>
 </resources>

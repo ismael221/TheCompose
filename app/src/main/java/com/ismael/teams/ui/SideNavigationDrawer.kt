@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ui.theme.AppTypography
@@ -39,7 +40,10 @@ fun SideNavBarItems(
         )
         NavigationDrawerItem(
             label = {
-                UserNameAndCompany()
+                UserDetails(
+                    userName = "Ismael Nunes Campos - External",
+                    secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA"
+                )
             },
             selected = false,
             onClick = {}
@@ -93,7 +97,9 @@ fun SideNavBarItems(
 }
 
 @Composable
-fun UserNameAndCompany(
+fun UserDetails(
+    userName: String,
+    secondaryText: String,
     modifier: Modifier = Modifier
 ){
     Row(
@@ -111,12 +117,14 @@ fun UserNameAndCompany(
                 .padding(start = 8.dp)
         ) {
             Text(
-                text = "Ismael Nunes Campos - External",
+                text = userName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold,
                 style = AppTypography.bodyLarge
             )
             Text(
-                text = "NUNES EQUIPAMENTOS ELETRICOS LTDA",
+                text = secondaryText,
                 style = AppTypography.labelSmall,
                 fontWeight = FontWeight.Thin
             )

@@ -217,7 +217,7 @@ fun TeamsTopAppBar(
             )
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         ),
         modifier = modifier,
         navigationIcon = {

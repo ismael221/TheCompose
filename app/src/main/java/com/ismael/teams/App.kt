@@ -24,6 +24,7 @@ import com.ismael.teams.ui.ActivityScreen
 import com.ismael.teams.ui.CalendarScreen
 import com.ismael.teams.ui.CallScreen
 import com.ismael.teams.ui.ChatScreen
+import com.ismael.teams.ui.ChatWithUser
 import com.ismael.teams.ui.MoreScreen
 import com.ismael.teams.ui.SearchScreen
 import com.ismael.teams.ui.TeamsScreen
@@ -100,6 +101,11 @@ fun TheComposeApp(
         composable(route = TeamsScreen.SearchBarList.name) {
             SearchScreen(
                 navController = navController,
+            )
+        }
+        composable(route = TeamsScreen.ChatWithUser.name) {
+            ChatWithUser(
+                navController = navController
             )
         }
     }

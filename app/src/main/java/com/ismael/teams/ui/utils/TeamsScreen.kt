@@ -12,5 +12,6 @@ enum class TeamsScreen(
     CallList(title = R.string.calls),
     TeamsList(title = R.string.teams),
     SearchBarList(title = R.string.search),
-    More(title = R.string.more)
+    More(title = R.string.more),
+    ChatWithUser(title = R.string.ChatWithUser)
 }
