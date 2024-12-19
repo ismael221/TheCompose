@@ -57,8 +57,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -75,7 +77,12 @@ fun ChatList(
     postList: List<ChatPreview>,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn {
+    LazyColumn(
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
+    ) {
         item {
             Spacer(
                 modifier.height(60.dp)
@@ -91,9 +98,9 @@ fun ChatList(
             )
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(start = 64.dp, end = 0.dp)
+                    .padding(start = 70.dp, end = 0.dp)
                     .fillMaxWidth(),
-                thickness = 1.dp
+                thickness = 0.8.dp
             )
         }
         item {
@@ -117,20 +124,30 @@ fun ChatCard(
                 onLongClick = {}
             )
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        Text(
+            text = ".",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF945EF6),
+            fontSize = 35.sp,
+            modifier = Modifier
+                .align(Alignment.Top)
+                .padding(bottom = 8.dp)
+        )
         UserIcon(
             modifier = Modifier
-                .padding(8.dp),
+                .padding(end = 8.dp),
             painter = painterResource(chatPreview.userImage),
             contentDescription = null,
             onclick = {}
         )
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(end =  24.dp)
         ) {
             Text(
                 text = stringResource(chatPreview.username),
