@@ -43,6 +43,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -247,67 +248,97 @@ fun UserIcon(
 fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .padding(2.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        IconButton(
-            colors = IconButtonColors(
-                contentColor = Color.White,
-                containerColor = Color(0xFF7D4DD2),
-                disabledContainerColor = Color(0xFF7D4DD2),
-                disabledContentColor = Color(0xFF7D4DD2)
-            ),
-            modifier = Modifier
-                .size(35.dp)
-                .padding(end = 2.dp, start = 2.dp),
-            onClick = { /*TODO*/ }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null
-            )
-        }
-        OutlinedTextField(
-            value = "",
-            shape =  MaterialTheme.shapes.large,
-            onValueChange = {},
-            label = {
-                Text(
-                    text = stringResource(R.string.type_message),
-                )
-            },
-            trailingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.mood_24px),
-                    contentDescription = null,
+    var content by remember { mutableStateOf("") }
+
+    NavigationBar(
+        content = {
+            Row(
+                modifier = modifier
+                    .padding(2.dp)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(
+                    colors = IconButtonColors(
+                        contentColor = Color.White,
+                        containerColor = Color(0xFF7D4DD2),
+                        disabledContainerColor = Color(0xFF7D4DD2),
+                        disabledContentColor = Color(0xFF7D4DD2)
+                    ),
                     modifier = Modifier
-                        .size(40.dp)
+                        .padding(start = 8.dp, end = 8.dp)
+                        .size(25.dp)
+                    ,
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier
+                    )
+                }
+                OutlinedTextField(
+                    value = content,
+                    shape =  MaterialTheme.shapes.large,
+                    onValueChange = { content = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.type_message),
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.mood_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .wrapContentSize()
+                        .weight(1f)
                 )
-            },
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp)
-                .padding(bottom = 8.dp),
-        )
-        Icon(
-            painter = painterResource(R.drawable.photo_camera_24px),
-            contentDescription = null,
-            modifier = Modifier
-                .padding( start = 2.dp)
-                .size(30.dp)
-        )
-        Icon(
-            painter = painterResource(R.drawable.mic_24px),
-            contentDescription = null,
-            modifier = Modifier
-                .padding( end = 2.dp)
-                .size(30.dp)
-        )
-    }
+                if (content == ""){
+                   IconButton(
+                       onClick = {}
+                   ) {
+                       Icon(
+                           painter = painterResource(R.drawable.photo_camera_24px),
+                           contentDescription = null,
+                           modifier = Modifier
+                               .padding( start = 2.dp)
+                               .size(30.dp)
+                       )
+                   }
+                    IconButton(
+                        onClick ={}
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.mic_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding( end = 2.dp)
+                                .size(30.dp)
+                        )
+                    }
+
+                }else{
+                    IconButton(
+                        onClick ={}
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.send_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding( end = 2.dp)
+                                .size(30.dp)
+                        )
+                    }
+                }
+            }
+        }
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
