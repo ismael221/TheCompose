@@ -105,7 +105,7 @@ fun TheComposeApp(
         }
         composable(route = TeamsScreen.ChatWithUser.name) {
             ChatWithUser(
-                navController = navController
+                navController = navController,
             )
         }
     }

@@ -50,10 +50,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ActivityList(
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     ChatList(
         DataSource().loadChats(),
+        navController = navController,
         modifier = modifier
     )
 }
@@ -229,7 +231,9 @@ fun ActivityScreen(
                 )
             }
         ) {
-            ActivityList()
+            ActivityList(
+                navController = navController
+            )
 
             TopBarDropdownMenu(
                 expanded = expanded,

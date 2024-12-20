@@ -87,6 +87,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatList(
     postList: List<ChatPreview>,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -106,6 +107,7 @@ fun ChatList(
         ) { post ->
             ChatCard(
                 chatPreview = post,
+                navController = navController,
                 modifier = modifier
             )
             HorizontalDivider(
@@ -127,6 +129,7 @@ fun ChatList(
 @Composable
 fun ChatCard(
     chatPreview: ChatPreview,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -134,7 +137,9 @@ fun ChatCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .combinedClickable(
-                onClick = {},
+                onClick = {
+                    navController.navigate(TeamsScreen.ChatWithUser.name)
+                },
                 onLongClick = {}
             )
             .fillMaxWidth()
@@ -670,7 +675,8 @@ fun ChatScreen(
 
         ) {
             ChatList(
-                postList = DataSource().loadChats()
+                postList = DataSource().loadChats(),
+                navController = navController
             )
             if (showBottomSheet) {
                 ChatFilterBottomSheet(
