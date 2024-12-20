@@ -58,4 +58,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("org.igniterealtime.smack:smack-android:4.4.0") {
+        exclude(group = "org.jivesoftware.smack", module = "smack-xmlparser-stax")
+    }
+    implementation("org.igniterealtime.smack:smack-tcp:4.4.0")
+    implementation("org.igniterealtime.smack:smack-xmlparser-xpp3:4.4.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+}
+
+configurations.all {
+    exclude(group = "xpp3", module = "xpp3")
+    exclude(group = "xpp3", module = "xpp3_min")
 }

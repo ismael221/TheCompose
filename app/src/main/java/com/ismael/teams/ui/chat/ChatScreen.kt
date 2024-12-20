@@ -1,16 +1,11 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.chat
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,15 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
@@ -45,9 +39,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,6 +48,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,6 +72,12 @@ import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
 import com.ismael.teams.model.ChatPreview
+import com.ismael.teams.model.Message
+import com.ismael.teams.ui.SideNavBarItems
+import com.ismael.teams.ui.TeamsBottomNavigationBar
+import com.ismael.teams.ui.TeamsTopAppBar
+import com.ismael.teams.ui.TopBarDropdownMenu
+import com.ismael.teams.ui.UserDetails
 import com.ismael.teams.ui.utils.TeamsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -90,10 +89,13 @@ fun ChatList(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+    val chatListState = rememberLazyListState()
+    
     LazyColumn(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = modifier,
+        state = chatListState
 
     ) {
         item {
@@ -248,7 +250,6 @@ fun UserIcon(
 }
 
 
-
 @Composable
 fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
@@ -273,8 +274,7 @@ fun ChatMessageBottomAppBar(
                     ),
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
-                        .size(25.dp)
-                    ,
+                        .size(25.dp),
                     onClick = { /*TODO*/ }
                 ) {
                     Icon(
@@ -285,8 +285,8 @@ fun ChatMessageBottomAppBar(
                 }
                 OutlinedTextField(
                     value = content,
-                    shape =  MaterialTheme.shapes.large,
-                    onValueChange = { content = it},
+                    shape = MaterialTheme.shapes.large,
+                    onValueChange = { content = it },
                     label = {
                         Text(
                             text = stringResource(R.string.type_message),
@@ -304,39 +304,39 @@ fun ChatMessageBottomAppBar(
                         .wrapContentSize()
                         .weight(1f)
                 )
-                if (content == ""){
-                   IconButton(
-                       onClick = {}
-                   ) {
-                       Icon(
-                           painter = painterResource(R.drawable.photo_camera_24px),
-                           contentDescription = null,
-                           modifier = Modifier
-                               .padding( start = 2.dp)
-                               .size(30.dp)
-                       )
-                   }
+                if (content == "") {
                     IconButton(
-                        onClick ={}
+                        onClick = {}
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.photo_camera_24px),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(start = 2.dp)
+                                .size(30.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.mic_24px),
                             contentDescription = null,
                             modifier = Modifier
-                                .padding( end = 2.dp)
+                                .padding(end = 2.dp)
                                 .size(30.dp)
                         )
                     }
 
-                }else{
+                } else {
                     IconButton(
-                        onClick ={}
+                        onClick = {}
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.send_24px),
                             contentDescription = null,
                             modifier = Modifier
-                                .padding( end = 2.dp)
+                                .padding(end = 2.dp)
                                 .size(30.dp)
                         )
                     }
@@ -443,13 +443,14 @@ fun ChatFilterBottomSheet(
 @Composable
 fun ChatBubble(
     message: String,
-    isUserMessage: Boolean
+    isUserMessage: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 start = if (isUserMessage) 40.dp else 0.dp,
                 end = if (!isUserMessage) 40.dp else 0.dp
@@ -561,57 +562,50 @@ fun ChatWithUser(
         },
 
         ) {
-        Column(
+        ChatMessages(DataSource().loadMessages())
+    }
+}
 
-        ) {
-            ChatBubble(message = "Hello, how are you?", isUserMessage = true)
+@Composable
+fun ChatMessages(
+    messages: List<Message>,
+    modifier: Modifier = Modifier
+) {
+    val myUser = "ismael221@ismael"
+    val chatListState = rememberLazyListState()
+
+    LaunchedEffect(messages){
+        chatListState.scrollToItem(chatListState.layoutInfo.totalItemsCount)
+    }
+    LazyColumn(
+        state = chatListState,
+        modifier = modifier
+    ) {
+        item {
             Spacer(
-                modifier = Modifier
-                    .height(8.dp)
+                modifier.height(90.dp)
             )
-            ChatBubble(message = "I'm doing well, thanks!", isUserMessage = false)
-            Spacer(
-                modifier = Modifier
-                    .height(8.dp)
-            )
+        }
+        items(
+            items = messages,
+            key = { it.key }
+        ) { message ->
             ChatBubble(
-                message = "Ismael Nunes Campos, sou nascido e criado aqui no Brasil irmão",
-                isUserMessage = true
-            )
-            Spacer(
+                message = message.content,
+                isUserMessage = message.from == myUser,
                 modifier = Modifier
-                    .height(8.dp)
+                    .padding(start = 8.dp, end = 8.dp)
+
             )
-            ChatBubble(message = "Oi amor", isUserMessage = false)
+        }
+        item {
             Spacer(
-                modifier = Modifier
-                    .height(8.dp)
-            )
-            ChatBubble(
-                message = "Ismael Nunes Campos, sou nascido e criado aqui no Brasil irmão asldkfjalsdfjçalsdfjasldf asdkfjasldfj asdf alksdfçlasdfjk  askdfçalsdfjçalskdfj asdflkjasdçlfkjasdf asd,fmaç.sdfmasdf asdfasdjfkasjd fasd fasdfjasd flksadjfçlkasdjf çalsdf alskdjfçalskdfj asdfkj ",
-                isUserMessage = true
-            )
-            Spacer(
-                modifier = Modifier
-                    .height(8.dp)
-            )
-            ChatBubble(message = "kkk", isUserMessage = false)
-            ChatBubble(message = "Desse jeito mesmo", isUserMessage = false)
-            ChatBubble(
-                message = "asdflkjasdçlfkjasdfçlkjasdfçlkjasdçflkjasdfçlkjasdfçlkjasdfçlkajsdfçlkasjd asldkfjalksçdfj aslçdfkj asdlfkjasçldfkj asoiuewproiuwqeproiwque rpoqwieurpoqwieurpoi poiweurpoqwieurpwiqoer nkqw ernqwelkr sad´ffdsoiafdso akdsfasjdfçlasdf poiuasdiasufdpioads fkajsdfçlkasjdf poi",
-                isUserMessage = false
-            )
-            Spacer(
-                modifier = Modifier
-                    .height(8.dp)
-            )
-            ChatBubble(
-                message = "asdflkjasdçlfkjasdfçlkjasdfçlkjasdçflkjasdfçlkjasdfçlkjasdfçlkajsdfçlkasjd asldkfjalksçdfj aslçdfkj asdlfkjasçldfkj asoiuewproiuwqeproiwque rpoqwieurpoqwieurpoi poiweurpoqwieurpwiqoer nkqw ernqwelkr sad´ffdsoiafdso akdsfasjdfçlasdf poiuasdiasufdpioads fkajsdfçlkasjdf poi dfasdfasdfasdf dsfsadfsadfsadf dsfasdfsad ",
-                isUserMessage = true
+                modifier.height(90.dp)
             )
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -703,7 +697,7 @@ private fun TeamsChatScreenPreview() {
     val scope = rememberCoroutineScope()
 
     MaterialTheme(
-       darkColorScheme()
+        darkColorScheme()
     ) {
         ChatWithUser(
             navController = navController
