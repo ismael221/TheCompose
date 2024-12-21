@@ -18,24 +18,23 @@ import kotlin.collections.get
 import kotlin.collections.orEmpty
 import kotlin.collections.toMutableMap
 
-class ChatViewModel: ViewModel() {
+class ChatViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState = _uiState.asStateFlow()
     private val messageDao: MessageDao = InMemoryMessageDao() // Use the in-memory implementation
 
-    private  val _messages = mutableMapOf<String,List<Message>>()
+    private val _messages = mutableMapOf<String, List<Message>>()
 
 
     // ... other code ...
-
 
 
     fun loadMessagesForChat(chatId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-             //   val messages = messageDao.getMessagesForChat(chatId) // Fetch messages from data source
+                //   val messages = messageDao.getMessagesForChat(chatId) // Fetch messages from data source
                 val messages = _messages[chatId]
                 addMessageToMap(
                     _messages,
@@ -63,8 +62,20 @@ class ChatViewModel: ViewModel() {
         }
     }
 
-    private fun addMessageToMap(map: MutableMap<String, List<Message>>, key: String, message: Message) {
-        Log.i("Mensagem adicionada",key)
+    fun updateCurrentSelectedChat(chat: Chat) {
+        _uiState.update {
+            it.copy(
+                currentSelectedChat = chat
+            )
+        }
+    }
+
+    private fun addMessageToMap(
+        map: MutableMap<String, List<Message>>,
+        key: String,
+        message: Message
+    ) {
+        Log.i("Mensagem adicionada", key)
         map.getOrPut(key) { emptyList() }
             .let { it + message }
             .also { map[key] = it }
@@ -72,11 +83,10 @@ class ChatViewModel: ViewModel() {
     }
 
 
-
     fun sendMessage(chatId: String, message: Message) {
         viewModelScope.launch {
             try {
-                addMessageToMap(_messages,chatId,message)
+                addMessageToMap(_messages, chatId, message)
 
                 _uiState.update {
                     it.copy(
@@ -107,7 +117,6 @@ class ChatViewModel: ViewModel() {
         Log.i("Mensages", _messages.get("yasmin@ismael").toString())
 
     }
-
 
 
 }

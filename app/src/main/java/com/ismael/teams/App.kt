@@ -142,7 +142,7 @@ fun TheComposeApp(
                     chatUiState = chatUiState,
                     selected = { chatId: String ->
                         viewModel.loadMessagesForChat(chatId)
-
+                        viewModel.updateCurrentSelectedChat(chat = selectedChat)
                     },
                     chat = it
                 )

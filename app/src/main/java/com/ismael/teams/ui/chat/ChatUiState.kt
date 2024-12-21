@@ -12,7 +12,7 @@ data class ChatUiState(
     val error: String? = null,
     val messages: Map<String, List<Message>> = emptyMap() // Added messages map
 ) {
-    val currentChatMessages: List<Message>   = messages.getOrDefault("yasmin@ismael", emptyList())
+    val currentChatMessages: List<Message>  = currentSelectedChat?.let { messages[it.jid] } ?: emptyList()
         //get() = currentSelectedChat?.let { messages[it.jid] } ?: emptyList()
 
 }
