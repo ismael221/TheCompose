@@ -342,14 +342,18 @@ fun ChatMessageBottomAppBar(
                     IconButton(
                         onClick = {
                             Log.i("Botão de envio clicado",content)
-                            onSendClick(
+                            uiState.currentSelectedChat?.jid?.let {
                                 Message(
                                     text = content,
                                     senderId = "ismael221@ismael",
                                     timestamp = System.currentTimeMillis(),
-                                    to = "yasmin@ismael"
+                                    to = it
                                 )
-                            )
+                            }?.let {
+                                onSendClick(
+                                    it
+                                )
+                            }
                             content = ""
                         }
                     ) {

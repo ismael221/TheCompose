@@ -34,18 +34,7 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                //   val messages = messageDao.getMessagesForChat(chatId) // Fetch messages from data source
                 val messages = _messages[chatId]
-                addMessageToMap(
-                    _messages,
-                    "yasmin@ismael",
-                    Message(
-                        text = "Olá Ismael",
-                        to = "ismael221@ismael",
-                        senderId = "yasmin@ismael",
-                        timestamp = System.currentTimeMillis(),
-                    )
-                )
                 _uiState.update {
                     it.copy(
                         messages = it.messages.toMutableMap().apply {
