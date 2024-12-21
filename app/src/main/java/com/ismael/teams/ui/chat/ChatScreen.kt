@@ -1,6 +1,7 @@
 package com.ismael.teams.ui.chat
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,17 +63,20 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
-import com.ismael.teams.model.ChatPreview
+import com.ismael.teams.model.Chat
 import com.ismael.teams.model.Message
+import com.ismael.teams.model.NavigationRoutes
 import com.ismael.teams.ui.SideNavBarItems
 import com.ismael.teams.ui.TeamsBottomNavigationBar
 import com.ismael.teams.ui.TeamsTopAppBar
@@ -81,16 +85,17 @@ import com.ismael.teams.ui.UserDetails
 import com.ismael.teams.ui.utils.TeamsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.text.substringBefore
 
 
 @Composable
 fun ChatList(
-    postList: List<ChatPreview>,
+    postList: List<Chat>,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     val chatListState = rememberLazyListState()
-    
+
     LazyColumn(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,7 +110,7 @@ fun ChatList(
         }
         items(
             items = postList,
-            key = { it.key }
+            key = { it.jid }
         ) { post ->
             ChatCard(
                 chatPreview = post,
@@ -130,7 +135,7 @@ fun ChatList(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatCard(
-    chatPreview: ChatPreview,
+    chatPreview: Chat,
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
@@ -140,7 +145,8 @@ fun ChatCard(
         modifier = modifier
             .combinedClickable(
                 onClick = {
-                    navController.navigate(TeamsScreen.ChatWithUser.name)
+                    Log.i("ChatCard", "Clicked on chat with id: ${chatPreview.jid}")
+                    navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${chatPreview.jid}")
                 },
                 onLongClick = {}
             )
@@ -172,7 +178,7 @@ fun ChatCard(
             }
             UserIcon(
                 modifier = Modifier,
-                painter = painterResource(chatPreview.userImage),
+                painter = painterResource(R.drawable.yasmin),
                 contentDescription = null,
                 onclick = {}
             )
@@ -184,13 +190,15 @@ fun ChatCard(
                 .padding(end = 24.dp)
         ) {
             Text(
-                text = stringResource(chatPreview.username),
+                text = chatPreview.chatName,
                 style = MaterialTheme.typography.titleMedium,
             )
-            Text(
-                text = stringResource(chatPreview.lastMessage),
-                style = MaterialTheme.typography.bodySmall,
-            )
+            chatPreview.lastMessage?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
         Spacer(
             modifier = Modifier
@@ -252,6 +260,8 @@ fun UserIcon(
 
 @Composable
 fun ChatMessageBottomAppBar(
+    uiState: ChatUiState,
+    onSendClick: (Message) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var content by remember { mutableStateOf("") }
@@ -330,7 +340,18 @@ fun ChatMessageBottomAppBar(
 
                 } else {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            Log.i("Botão de envio clicado",content)
+                            onSendClick(
+                                Message(
+                                    text = content,
+                                    senderId = "ismael221@ismael",
+                                    timestamp = System.currentTimeMillis(),
+                                    to = "yasmin@ismael"
+                                )
+                            )
+                            content = ""
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.send_24px),
@@ -483,19 +504,24 @@ fun ChatBubble(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserChat(
+fun UserChatTopBar(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    chat: Chat
 ) {
     TopAppBar(
         modifier = modifier,
         title = {
-            UserDetails(
-                userName = "Ismael Nunes Campos",
-                secondaryText = "Last seen 4:56 AM",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+
+            chat.lastMessage?.let {
+                UserDetails(
+                    userName = chat.chatName,
+                    secondaryText = it,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+
         },
         navigationIcon = {
             IconButton(
@@ -549,20 +575,38 @@ fun UserChat(
 @Composable
 fun ChatWithUser(
     navController: NavController,
-    modifier: Modifier = Modifier
+    onSendClick: (Message) -> Unit,
+    chatUiState: ChatUiState,
+    chat: Chat,
+    viewModel: ChatViewModel = viewModel(),
+    selected: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    LaunchedEffect(chat.jid) {
+        viewModel.loadMessagesForChat(chat.jid)
+        selected(chat.jid)
+    }
     Scaffold(
         topBar = {
-            UserChat(
+            UserChatTopBar(
+                chat = chat,
                 navController = navController
             )
         },
         bottomBar = {
-            ChatMessageBottomAppBar()
+            ChatMessageBottomAppBar(
+                onSendClick = onSendClick,
+                uiState = chatUiState
+            )
         },
 
-        ) {
-        ChatMessages(DataSource().loadMessages())
+        ) { innerPadding ->
+
+        ChatMessages(
+            messages = chatUiState.currentChatMessages,
+            modifier = modifier
+                .padding(innerPadding)
+        )
     }
 }
 
@@ -574,9 +618,10 @@ fun ChatMessages(
     val myUser = "ismael221@ismael"
     val chatListState = rememberLazyListState()
 
-    LaunchedEffect(messages){
+    LaunchedEffect(messages) {
         chatListState.scrollToItem(chatListState.layoutInfo.totalItemsCount)
     }
+    Log.i("ChatMessages", "Messages received: ${messages.size}")
     LazyColumn(
         state = chatListState,
         modifier = modifier
@@ -591,8 +636,8 @@ fun ChatMessages(
             key = { it.key }
         ) { message ->
             ChatBubble(
-                message = message.content,
-                isUserMessage = message.from == myUser,
+                message = message.text,
+                isUserMessage = message.senderId == myUser,
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp)
 
@@ -670,7 +715,7 @@ fun ChatScreen(
         ) {
             ChatList(
                 postList = DataSource().loadChats(),
-                navController = navController
+                navController = navController,
             )
             if (showBottomSheet) {
                 ChatFilterBottomSheet(
@@ -699,9 +744,9 @@ private fun TeamsChatScreenPreview() {
     MaterialTheme(
         darkColorScheme()
     ) {
-        ChatWithUser(
-            navController = navController
-        )
+//        ChatWithUser(
+//            navController = navController
+//        )
 
     }
 }
