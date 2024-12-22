@@ -16,6 +16,7 @@ class DataSource {
                 lastMessageTime = System.currentTimeMillis(),
                 chatName = "Yasmin Rodrigues",
                 isUnread = true,
+                lastSeen = System.currentTimeMillis(),
                 chatPhotoUrl = ""
             ),
             UserChat(
@@ -24,6 +25,7 @@ class DataSource {
                 lastMessageTime = System.currentTimeMillis(),
                 chatName = "Debora Nunes",
                 isUnread = false,
+                lastSeen = System.currentTimeMillis(),
                 chatPhotoUrl = ""
             )
 

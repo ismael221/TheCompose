@@ -37,8 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.teams.R
-import com.ismael.teams.data.DataSource
-import com.ismael.teams.ui.chat.ChatList
 import com.ismael.teams.ui.utils.TeamsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -49,11 +47,7 @@ fun ActivityList(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    ChatList(
-        DataSource().loadChats(),
-        navController = navController,
-        modifier = modifier
-    )
+
 }
 
 @Composable

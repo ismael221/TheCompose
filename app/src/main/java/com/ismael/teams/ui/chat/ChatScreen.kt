@@ -75,8 +75,11 @@ import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.DataSource
 import com.ismael.teams.model.Chat
+import com.ismael.teams.model.ChatType
+import com.ismael.teams.model.GroupChat
 import com.ismael.teams.model.Message
 import com.ismael.teams.model.NavigationRoutes
+import com.ismael.teams.model.UserChat
 import com.ismael.teams.ui.SideNavBarItems
 import com.ismael.teams.ui.TeamsBottomNavigationBar
 import com.ismael.teams.ui.TeamsTopAppBar
@@ -517,14 +520,25 @@ fun UserChatTopBar(
         modifier = modifier,
         title = {
 
-            chat.lastMessage?.let {
-                UserDetails(
-                    userName = chat.chatName,
-                    secondaryText = it,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
+          when(chat){
+              is UserChat -> {
+                  UserDetails(
+                      userName = chat.chatName,
+                      secondaryText = "last seen at ${(chat as? UserChat)?.lastSeen}",
+                      modifier = Modifier
+                          .fillMaxWidth()
+                  )
+              }
+              is GroupChat -> {
+                  UserDetails(
+                      userName = chat.chatName,
+                      secondaryText = (chat as? GroupChat)?.members?.size.toString(),
+                      modifier = Modifier
+                          .fillMaxWidth()
+                  )
+              }
+          }
+
 
         },
         navigationIcon = {
@@ -629,12 +643,8 @@ fun ChatMessages(
     LazyColumn(
         state = chatListState,
         modifier = modifier
+            .padding(8.dp)
     ) {
-        item {
-            Spacer(
-                modifier.height(90.dp)
-            )
-        }
         items(
             items = messages,
             key = { it.key }
@@ -645,11 +655,6 @@ fun ChatMessages(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp)
 
-            )
-        }
-        item {
-            Spacer(
-                modifier.height(90.dp)
             )
         }
     }

@@ -7,5 +7,6 @@ data class UserChat(
     override val chatName: String,
     override val chatPhotoUrl: String?,
     override val isUnread: Boolean,
-    override val chatType: ChatType = ChatType.User
+    override val chatType: ChatType = ChatType.User,
+     val lastSeen: Long
 ) : Chat

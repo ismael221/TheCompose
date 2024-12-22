@@ -1,13 +1,21 @@
 package com.ismael.teams.xmpp
 
 import android.util.Log
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.update
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.SmackException
 import org.jivesoftware.smack.XMPPException
 import org.jivesoftware.smack.chat2.ChatManager
+import org.jivesoftware.smack.packet.Message
+import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.Stanza
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
@@ -16,6 +24,10 @@ import org.jxmpp.jid.EntityBareJid
 import java.io.IOException
 
 class XmppManager {
+
+    private val _receivedMessages = MutableStateFlow<List<org.jivesoftware.smack.packet.Message>>(emptyList())
+    val receivedMessages = _receivedMessages.asStateFlow()
+
     private val _incomingMessages = MutableStateFlow<List<String>>(emptyList())
     val incomingMessages = _incomingMessages.asStateFlow()
 
@@ -58,30 +70,15 @@ class XmppManager {
             connection?.connect()
             connection?.login()
 
-
             chatManager = ChatManager.getInstanceFor(connection)
+            val presence = Presence(Presence.Type.available)
+            setPresence(presence)
 
-            connection?.addAsyncStanzaListener({ stanza ->
-                if (stanza is org.jivesoftware.smack.packet.Message) {
-                    val from = stanza.from?.asBareJid()
-                    val body = stanza.body
-
-
-                    if (!body.isNullOrEmpty()) {
-                        println("Mensagem recebida diretamente da conexão: De $from - $body")
-                        Log.i("ListenerConexao", "Mensagem recebida de $from: $body")
-
-                        // Atualiza o fluxo de mensagens
-                        val newMessage = "${getUserName(from.toString())}: $body"
-                        _incomingMessages.value = _incomingMessages.value + newMessage
-                    }
-                }
-            }, { stanza -> stanza is org.jivesoftware.smack.packet.Message })
-
-
+            setupMessageListener()
 
             println("Conectado ao servidor XMPP!")
         } catch (e: SmackException) {
+
             println("Erro de Smack: ${e.message}")
         } catch (e: IOException) {
             println("Erro de IO: ${e.message}")
@@ -91,6 +88,29 @@ class XmppManager {
             println("Erro de Interrupção: ${e.message}")
         }
     }
+
+    fun setupMessageListener() {
+        connection?.addAsyncStanzaListener({ stanza ->
+            if (stanza is org.jivesoftware.smack.packet.Message) {
+                val from = stanza.from?.asBareJid()
+                val body = stanza.body
+                _receivedMessages.update { currentMessages ->
+                    println("xmpp "+currentMessages)
+                    currentMessages + stanza // Adiciona a nova mensagem à lista existente
+                }
+
+                if (!body.isNullOrEmpty()) {
+                    println("Mensagem recebida diretamente da conexão: De $from - $body")
+                    Log.i("ListenerConexao", "Mensagem recebida de $from: $body")
+
+                    // Atualiza o fluxo de mensagens
+                    val newMessage = "${getUserName(from.toString())}: $body"
+                    _incomingMessages.value += newMessage
+                }
+            }
+        }, { stanza -> stanza is org.jivesoftware.smack.packet.Message })
+    }
+
 
     fun disconnect() {
         connection?.disconnect()

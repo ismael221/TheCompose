@@ -42,6 +42,7 @@ fun TheComposeApp(
     modifier: Modifier = Modifier
 ) {
     val viewModel: ChatViewModel = viewModel()
+
     val chatUiState = viewModel.uiState.collectAsState().value
 
     val navController: NavHostController = rememberNavController()
