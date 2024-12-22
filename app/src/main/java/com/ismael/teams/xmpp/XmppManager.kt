@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
+import org.jivesoftware.smack.ReconnectionManager
 import org.jivesoftware.smack.SmackException
 import org.jivesoftware.smack.XMPPException
 import org.jivesoftware.smack.chat2.ChatManager
@@ -23,7 +24,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.EntityBareJid
 import java.io.IOException
 
-class XmppManager {
+object XmppManager {
 
     private val _receivedMessages = MutableStateFlow<List<org.jivesoftware.smack.packet.Message>>(emptyList())
     val receivedMessages = _receivedMessages.asStateFlow()
@@ -37,6 +38,10 @@ class XmppManager {
 
     fun addMessageListener(listener: (org.jivesoftware.smack.packet.Message) -> Unit) {
         messageListeners.add(listener)
+    }
+
+    fun addIncomingMessageListener() {
+        setupMessageListener()
     }
 
     private fun notifyMessageListeners(message: org.jivesoftware.smack.packet.Message) {
@@ -69,6 +74,8 @@ class XmppManager {
             connection = XMPPTCPConnection(config)
             connection?.connect()
             connection?.login()
+
+            ReconnectionManager.getInstanceFor(connection).enableAutomaticReconnection()
 
             chatManager = ChatManager.getInstanceFor(connection)
             val presence = Presence(Presence.Type.available)

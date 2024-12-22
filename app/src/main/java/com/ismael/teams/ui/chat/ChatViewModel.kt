@@ -1,42 +1,30 @@
 package com.ismael.teams.ui.chat
 
 import android.util.Log
-import androidx.activity.result.launch
-import androidx.compose.animation.core.copy
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ismael.teams.model.Chat
 import com.ismael.teams.model.ChatType
-import com.ismael.teams.model.InMemoryMessageDao
 import com.ismael.teams.model.Message
-import com.ismael.teams.model.MessageDao
 import com.ismael.teams.model.UserChat
 import com.ismael.teams.xmpp.XmppManager
-import com.ismael.teams.xmpp.XmppViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jxmpp.jid.impl.JidCreate
 import java.util.UUID
-import kotlin.collections.get
 import kotlin.collections.orEmpty
 import kotlin.collections.toMutableMap
 
 class ChatViewModel : ViewModel() {
 
-    private val xmppManager = XmppManager()
+    private val xmppManager = XmppManager
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState = _uiState.asStateFlow()
-    private val messageDao: MessageDao = InMemoryMessageDao() // Use the in-memory implementation
 
     private val _messages = mutableMapOf<String, List<Message>>()
 
@@ -114,13 +102,14 @@ class ChatViewModel : ViewModel() {
         private set
 
     // Expor as mensagens recebidas para a UI
-    val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> = xmppManager.receivedMessages
+    val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> =
+        xmppManager.receivedMessages
 
 
-    fun connect(server: String, username: String, password: String) {
-        xmppManager.connect(server, username, password)
+    fun setupMessageListener() {
         viewModelScope.launch(Dispatchers.IO) {
-            xmppManager.addMessageListener {
+            XmppManager.addIncomingMessageListener()
+            XmppManager.addMessageListener {
                 observeIncomingMessages()
             }
         }
@@ -133,12 +122,12 @@ class ChatViewModel : ViewModel() {
     }
 
 
-    private fun observeIncomingMessages() {
+    fun observeIncomingMessages() {
         viewModelScope.launch {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
                     val key = message.from // Defina a chave, por exemplo, o remetente
-                    println("Recebida no dispatcher: "+message)
+                    println("Recebida no dispatcher: " + message)
                     val mensagem = Message(
                         to = "ismael221@ismael",
                         key = UUID.randomUUID().toString(),
@@ -176,13 +165,6 @@ class ChatViewModel : ViewModel() {
     }
 
 
-    init {
-
-        connect("ismael", "ismael221", "Ismuca18@")
-
-        observeIncomingMessages()
-
-    }
 
 
 }

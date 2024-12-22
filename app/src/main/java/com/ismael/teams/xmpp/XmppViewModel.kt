@@ -10,7 +10,7 @@ import org.jxmpp.jid.impl.JidCreate
 
 class XmppViewModel: ViewModel() {
 
-    private val xmppManager = XmppManager()
+    private val xmppManager = XmppManager
 
     // States for Compose UI
     var messages = mutableListOf<String>()

@@ -2,6 +2,7 @@ package com.ismael.teams
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initializeXmpp()
         // enableEdgeToEdge()
         setContent {
             TeamsTheme {
@@ -31,6 +33,34 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    override fun onStart() {
+        super.onStart()
+        initializeXmpp()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        XmppManager.disconnect()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        XmppManager.disconnect()
+    }
+}
+
+
+
+private fun initializeXmpp() {
+    val server = "ismael"
+    val username = "ismael221"
+    val password = "Ismuca18@"
+
+    try {
+        XmppManager.connect(server, username, password)
+    } catch (e: Exception) {
+        println("Erro ao conectar no XMPP: ${e.message}")
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,9 +44,15 @@ fun TheComposeApp(
 ) {
     val viewModel: ChatViewModel = viewModel()
 
+    LaunchedEffect(Unit) {
+        viewModel.observeIncomingMessages()
+    }
+
+
     val chatUiState = viewModel.uiState.collectAsState().value
 
     val navController: NavHostController = rememberNavController()
+
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
