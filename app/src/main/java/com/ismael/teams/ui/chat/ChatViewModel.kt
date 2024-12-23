@@ -1,8 +1,20 @@
 package com.ismael.teams.ui.chat
 
+import android.Manifest
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ismael.teams.R
 import com.ismael.teams.model.Chat
 import com.ismael.teams.model.ChatType
 import com.ismael.teams.model.Message
@@ -120,6 +132,13 @@ class ChatViewModel : ViewModel() {
             xmppManager.disconnect()
         }
     }
+    private var context: Context? = null
+
+    fun setContext(context: Context) {
+        this.context = context
+    }
+
+
 
 
     fun observeIncomingMessages() {
@@ -127,6 +146,7 @@ class ChatViewModel : ViewModel() {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
                     val key = message.from // Defina a chave, por exemplo, o remetente
+                    notifyUser(message.from.toString(), message.body, context!!)
                     println("Recebida no dispatcher: " + message)
                     val mensagem = Message(
                         to = "ismael221@ismael",
@@ -163,6 +183,50 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
+    fun createNotificationChannel() {
+        val context = this.context
+        context?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val name = "Messages"
+                val descriptionText = "Notifications for new messages"
+                val importance = NotificationManager.IMPORTANCE_DEFAULT
+                val channel = NotificationChannel("messages_channel", name, importance).apply {
+                    description = descriptionText
+                }
+                val notificationManager = it.getSystemService(NotificationManager::class.java)
+                notificationManager?.createNotificationChannel(channel)
+            }
+        }
+    }
+    private val REQUEST_CODE_PERMISSION = 100
+
+    private fun notifyUser(from: String?, body: String, context: Context) {
+        // Verificar se a permissão de notificações foi concedida (Android 13 e superior)
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED) {
+
+            val notificationManager = NotificationManagerCompat.from(context)
+
+            val notification = NotificationCompat.Builder(context, "messages_channel")
+                .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
+                .setContentTitle("Nova mensagem de ${xmppManager.getUserName("yasmin@ismael")}")
+                .setContentText(body)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build()
+
+            notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        } else {
+            // Solicitar permissão ao usuário, se necessário
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_CODE_PERMISSION
+            )
+        }
+    }
+
 
 
 

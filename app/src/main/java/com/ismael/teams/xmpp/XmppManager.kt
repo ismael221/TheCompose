@@ -21,16 +21,23 @@ import org.jivesoftware.smack.packet.Stanza
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
+import org.jivesoftware.smackx.iqregister.AccountManager
 import org.jxmpp.jid.EntityBareJid
+import org.jxmpp.jid.impl.JidCreate
 import java.io.IOException
+import kotlin.io.path.name
 
 object XmppManager {
 
-    private val _receivedMessages = MutableStateFlow<List<org.jivesoftware.smack.packet.Message>>(emptyList())
+    private val _receivedMessages =
+        MutableStateFlow<List<org.jivesoftware.smack.packet.Message>>(emptyList())
     val receivedMessages = _receivedMessages.asStateFlow()
 
     private val _incomingMessages = MutableStateFlow<List<String>>(emptyList())
     val incomingMessages = _incomingMessages.asStateFlow()
+
+    private val roster: Roster?
+        get() = connection?.let { Roster.getInstanceFor(it) }
 
     private var connection: AbstractXMPPConnection? = null
     private var chatManager: ChatManager? = null
@@ -49,15 +56,14 @@ object XmppManager {
     }
 
     fun getUserName(jid: String): String {
-        // Obtém o Roster da conexão
-        val roster = Roster.getInstanceFor(connection)
-
-        // Converte o JID para um BareJid
-        val entityJid = org.jxmpp.jid.impl.JidCreate.entityBareFrom(jid)
-
-        // Pega o nome associado ao JID
-        val entry = roster.getEntry(entityJid)
-        return entry?.name ?: jid // Se não houver nome, retorna o JID
+        return try {
+            val entityJid = JidCreate.entityBareFrom(jid)
+            val entry = roster?.getEntry(entityJid)
+            entry?.name ?: jid // Use entry?.name to get the display name
+        } catch (e: Exception) {
+            Log.e("XmppManager", "Error getting user name for JID: $jid", e)
+            jid
+        }
     }
 
     fun connect(server: String, username: String, password: String) {
@@ -102,7 +108,7 @@ object XmppManager {
                 val from = stanza.from?.asBareJid()
                 val body = stanza.body
                 _receivedMessages.update { currentMessages ->
-                    println("xmpp "+currentMessages)
+                    println("xmpp " + currentMessages)
                     currentMessages + stanza // Adiciona a nova mensagem à lista existente
                 }
 

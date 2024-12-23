@@ -1,6 +1,10 @@
 package com.ismael.teams
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat.getSystemService
 import com.example.compose.TeamsTheme
 import com.ismael.teams.xmpp.XmppManager
 import org.jxmpp.jid.impl.JidCreate
@@ -34,10 +39,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    override fun onStart() {
-        super.onStart()
-        initializeXmpp()
-    }
+
+//    override fun onStart() {
+//        super.onStart()
+//        initializeXmpp()
+//    }
 
     override fun onStop() {
         super.onStop()
@@ -51,7 +57,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
 private fun initializeXmpp() {
     val server = "ismael"
     val username = "ismael221"
@@ -63,6 +68,7 @@ private fun initializeXmpp() {
         println("Erro ao conectar no XMPP: ${e.message}")
     }
 }
+
 
 
 @Preview(showBackground = true)
