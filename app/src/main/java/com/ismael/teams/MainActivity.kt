@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.compose.TeamsTheme
-import com.ismael.teams.xmpp.XmppManager
+import com.ismael.teams.data.remote.xmpp.XmppManager
 import org.jxmpp.jid.impl.JidCreate
 
 class MainActivity : ComponentActivity() {
@@ -45,10 +45,10 @@ class MainActivity : ComponentActivity() {
 //        initializeXmpp()
 //    }
 
-    override fun onStop() {
-        super.onStop()
-        XmppManager.disconnect()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        XmppManager.disconnect()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()

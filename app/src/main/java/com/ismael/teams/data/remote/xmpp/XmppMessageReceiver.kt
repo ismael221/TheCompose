@@ -1,4 +1,4 @@
-package com.ismael.teams.xmpp
+package com.ismael.teams.data.remote.xmpp
 
 import android.util.Log
 import org.jivesoftware.smack.chat2.Chat

@@ -1,8 +1,6 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,12 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.ismael.teams.R
-import com.ismael.teams.ui.utils.TeamsScreen
+import com.ismael.teams.ui.components.SideNavBarItems
+import com.ismael.teams.ui.components.TeamsBottomNavigationBar
+import com.ismael.teams.ui.components.TeamsTopAppBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun NewCalendarEventActionButton(
+fun NewCallActionButton(
     onclick: () -> Unit,
     containerColor: Color,
     elevation: FloatingActionButtonElevation,
@@ -41,22 +41,21 @@ fun NewCalendarEventActionButton(
 
         ) {
         Icon(
-            imageVector = Icons.Default.Add,
+            painter = painterResource(id = R.drawable.add_call_24px),
             contentDescription = null
         )
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CalendarScreen(
+fun CallScreen(
     navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
-) {
+){
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     ModalNavigationDrawer(
@@ -69,8 +68,8 @@ fun CalendarScreen(
             modifier = modifier,
             topBar = {
                 TeamsTopAppBar(
-                    currentScreen = TeamsScreen.CalendarList,
-                    onFilterClick = { },
+                    currentScreen = TeamsScreen.CallList,
+                    onFilterClick = {  },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
                         navController.navigate(TeamsScreen.SearchBarList.name)
@@ -82,17 +81,17 @@ fun CalendarScreen(
                             }
                         }
                     }
+
                 )
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.CalendarList,
-                    navController = navController,
-                    modifier = modifier
+                    currentScreen = TeamsScreen.CallList,
+                    navController = navController
                 )
             },
             floatingActionButton = {
-                NewCalendarEventActionButton(
+                NewCallActionButton(
                     onclick = { /*TODO*/ },
                     containerColor = MaterialTheme.colorScheme.primary,
                     elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()

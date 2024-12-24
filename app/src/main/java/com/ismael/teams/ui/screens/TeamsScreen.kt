@@ -1,6 +1,7 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.annotation.StringRes
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,7 +18,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.ismael.teams.ui.utils.TeamsScreen
+import com.ismael.teams.R
+import com.ismael.teams.ui.components.SideNavBarItems
+import com.ismael.teams.ui.components.TeamsBottomNavigationBar
+import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TopBarDropdownMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -75,4 +80,17 @@ fun TeamsScreen(
             )
         }
     }
+}
+
+enum class TeamsScreen(
+    @StringRes val title: Int
+) {
+    ChatList(title = R.string.chat),
+    ActivityList(title = R.string.activity),
+    CalendarList(title = R.string.calendar),
+    CallList(title = R.string.calls),
+    TeamsList(title = R.string.teams),
+    SearchBarList(title = R.string.search),
+    More(title = R.string.more),
+    ChatWithUser(title = R.string.ChatWithUser)
 }

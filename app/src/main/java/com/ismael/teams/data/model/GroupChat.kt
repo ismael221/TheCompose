@@ -1,12 +1,12 @@
-package com.ismael.teams.model
+package com.ismael.teams.data.model
 
-data class UserChat(
+data class GroupChat(
     override val jid: String,
+    override val chatName: String,
+    val members: List<User>,
     override val lastMessage: String?,
     override val lastMessageTime: Long?,
-    override val chatName: String,
     override val chatPhotoUrl: String?,
     override val isUnread: Boolean,
-    override val chatType: ChatType = ChatType.User,
-     val lastSeen: Long
+    override val chatType: ChatType = ChatType.Group
 ) : Chat

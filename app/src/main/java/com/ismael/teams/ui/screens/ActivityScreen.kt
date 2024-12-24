@@ -1,4 +1,4 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +37,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.teams.R
-import com.ismael.teams.ui.utils.TeamsScreen
+import com.ismael.teams.ui.components.FilterSwitch
+import com.ismael.teams.ui.components.SideNavBarItems
+import com.ismael.teams.ui.components.TeamsBottomNavigationBar
+import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TopBarDropdownMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.ismael.teams.model
+package com.ismael.teams.data.model
 
 object NavigationRoutes {
     const val ChatList = "ChatList"

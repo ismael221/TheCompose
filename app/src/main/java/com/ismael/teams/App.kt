@@ -1,7 +1,6 @@
 package com.ismael.teams
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
@@ -22,19 +21,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ismael.teams.data.DataSource
-import com.ismael.teams.model.Message
-import com.ismael.teams.model.NavigationRoutes
-import com.ismael.teams.ui.ActivityScreen
-import com.ismael.teams.ui.CalendarScreen
-import com.ismael.teams.ui.CallScreen
-import com.ismael.teams.ui.chat.ChatScreen
-import com.ismael.teams.ui.chat.ChatWithUser
-import com.ismael.teams.ui.MoreScreen
-import com.ismael.teams.ui.SearchScreen
-import com.ismael.teams.ui.TeamsScreen
-import com.ismael.teams.ui.chat.ChatViewModel
-import com.ismael.teams.ui.utils.TeamsScreen
+import com.ismael.teams.data.repository.DataSource
+import com.ismael.teams.data.model.Message
+import com.ismael.teams.data.model.NavigationRoutes
+import com.ismael.teams.ui.screens.ActivityScreen
+import com.ismael.teams.ui.screens.CalendarScreen
+import com.ismael.teams.ui.screens.CallScreen
+import com.ismael.teams.ui.screens.chat.ChatScreen
+import com.ismael.teams.ui.screens.chat.ChatWithUser
+import com.ismael.teams.ui.screens.MoreScreen
+import com.ismael.teams.ui.screens.SearchScreen
+import com.ismael.teams.ui.screens.TeamsScreen
+import com.ismael.teams.ui.screens.chat.ChatViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

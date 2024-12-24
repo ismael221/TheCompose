@@ -1,4 +1,4 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
-import com.ismael.teams.ui.chat.UserIcon
-import com.ismael.teams.ui.utils.TeamsScreen
+import com.ismael.teams.ui.screens.chat.UserIcon
+import com.ismael.teams.ui.screens.TeamsScreen
 
 
 @Composable

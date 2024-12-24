@@ -1,4 +1,4 @@
-package com.ismael.teams.model
+package com.ismael.teams.data.model
 
 interface Chat {
     val jid: String

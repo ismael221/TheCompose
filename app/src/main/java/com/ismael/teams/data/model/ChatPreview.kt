@@ -1,4 +1,4 @@
-package com.ismael.teams.model
+package com.ismael.teams.data.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

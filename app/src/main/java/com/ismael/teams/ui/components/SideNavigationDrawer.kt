@@ -1,4 +1,4 @@
-package com.ismael.teams.ui
+package com.ismael.teams.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
-import com.ismael.teams.ui.chat.UserIcon
+import com.ismael.teams.ui.screens.chat.UserIcon
 
 @Composable
 fun SideNavBarItems(

@@ -1,4 +1,4 @@
-package com.ismael.teams.ui.chat
+package com.ismael.teams.ui.screens.chat
 
 import android.Manifest
 import android.app.Activity
@@ -15,11 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ismael.teams.R
-import com.ismael.teams.model.Chat
-import com.ismael.teams.model.ChatType
-import com.ismael.teams.model.Message
-import com.ismael.teams.model.UserChat
-import com.ismael.teams.xmpp.XmppManager
+import com.ismael.teams.data.model.Chat
+import com.ismael.teams.data.model.ChatType
+import com.ismael.teams.data.model.Message
+import com.ismael.teams.data.model.UserChat
+import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,6 +106,16 @@ class ChatViewModel : ViewModel() {
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
+        }
+    }
+
+    fun getPresence(){
+       val presence =  xmppManager.getUserPresence("ismael221@ismael")
+        Log.i("Roster",presence.toString())
+        _uiState.update {
+            it.copy(
+                status = presence?.type.toString()
+            )
         }
     }
 
@@ -226,8 +236,6 @@ class ChatViewModel : ViewModel() {
             )
         }
     }
-
-
 
 
 

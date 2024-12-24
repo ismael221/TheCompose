@@ -1,6 +1,7 @@
-package com.ismael.teams.xmpp
+package com.ismael.teams.data.remote.xmpp
 
 import android.util.Log
+import androidx.compose.ui.input.key.type
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +19,15 @@ import org.jivesoftware.smack.chat2.ChatManager
 import org.jivesoftware.smack.packet.Message
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.Stanza
+import org.jivesoftware.smack.roster.PresenceEventListener
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jivesoftware.smackx.iqregister.AccountManager
+import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
+import org.jxmpp.jid.FullJid
+import org.jxmpp.jid.Jid
 import org.jxmpp.jid.impl.JidCreate
 import java.io.IOException
 import kotlin.io.path.name
@@ -42,6 +47,9 @@ object XmppManager {
     private var connection: AbstractXMPPConnection? = null
     private var chatManager: ChatManager? = null
     private val messageListeners = mutableListOf<(org.jivesoftware.smack.packet.Message) -> Unit>()
+
+    private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
+    val presenceUpdates = _presenceUpdates.asStateFlow()
 
     fun addMessageListener(listener: (org.jivesoftware.smack.packet.Message) -> Unit) {
         messageListeners.add(listener)
@@ -145,6 +153,42 @@ object XmppManager {
             connection?.sendStanza(presence)
         } catch (e: Exception) {
             println("Erro ao definir presença: ${e.message}")
+        }
+    }
+
+    fun getUserPresence(jid: String): Presence? {
+        return try {
+            val entityJid = JidCreate.entityBareFrom(jid)
+            roster?.getPresence(entityJid)
+        } catch (e: Exception) {
+            Log.e("XmppManager", "Error getting presence for JID: $jid", e)
+            null
+        }
+    }
+
+    private val presenceListener = object : PresenceEventListener {
+
+        override fun presenceAvailable(address: FullJid?, availablePresence: Presence?) {
+            Log.i("XmppManager", "Presence available for $address: ${availablePresence?.type}")
+            _presenceUpdates.value = Pair(address.toString(), availablePresence)
+        }
+
+        override fun presenceUnavailable(address: FullJid?, unavailablePresence: Presence?) {
+            Log.i("XmppManager", "Presence unavailable for $address: ${unavailablePresence?.type}")
+            _presenceUpdates.value = Pair(address.toString(), unavailablePresence)
+        }
+
+        override fun presenceError(address: Jid?, errorPresence: Presence?) {
+            Log.e("XmppManager", "Presence error for $address: ${errorPresence?.type}")
+            _presenceUpdates.value = Pair(address.toString(), errorPresence)
+        }
+
+        override fun presenceSubscribed(address: BareJid?, subscribedPresence: Presence?) {
+            TODO("Not yet implemented")
+        }
+
+        override fun presenceUnsubscribed(address: BareJid?, unsubscribedPresence: Presence?) {
+            TODO("Not yet implemented")
         }
     }
 }
