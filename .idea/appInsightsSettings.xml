@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.ismael.teams" />
-                  <option name="mobileSdkAppId" value="1:383971274144:android:6188b936f3d1dfe72108c5" />
-                  <option name="projectId" value="thecompose-1d53a" />
-                  <option name="projectNumber" value="383971274144" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
