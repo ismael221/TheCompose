@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +34,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -95,6 +98,59 @@ fun UserIcon(
                     onclick()
                 },
             contentScale = ContentScale.Crop
+        )
+    }
+}
+
+@Composable
+fun UserIconWithStatus(
+    status: String = "brb",
+    modifier: Modifier = Modifier
+){
+    BadgedBox(
+        badge = {
+            UserStatusBadge(
+                status = status,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x=-6.dp, y = 25.dp)
+            )
+        },
+        modifier = modifier
+    ) {
+        UserIcon(
+            modifier = modifier,
+            painter = painterResource(R.drawable.yasmin),
+            contentDescription = null,
+            onclick = {}
+        )
+    }
+}
+
+@Composable
+fun UserStatusBadge(
+    status: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(color = Color.Black, shape = Shapes().small),
+    ){
+        Image(
+           when (status){
+               "available" -> painterResource(R.drawable.available)
+               "busy" -> painterResource(R.drawable.busy)
+               "dnd" -> painterResource(R.drawable.dnd)
+               "away" -> painterResource(R.drawable.away)
+               "brb" -> painterResource(R.drawable.away)
+               "offline" -> painterResource(R.drawable.offline)
+               else -> {
+                   painterResource(R.drawable.offline)
+               }
+           },
+            contentDescription = null,
+            modifier = Modifier
+                .size(12.dp)
         )
     }
 }
@@ -502,9 +558,8 @@ private fun TeamsChatScreenPreview() {
     MaterialTheme(
         darkColorScheme()
     ) {
-//        ChatWithUser(
-//            navController = navController
-//        )
-
+       Column {
+           UserIconWithStatus()
+       }
     }
 }

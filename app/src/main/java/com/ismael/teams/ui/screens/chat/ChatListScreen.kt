@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ismael.teams.R
 import com.ismael.teams.data.model.Chat
+import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 
 @Composable
@@ -126,12 +127,13 @@ fun ChatCard(
                         .width(8.dp)
                 )
             }
-            UserIcon(
-                modifier = Modifier,
-                painter = painterResource(R.drawable.yasmin),
-                contentDescription = null,
-                onclick = {}
-            )
+            if (chatPreview.chatType == ChatType.User) {
+                UserIconWithStatus(
+                    status = "available",
+                    modifier = Modifier
+                )
+            } else {
+            }
 
         }
 

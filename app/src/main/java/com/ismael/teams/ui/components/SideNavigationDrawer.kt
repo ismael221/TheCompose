@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
 import com.ismael.teams.ui.screens.chat.UserIcon
+import com.ismael.teams.ui.screens.chat.UserIconWithStatus
 
 @Composable
 fun SideNavBarItems(
@@ -103,12 +104,9 @@ fun UserDetails(
     Row(
         modifier = modifier
     ) {
-        UserIcon(
-            painter = painterResource(R.drawable.perfil),
-            contentDescription = null,
-            onclick = { },
+        UserIconWithStatus(
+            status = "available",
             modifier = Modifier
-                //.padding(start = 8.dp)
         )
         Column(
             modifier = Modifier
