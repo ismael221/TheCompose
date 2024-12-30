@@ -271,7 +271,7 @@ fun UserChatTopBar(
                 is UserChat -> {
                     UserDetails(
                         userName = chat.chatName,
-                        secondaryText = "last seen at ${chatUiState.status}",
+                        secondaryText = if (chatUiState.type == "available") "Online" else "Offline",
                         modifier = Modifier
                             .fillMaxWidth()
                     )

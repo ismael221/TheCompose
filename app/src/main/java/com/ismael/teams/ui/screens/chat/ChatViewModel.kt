@@ -24,8 +24,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jivesoftware.smack.packet.Presence
 import org.jxmpp.jid.impl.JidCreate
 import java.util.UUID
 import kotlin.collections.orEmpty
@@ -63,6 +66,8 @@ class ChatViewModel : ViewModel() {
     }
 
     fun updateCurrentSelectedChat(chat: Chat) {
+        Log.i("Roster",chat.jid)
+        getPresence(chat.jid)
         _uiState.update {
             it.copy(
                 currentSelectedChat = chat
@@ -109,12 +114,15 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun getPresence(){
-       val presence =  xmppManager.getUserPresence("ismael221@ismael")
-        Log.i("Roster",presence.toString())
+    fun getPresence(jid: String){
+       val presence =  xmppManager.getUserPresence(jid)
+        Log.i("Roster",presence?.mode.toString())
+        Log.i("Roster",presence?.type.toString())
+        Log.i("Roster",presence?.status.toString())
         _uiState.update {
             it.copy(
-                status = presence?.type.toString()
+                mode = presence?.mode,
+                type = presence?.type.toString()
             )
         }
     }
@@ -147,8 +155,6 @@ class ChatViewModel : ViewModel() {
     fun setContext(context: Context) {
         this.context = context
     }
-
-
 
 
     fun observeIncomingMessages() {
@@ -208,6 +214,8 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
+
+
     private val REQUEST_CODE_PERMISSION = 100
 
     private fun notifyUser(from: String?, body: String, context: Context) {
