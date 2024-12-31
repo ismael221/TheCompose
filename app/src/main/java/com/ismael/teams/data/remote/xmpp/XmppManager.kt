@@ -1,6 +1,7 @@
 package com.ismael.teams.data.remote.xmpp
 
 import android.util.Log
+import androidx.compose.ui.graphics.isSupported
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,6 +18,7 @@ import org.jivesoftware.smack.roster.PresenceEventListener
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
+import org.jivesoftware.smackx.carbons.CarbonManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
@@ -38,6 +40,9 @@ object XmppManager {
 
     private val roster: Roster?
         get() = connection?.let { Roster.getInstanceFor(it) }
+
+    private var carbonManager: CarbonManager? = null
+
 
     private var connection: AbstractXMPPConnection? = null
     private var chatManager: ChatManager? = null
@@ -86,6 +91,15 @@ object XmppManager {
             connection = XMPPTCPConnection(config)
             connection?.connect()
             connection?.login()
+
+            carbonManager = CarbonManager.getInstanceFor(connection)
+            carbonManager?.isSupportedByServer
+            if (carbonManager?.isSupportedByServer == true) {
+                carbonManager?.enableCarbons()
+               Log.i("CarbonManager","Message Carbons enabled")
+            } else {
+                Log.i("CarbonManager","Message Carbons not supported by the server")
+            }
 
             ReconnectionManager.getInstanceFor(connection).enableAutomaticReconnection()
 
