@@ -135,8 +135,8 @@ object XmppManager {
         }, { stanza -> stanza is org.jivesoftware.smack.packet.Message })
     }
 
-    fun rosterPresenceListener(){
-       roster?.addPresenceEventListener(presenceListener)
+    fun rosterPresenceListener() {
+        roster?.addPresenceEventListener(presenceListener)
     }
 
 
@@ -175,8 +175,8 @@ object XmppManager {
 
 
     fun getUserActivity(jid: String): String {
-      val  activity = LastActivityManager.getInstanceFor(connection)
-      val lastActivity = activity.getLastActivity(JidCreate.entityBareFrom(jid))
+        val activity = LastActivityManager.getInstanceFor(connection)
+        val lastActivity = activity.getLastActivity(JidCreate.entityBareFrom(jid))
 
         return lastActivity.lastActivity.toString()
     }
@@ -186,7 +186,10 @@ object XmppManager {
 
 
         override fun presenceAvailable(address: FullJid?, availablePresence: Presence?) {
-            Log.i("XmppManager", "Presence available for $address: ${availablePresence?.type} - ${availablePresence?.status}")
+            Log.i(
+                "XmppManager",
+                "Presence available for $address: ${availablePresence?.type} - ${availablePresence?.status}"
+            )
             _presenceUpdates.value = Pair(address.toString(), availablePresence)
             updateLastActivity(address.toString())
         }
@@ -220,9 +223,6 @@ object XmppManager {
     fun getLastActivity(jid: String): Long? {
         return lastActivityMap[jid]
     }
-
-
-
 
 
 }

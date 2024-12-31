@@ -18,4 +18,11 @@
     <string name="statusMessage">Working hours: 10pm to 7am Brazil time</string>
     <string name="showInChat">Show in chat</string>
     <string name="ChatWithUser">ChatWithUser</string>
+    <string name="available">Available</string>
+    <string name="busy">Busy</string>
+    <string name="away">Away</string>
+    <string name="dnd">Do not disturb</string>
+    <string name="brb">Be right back</string>
+    <string name="offline">Offline</string>
+    <string name="reset">Reset status</string>
 </resources>
