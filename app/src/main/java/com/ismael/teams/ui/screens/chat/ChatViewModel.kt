@@ -192,14 +192,16 @@ class ChatViewModel : ViewModel() {
                            key = removeAfterSlash(key),
                            message = mensagem
                        )
-                       _uiState.update {
-                           it.copy(
-                               currentSelectedChat = _uiState.value.currentSelectedChat,
-                               messages = it.messages.toMutableMap().apply {
-                                   val currentMessages = get(_uiState.value.currentSelectedChat?.jid).orEmpty()
-                                   _uiState.value.currentSelectedChat?.jid?.let { it1 -> put(it1, currentMessages + mensagem) }
-                               }
-                           )
+                       if (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())){
+                           _uiState.update {
+                               it.copy(
+                                   currentSelectedChat = _uiState.value.currentSelectedChat,
+                                   messages = it.messages.toMutableMap().apply {
+                                       val currentMessages = get(_uiState.value.currentSelectedChat?.jid).orEmpty()
+                                       _uiState.value.currentSelectedChat?.jid?.let { it1 -> put(it1, currentMessages + mensagem) }
+                                   }
+                               )
+                           }
                        }
                    }else{
                        println("Received message with null body: $message")
