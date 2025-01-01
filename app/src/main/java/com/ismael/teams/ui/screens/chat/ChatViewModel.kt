@@ -43,6 +43,10 @@ class ChatViewModel : ViewModel() {
 
     private val _messages = mutableMapOf<String, List<Message>>()
 
+    private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
+    val presenceUpdates = _presenceUpdates.asStateFlow()
+
+
 
     fun loadMessagesForChat(chatId: String) {
         viewModelScope.launch {
@@ -87,7 +91,11 @@ class ChatViewModel : ViewModel() {
 
     }
 
+    fun removeAfterSlash(input: String): String {
+        return input.substringBefore("/")
+    }
 
+    //TODO needs to fix the issue while sending my message, because it does not sync using  Carbon, it only works now with the messages that other users sent to me
     fun sendMessage(chatId: String, message: Message) {
         viewModelScope.launch {
             try {
@@ -99,15 +107,21 @@ class ChatViewModel : ViewModel() {
                     xmppManager.sendMessage(recipientJid, message.text)
 
                 }
+                loadMessagesForChat(chatId)
+//                _uiState.update {
+//                    it.copy(
+//                        messages= _messages
+//                    )
+//                }
 
-                _uiState.update {
-                    it.copy(
-                        messages = it.messages.toMutableMap().apply {
-                            val currentMessages = get(chatId).orEmpty()
-                            put(chatId, currentMessages + message)
-                        }
-                    )
-                }
+//                _uiState.update {
+//                    it.copy(
+//                        messages = it.messages.toMutableMap().apply {
+//                            val currentMessages = get(chatId).orEmpty()
+//                            put(chatId, currentMessages + message)
+//                        }
+//                    )
+//                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -161,44 +175,47 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
-                    val key = message.from // Defina a chave, por exemplo, o remetente
-                    notifyUser(message.from.toString(), message.body, context!!)
-                    println("Recebida no dispatcher: " + message)
-                    val mensagem = Message(
-                        to = "ismael221@ismael",
-                        key = UUID.randomUUID().toString(),
-                        text = message.body,
-                        senderId = "yasmin@ismael",
-                        timestamp = System.currentTimeMillis(),
-                    )
-                    addMessageToMap(
-                        map = _messages, // Seu mapa mutável
-                        key = "yasmin@ismael",
-                        message = mensagem
-                    )
-                    val chat = UserChat(
-                        jid = "yasmin@ismael",
-                        lastMessage = message.body,
-                        lastMessageTime = mensagem.timestamp,
-                        chatName = "yasmin rodrigues",
-                        chatPhotoUrl = "",
-                        isUnread = false,
-                        chatType = ChatType.User,
-                        lastSeen = System.currentTimeMillis()
-                    )
-                    _uiState.update {
-                        it.copy(
-                            currentSelectedChat = chat,
-                            messages = it.messages.toMutableMap().apply {
-                                val currentMessages = get(chat.jid).orEmpty()
-                                put(chat.jid, currentMessages + mensagem)
-                            }
-                        )
-                    }
+                   if (message.body != null){
+                       val key = message.from.toString() // Defina a chave, por exemplo, o remetente
+                       notifyUser(message.from.toString(), message.body, context!!)
+                       println("Recebida no dispatcher: " + message)
+                       println("Body: "+message.body)
+                       val mensagem = Message(
+                           to = removeAfterSlash(message.to.toString()),
+                           key = UUID.randomUUID().toString(),
+                           text = message.body,
+                           senderId = removeAfterSlash(message.from.toString()),
+                           timestamp = System.currentTimeMillis(),
+                       )
+                       addMessageToMap(
+                           map = _messages, // Seu mapa mutável
+                           key = removeAfterSlash(key),
+                           message = mensagem
+                       )
+                       _uiState.update {
+                           it.copy(
+                               currentSelectedChat = _uiState.value.currentSelectedChat,
+                               messages = it.messages.toMutableMap().apply {
+                                   val currentMessages = get(_uiState.value.currentSelectedChat?.jid).orEmpty()
+                                   _uiState.value.currentSelectedChat?.jid?.let { it1 -> put(it1, currentMessages + mensagem) }
+                               }
+                           )
+                       }
+                   }else{
+                       println("Received message with null body: $message")
+                   }
                 }
             }
         }
     }
+
+    private fun observePresenceUpdates() {
+        XmppManager.presenceUpdates.onEach { presenceUpdate ->
+            _presenceUpdates.value = presenceUpdate
+        }.launchIn(viewModelScope)
+    }
+
+
     fun createNotificationChannel() {
         val context = this.context
         context?.let {
@@ -229,7 +246,7 @@ class ChatViewModel : ViewModel() {
 
             val notification = NotificationCompat.Builder(context, "messages_channel")
                 .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
-                .setContentTitle("Nova mensagem de ${xmppManager.getUserName("yasmin@ismael")}")
+                .setContentTitle("Nova mensagem de ${xmppManager.getUserName(from.toString())}")
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build()
