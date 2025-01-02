@@ -184,10 +184,8 @@ class ChatViewModel : ViewModel() {
                 messages.lastOrNull()?.let { message ->
                     if (message.body != null) {
 
-
                         var key: String? = null
-                        // Defina a chave, por exemplo, o remetente
-                        notifyUser(message.from.toString(), message.body, context!!)
+
                         println("Recebida no dispatcher: " + message)
                         println("Body: " + message.body)
                         val mensagem = Message(
@@ -200,6 +198,7 @@ class ChatViewModel : ViewModel() {
                         if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) {
                             key = message.to.toString()
                         } else {
+                            notifyUser(message.from.toString(), message.body, context!!)
                             key = message.from.toString()
                         }
 
