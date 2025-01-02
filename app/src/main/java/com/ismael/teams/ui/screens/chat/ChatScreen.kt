@@ -2,6 +2,7 @@ package com.ismael.teams.ui.screens.chat
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -76,6 +77,7 @@ import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jivesoftware.smack.packet.Presence
 
 
 @Composable
@@ -104,7 +106,8 @@ fun UserIcon(
 
 @Composable
 fun UserIconWithStatus(
-    status: String = "brb",
+    status: String ,
+    @DrawableRes userProfile: Int,
     modifier: Modifier = Modifier
 ){
     BadgedBox(
@@ -120,7 +123,7 @@ fun UserIconWithStatus(
     ) {
         UserIcon(
             modifier = modifier,
-            painter = painterResource(R.drawable.yasmin),
+            painter = painterResource(userProfile),
             contentDescription = null,
             onclick = {}
         )
@@ -316,6 +319,7 @@ fun ChatBubble(
 fun UserChatTopBar(
     navController: NavController,
     chatUiState: ChatUiState,
+
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
@@ -327,9 +331,19 @@ fun UserChatTopBar(
                 is UserChat -> {
                     UserDetails(
                         userName = chat.chatName,
-                        secondaryText = if (chatUiState.type == "available") "Online" else "Offline",
+                        secondaryText = when (chatUiState.mode) {
+                            Presence.Mode.available -> "Online"
+                            Presence.Mode.dnd -> "Do not disturb"
+                            Presence.Mode.away -> "Away"
+                            Presence.Mode.xa -> "Be right back"
+                            else -> {
+                                "Offline"
+                            }
+                        },
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        userStatus = chatUiState.mode.toString(),
+                        userProfilePic = R.drawable.yasmin
                     )
                 }
 
@@ -338,7 +352,9 @@ fun UserChatTopBar(
                         userName = chat.chatName,
                         secondaryText = (chat as? GroupChat)?.members?.size.toString(),
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        userStatus = "",
+                        userProfilePic = 1
                     )
                 }
             }
@@ -559,7 +575,7 @@ private fun TeamsChatScreenPreview() {
         darkColorScheme()
     ) {
        Column {
-           UserIconWithStatus()
+//           UserIconWithStatus()
        }
     }
 }

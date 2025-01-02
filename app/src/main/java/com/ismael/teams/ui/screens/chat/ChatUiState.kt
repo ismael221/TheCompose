@@ -12,6 +12,7 @@ data class ChatUiState(
     val currentSelectedChat: Chat? = null,
     val users: List<User> = emptyList(),
     val isLoading: Boolean = false,
+    val currentLoggedInUser: User? = null,
     val mode: Enum<Mode>? = null,
     val type: String? = null,
     val error: String? = null,

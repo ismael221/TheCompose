@@ -18,6 +18,7 @@ import com.ismael.teams.R
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
+import com.ismael.teams.data.model.User
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,12 @@ class ChatViewModel : ViewModel() {
     private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
     val presenceUpdates = _presenceUpdates.asStateFlow()
 
+    private val currentLoggedInUser = User(
+        id = "1",
+        jid = "ismael221@ismael",
+        username = "ismael221",
+        displayName = "Ismael Nunes Campos"
+    )
 
 
     fun loadMessagesForChat(chatId: String) {
@@ -70,7 +77,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun updateCurrentSelectedChat(chat: Chat) {
-        Log.i("Roster",chat.jid)
+        Log.i("Roster", chat.jid)
         getPresence(chat.jid)
         _uiState.update {
             it.copy(
@@ -128,11 +135,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun getPresence(jid: String){
-       val presence =  xmppManager.getUserPresence(jid)
-        Log.i("Roster",presence?.mode.toString())
-        Log.i("Roster",presence?.type.toString())
-        Log.i("Roster",presence?.status.toString())
+    fun getPresence(jid: String) {
+        val presence = xmppManager.getUserPresence(jid)
+        Log.i("Roster", presence?.mode.toString())
+        Log.i("Roster", presence?.status.toString())
         _uiState.update {
             it.copy(
                 mode = presence?.mode,
@@ -164,6 +170,7 @@ class ChatViewModel : ViewModel() {
             xmppManager.disconnect()
         }
     }
+
     private var context: Context? = null
 
     fun setContext(context: Context) {
@@ -175,37 +182,55 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
-                   if (message.body != null){
-                       val key = message.from.toString() // Defina a chave, por exemplo, o remetente
-                       notifyUser(message.from.toString(), message.body, context!!)
-                       println("Recebida no dispatcher: " + message)
-                       println("Body: "+message.body)
-                       val mensagem = Message(
-                           to = removeAfterSlash(message.to.toString()),
-                           key = UUID.randomUUID().toString(),
-                           text = message.body,
-                           senderId = removeAfterSlash(message.from.toString()),
-                           timestamp = System.currentTimeMillis(),
-                       )
-                       addMessageToMap(
-                           map = _messages, // Seu mapa mutável
-                           key = removeAfterSlash(key),
-                           message = mensagem
-                       )
-                       if (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())){
-                           _uiState.update {
-                               it.copy(
-                                   currentSelectedChat = _uiState.value.currentSelectedChat,
-                                   messages = it.messages.toMutableMap().apply {
-                                       val currentMessages = get(_uiState.value.currentSelectedChat?.jid).orEmpty()
-                                       _uiState.value.currentSelectedChat?.jid?.let { it1 -> put(it1, currentMessages + mensagem) }
-                                   }
-                               )
-                           }
-                       }
-                   }else{
-                       println("Received message with null body: $message")
-                   }
+                    if (message.body != null) {
+
+
+                        var key: String? = null
+                        // Defina a chave, por exemplo, o remetente
+                        notifyUser(message.from.toString(), message.body, context!!)
+                        println("Recebida no dispatcher: " + message)
+                        println("Body: " + message.body)
+                        val mensagem = Message(
+                            to = removeAfterSlash(message.to.toString()),
+                            key = UUID.randomUUID().toString(),
+                            text = message.body,
+                            senderId = removeAfterSlash(message.from.toString()),
+                            timestamp = System.currentTimeMillis(),
+                        )
+                        if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) {
+                            key = message.to.toString()
+                        } else {
+                            key = message.from.toString()
+                        }
+
+                        addMessageToMap(
+                            map = _messages, // Seu mapa mutável
+                            key = removeAfterSlash(key),
+                            message = mensagem
+                        )
+                        if ((_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())) || (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(
+                                message.to.toString()
+                            ))
+                        ) {
+                            _uiState.update {
+                                it.copy(
+                                    currentSelectedChat = _uiState.value.currentSelectedChat,
+                                    messages = it.messages.toMutableMap().apply {
+                                        val currentMessages =
+                                            get(_uiState.value.currentSelectedChat?.jid).orEmpty()
+                                        _uiState.value.currentSelectedChat?.jid?.let { it1 ->
+                                            put(
+                                                it1,
+                                                currentMessages + mensagem
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        println("Received message with null body: $message")
+                    }
                 }
             }
         }
@@ -242,7 +267,8 @@ class ChatViewModel : ViewModel() {
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED) {
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
 
             val notificationManager = NotificationManagerCompat.from(context)
 
@@ -263,7 +289,6 @@ class ChatViewModel : ViewModel() {
             )
         }
     }
-
 
 
 }

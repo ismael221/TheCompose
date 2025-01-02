@@ -41,7 +41,7 @@ import com.ismael.teams.R
 import com.ismael.teams.ui.screens.chat.UserIcon
 import com.ismael.teams.ui.screens.chat.UserIconWithStatus
 import kotlin.math.exp
-
+//TODO pass the uistate in order to get the user activity
 @Composable
 fun SideNavBarItems(
     modifier: Modifier = Modifier
@@ -59,7 +59,10 @@ fun SideNavBarItems(
             label = {
                 UserDetails(
                     userName = "Ismael Nunes Campos - External",
-                    secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA"
+                    secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA",
+                    userStatus =  "available",
+                    userProfilePic = R.drawable.perfil,
+                    modifier = Modifier
                 )
             },
             selected = false,
@@ -233,13 +236,16 @@ fun SideNavBarItems(
 fun UserDetails(
     userName: String,
     secondaryText: String,
+    userStatus: String,
+    userProfilePic: Int,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
     ) {
         UserIconWithStatus(
-            status = "available",
+            status = userStatus,
+            userProfile = userProfilePic,
             modifier = Modifier
         )
         Column(

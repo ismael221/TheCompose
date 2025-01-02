@@ -130,7 +130,8 @@ fun ChatCard(
             if (chatPreview.chatType == ChatType.User) {
                 UserIconWithStatus(
                     status = "available",
-                    modifier = Modifier
+                    modifier = Modifier,
+                    userProfile = R.drawable.yasmin
                 )
             } else {
             }

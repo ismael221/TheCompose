@@ -1,7 +1,7 @@
 package com.ismael.teams.data.remote.xmpp
 
 import android.util.Log
-import androidx.compose.ui.graphics.isSupported
+import com.ismael.teams.data.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -96,9 +96,9 @@ object XmppManager {
             carbonManager?.isSupportedByServer
             if (carbonManager?.isSupportedByServer == true) {
                 carbonManager?.enableCarbons()
-               Log.i("CarbonManager","Message Carbons enabled")
+                Log.i("CarbonManager", "Message Carbons enabled")
             } else {
-                Log.i("CarbonManager","Message Carbons not supported by the server")
+                Log.i("CarbonManager", "Message Carbons not supported by the server")
             }
 
             ReconnectionManager.getInstanceFor(connection).enableAutomaticReconnection()
@@ -130,15 +130,23 @@ object XmppManager {
     fun setupMessageListener() {
         connection?.addAsyncStanzaListener({ stanza ->
             if (stanza is org.jivesoftware.smack.packet.Message) {
-                val from = stanza.from?.asBareJid()
-                val body = stanza.body
+                val carbonCopy =
+                    stanza.getExtension("urn:xmpp:carbons:2") as? org.jivesoftware.smackx.carbons.packet.CarbonExtension
+                val actualMessage =
+                    carbonCopy?.forwarded?.forwardedStanza as? org.jivesoftware.smack.packet.Message
+                        ?: stanza
+
+                val from = actualMessage.from?.asBareJid()
+                val body = actualMessage.body
+
+                // Atualiza a lista de mensagens recebidas
                 _receivedMessages.update { currentMessages ->
-                    println("xmpp " + currentMessages)
-                    currentMessages + stanza // Adiciona a nova mensagem à lista existente
+                    println("xmpp $currentMessages")
+                    currentMessages + actualMessage // Adiciona a nova mensagem à lista existente
                 }
 
                 if (!body.isNullOrEmpty()) {
-                    println("Mensagem recebida diretamente da conexão: De $from - $body")
+                    println("Mensagem recebida: De $from - $body")
                     Log.i("ListenerConexao", "Mensagem recebida de $from: $body")
 
                     // Atualiza o fluxo de mensagens
@@ -148,6 +156,7 @@ object XmppManager {
             }
         }, { stanza -> stanza is org.jivesoftware.smack.packet.Message })
     }
+
 
     fun rosterPresenceListener() {
         roster?.addPresenceEventListener(presenceListener)
@@ -161,6 +170,10 @@ object XmppManager {
 
     fun sendMessage(to: EntityBareJid, message: String) {
         try {
+            val presence = Presence(Presence.Type.subscribe)
+            presence.to = to
+            println(presence)
+            connection?.sendStanza(presence)
             val chat = chatManager?.chatWith(to)
             chat?.send(message)
             println("Mensagem enviada para $to: $message")
@@ -194,7 +207,7 @@ object XmppManager {
 
         return lastActivity.lastActivity.toString()
     }
-    //Preciso adicionar o metodo para se inscrever no roster de cada usuário
+
 
     private val presenceListener = object : PresenceEventListener {
 
