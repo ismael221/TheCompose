@@ -1,6 +1,7 @@
 package com.ismael.teams.ui.screens.chat
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -102,7 +103,6 @@ class ChatViewModel : ViewModel() {
         return input.substringBefore("/")
     }
 
-    //TODO needs to fix the issue while sending my message, because it does not sync using  Carbon, it only works now with the messages that other users sent to me
     fun sendMessage(chatId: String, message: Message) {
         viewModelScope.launch {
             try {
@@ -115,20 +115,6 @@ class ChatViewModel : ViewModel() {
 
                 }
                 loadMessagesForChat(chatId)
-//                _uiState.update {
-//                    it.copy(
-//                        messages= _messages
-//                    )
-//                }
-
-//                _uiState.update {
-//                    it.copy(
-//                        messages = it.messages.toMutableMap().apply {
-//                            val currentMessages = get(chatId).orEmpty()
-//                            put(chatId, currentMessages + message)
-//                        }
-//                    )
-//                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -262,32 +248,44 @@ class ChatViewModel : ViewModel() {
     private val REQUEST_CODE_PERMISSION = 100
 
     private fun notifyUser(from: String?, body: String, context: Context) {
-        // Verificar se a permissão de notificações foi concedida (Android 13 e superior)
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-
-            val notificationManager = NotificationManagerCompat.from(context)
-
-            val notification = NotificationCompat.Builder(context, "messages_channel")
-                .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
-                .setContentTitle("Nova mensagem de ${xmppManager.getUserName(from.toString())}")
-                .setContentText(body)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .build()
-
-            notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        createNotificationChannel()
+        // Verificar versão do Android
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13 ou superior: Verificar permissão de notificações
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                showNotification(from, body, context)
+            } else {
+                // Solicitar permissão ao usuário
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_CODE_PERMISSION
+                )
+            }
         } else {
-            // Solicitar permissão ao usuário, se necessário
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                REQUEST_CODE_PERMISSION
-            )
+            // Android 12 ou inferior: Não é necessário verificar permissões
+            showNotification(from, body, context)
         }
     }
+
+    @SuppressLint("MissingPermission")
+    private fun showNotification(from: String?, body: String, context: Context) {
+        val notificationManager = NotificationManagerCompat.from(context)
+
+        val notification = NotificationCompat.Builder(context, "messages_channel")
+            .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
+            .setContentTitle("Nova mensagem de ${removeAfterSlash(xmppManager.getUserName(from.toString()))}")
+            .setContentText(body)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
 
 
 }
