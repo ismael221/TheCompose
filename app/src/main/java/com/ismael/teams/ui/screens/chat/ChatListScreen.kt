@@ -5,14 +5,17 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,8 +33,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -39,6 +44,7 @@ import com.ismael.teams.R
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
+import com.ismael.teams.data.model.UserChat
 
 @Composable
 fun ChatList(
@@ -56,7 +62,7 @@ fun ChatList(
         state = chatListState
 
     ) {
-        if (showSpacer){
+        if (showSpacer) {
             item {
                 Spacer(
                     modifier.height(70.dp)
@@ -73,7 +79,6 @@ fun ChatList(
                 navController = navController,
                 modifier = modifier
             )
-
             HorizontalDivider(
                 modifier = Modifier
                     .padding(start = 70.dp, end = 0.dp)
@@ -81,7 +86,7 @@ fun ChatList(
                 thickness = 0.8.dp
             )
         }
-        if (showSpacer){
+        if (showSpacer) {
             item {
                 Spacer(
                     modifier.height(90.dp)
@@ -98,78 +103,86 @@ fun ChatCard(
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+    Box(
         modifier = modifier
-            .combinedClickable(
-                onClick = {
-                    Log.i("ChatCard", "Clicked on chat with id: ${chatPreview.jid}")
-                    navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${chatPreview.jid}")
-                },
-                onLongClick = {}
-            )
-            .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
-
-        ) {
-
+    ) {
         Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
             modifier = Modifier
-        ) {
-            if (chatPreview.isUnread) {
+                .combinedClickable(
+                    onClick = {
+                        Log.i("ChatCard", "Clicked on chat with id: ${chatPreview.jid}")
+                        navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${chatPreview.jid}")
+                    },
+                    onLongClick = {}
+                )
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
 
+            ) {
+
+            Row(
+                modifier = Modifier
+            ) {
+                if (chatPreview.isUnread) {
+                    Text(
+                        text = ".",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF945EF6),
+                        fontSize = 40.sp,
+                        modifier = Modifier
+                            .offset(x = (-3).dp, y = (-13).dp)
+                    )
+
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .width(13.dp)
+                    )
+                }
+                if (chatPreview.chatType == ChatType.User) {
+                    UserIconWithStatus(
+                        status = "available",
+                        modifier = Modifier
+                            .padding(top = 2.dp),
+                        userProfile = R.drawable.yasmin
+                    )
+                }
+
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                //.padding(end = 24.dp)
+            ) {
                 Text(
-                    text = ".",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF945EF6),
-                    fontSize = 30.sp,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
+                    text = chatPreview.chatName,
+                    style = MaterialTheme.typography.titleMedium,
                 )
-
-            } else {
-                Spacer(
-                    modifier = Modifier
-                        .width(8.dp)
-                )
+                chatPreview.lastMessage?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
-            if (chatPreview.chatType == ChatType.User) {
-                UserIconWithStatus(
-                    status = "available",
-                    modifier = Modifier,
-                    userProfile = R.drawable.yasmin
-                )
-            } else {
-            }
-
         }
-
-        Column(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
             modifier = Modifier
-                .padding(end = 24.dp)
+                .padding(top = 16.dp, end = 8.dp)
+                .fillMaxWidth()
         ) {
             Text(
-                text = chatPreview.chatName,
-                style = MaterialTheme.typography.titleMedium,
+                text = "10:00 AM",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
             )
-            chatPreview.lastMessage?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
         }
-        Spacer(
-            modifier = Modifier
-                .width(90.dp)
-        )
-        Text(
-            text = "10:00 AM",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
     }
 }
 
@@ -286,4 +299,74 @@ fun ChatFilterBottomSheet(
         }
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatCardPreview(
+    modifier: Modifier = Modifier
+) {
+    MaterialTheme {
+        ChatCard(
+            chatPreview = UserChat(
+                jid = "yasmin@ismael",
+                lastMessage = "Olá amor",
+                lastMessageTime = System.currentTimeMillis(),
+                chatName = "Yasmin Rodrigues",
+                isUnread = true,
+                lastSeen = System.currentTimeMillis(),
+                chatPhotoUrl = ""
+            ),
+            navController = NavController(LocalContext.current),
+        )
+
+    }
+}
+
+@Preview(showBackground = true, widthDp = 700)
+@Composable
+fun ChatCardMediumPreview(
+    modifier: Modifier = Modifier
+) {
+    MaterialTheme {
+        Column {
+            ChatCard(
+                chatPreview = UserChat(
+                    jid = "yasmin@ismael",
+                    lastMessage = "Olá amor",
+                    lastMessageTime = System.currentTimeMillis(),
+                    chatName = "Yasmin Rodrigues",
+                    isUnread = true,
+                    lastSeen = System.currentTimeMillis(),
+                    chatPhotoUrl = ""
+                ),
+                navController = NavController(LocalContext.current),
+            )
+            ChatCard(
+                chatPreview = UserChat(
+                    jid = "yasmin@ismael",
+                    lastMessage = "Olá amor",
+                    lastMessageTime = System.currentTimeMillis(),
+                    chatName = "Yasmin Rodrigues",
+                    isUnread = true,
+                    lastSeen = System.currentTimeMillis(),
+                    chatPhotoUrl = ""
+                ),
+                navController = NavController(LocalContext.current),
+            )
+            ChatCard(
+                chatPreview = UserChat(
+                    jid = "yasmin@ismael",
+                    lastMessage = "Olá amor",
+                    lastMessageTime = System.currentTimeMillis(),
+                    chatName = "Yasmin Rodrigues",
+                    isUnread = true,
+                    lastSeen = System.currentTimeMillis(),
+                    chatPhotoUrl = ""
+                ),
+                navController = NavController(LocalContext.current),
+            )
+        }
+
+    }
 }
