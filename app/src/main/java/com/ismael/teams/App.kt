@@ -45,8 +45,8 @@ import com.ismael.teams.ui.screens.SearchScreen
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.chat.ChatViewModel
 import com.ismael.teams.ui.screens.chat.ExpandedChatScreen
-import com.ismael.teams.ui.screens.chat.MediumChatWithScreen
-
+import com.ismael.teams.ui.screens.chat.MediumChatScreen
+import com.ismael.teams.ui.utils.TheComposeNavigationType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -89,18 +89,21 @@ fun TheComposeApp(
                         modifier = modifier
                     )
                 }
+
                 WindowWidthSizeClass.Medium -> {
-                    MediumChatWithScreen(
+                    MediumChatScreen(
                         navController = navController,
                         modifier = modifier
                     )
                 }
+
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedChatScreen(
                         navController = navController,
                         modifier = modifier
                     )
                 }
+
                 else -> {
                     CompactChatScreen(
                         navController = navController,
@@ -268,23 +271,72 @@ fun TheComposeApp(
             val chatId = backStackEntry.arguments?.getString("chatId")
             val selectedChat = DataSource().loadChats().find { it.jid == chatId }
 
-            selectedChat?.let {
-                ChatWithUser(
-                    navController = navController,
-                    onSendClick = { message: Message ->
-                        viewModel.sendMessage(
-                            chatId = message.to,
-                            message = message
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    selectedChat?.let {
+                        ChatWithUser(
+                            navController = navController,
+                            onSendClick = { message: Message ->
+                                viewModel.sendMessage(
+                                    chatId = message.to,
+                                    message = message
+                                )
+                            },
+                            chatUiState = chatUiState,
+                            selected = { chatId: String ->
+                                viewModel.loadMessagesForChat(chatId)
+                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                            },
+                            chat = it,
+                            navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
+                            currentLoggedUser = "ismael221@ismael"
                         )
-                    },
-                    chatUiState = chatUiState,
-                    selected = { chatId: String ->
-                        viewModel.loadMessagesForChat(chatId)
-                        viewModel.updateCurrentSelectedChat(chat = selectedChat)
-                    },
-                    chat = it,
-                    currentLoggedUser = "ismael221@ismael"
-                )
+                    }
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    selectedChat?.let {
+                        ChatWithUser(
+                            navController = navController,
+                            onSendClick = { message: Message ->
+                                viewModel.sendMessage(
+                                    chatId = message.to,
+                                    message = message
+                                )
+                            },
+                            chatUiState = chatUiState,
+                            selected = { chatId: String ->
+                                viewModel.loadMessagesForChat(chatId)
+                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                            },
+                            chat = it,
+                            navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
+                            currentLoggedUser = "ismael221@ismael"
+                        )
+                    }
+                }
+
+                else -> {
+                    selectedChat?.let {
+                        ChatWithUser(
+                            navController = navController,
+                            onSendClick = { message: Message ->
+                                viewModel.sendMessage(
+                                    chatId = message.to,
+                                    message = message
+                                )
+                            },
+                            chatUiState = chatUiState,
+                            selected = { chatId: String ->
+                                viewModel.loadMessagesForChat(chatId)
+                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                            },
+                            chat = it,
+                            navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
+                            currentLoggedUser = "ismael221@ismael"
+                        )
+                    }
+                }
             }
 
         }

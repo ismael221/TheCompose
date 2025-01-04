@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import com.ismael.teams.data.model.NavigationRoutes
 fun ChatList(
     postList: List<Chat>,
     navController: NavController,
+    showSpacer: Boolean,
     modifier: Modifier = Modifier
 ) {
     val chatListState = rememberLazyListState()
@@ -54,10 +56,12 @@ fun ChatList(
         state = chatListState
 
     ) {
-        item {
-            Spacer(
-                modifier.height(70.dp)
-            )
+        if (showSpacer){
+            item {
+                Spacer(
+                    modifier.height(70.dp)
+                )
+            }
         }
         items(
             items = postList,
@@ -77,10 +81,12 @@ fun ChatList(
                 thickness = 0.8.dp
             )
         }
-        item {
-            Spacer(
-                modifier.height(90.dp)
-            )
+        if (showSpacer){
+            item {
+                Spacer(
+                    modifier.height(90.dp)
+                )
+            }
         }
     }
 }

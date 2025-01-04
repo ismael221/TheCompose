@@ -3,7 +3,6 @@ package com.ismael.teams.ui.screens.chat
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -25,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Card
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,7 +40,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -60,21 +56,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
-import com.ismael.teams.TheComposeApp
 import com.ismael.teams.data.repository.DataSource
 import com.ismael.teams.data.model.Chat
-import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.GroupChat
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.UserChat
@@ -85,6 +76,7 @@ import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
+import com.ismael.teams.ui.utils.TheComposeNavigationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
@@ -429,36 +421,75 @@ fun ChatWithUser(
     chat: Chat,
     viewModel: ChatViewModel = viewModel(),
     selected: (String) -> Unit,
+    navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(chat.jid) {
         viewModel.loadMessagesForChat(chat.jid)
         selected(chat.jid)
     }
-    Scaffold(
-        topBar = {
-            UserChatTopBar(
-                chatUiState = chatUiState,
-                chat = chat,
-                navController = navController
-            )
-        },
-        bottomBar = {
-            ChatMessageBottomAppBar(
-                onSendClick = onSendClick,
-                uiState = chatUiState
-            )
-        },
-
-        ) { innerPadding ->
-
-        ChatMessages(
-            messages = chatUiState.currentChatMessages,
-            user = currentLoggedUser,
+    if (navigationType == TheComposeNavigationType.NAVIGATION_RAIL) {
+        Row(
             modifier = modifier
-                .padding(innerPadding)
-        )
+        ) {
+            TheComposeNavigationRail(
+                currentScreen = TeamsScreen.ChatList,
+                navController = navController,
+                modifier = modifier
+            )
+            Scaffold(
+                topBar = {
+                    UserChatTopBar(
+                        chatUiState = chatUiState,
+                        chat = chat,
+                        navController = navController
+                    )
+                },
+                bottomBar = {
+                    ChatMessageBottomAppBar(
+                        onSendClick = onSendClick,
+                        uiState = chatUiState
+                    )
+                },
+
+                ) { innerPadding ->
+
+                ChatMessages(
+                    messages = chatUiState.currentChatMessages,
+                    user = currentLoggedUser,
+                    modifier = modifier
+                        .padding(innerPadding)
+                )
+            }
+        }
     }
+    else {
+        Scaffold(
+            topBar = {
+                UserChatTopBar(
+                    chatUiState = chatUiState,
+                    chat = chat,
+                    navController = navController
+                )
+            },
+            bottomBar = {
+                ChatMessageBottomAppBar(
+                    onSendClick = onSendClick,
+                    uiState = chatUiState
+                )
+            },
+
+            ) { innerPadding ->
+
+            ChatMessages(
+                messages = chatUiState.currentChatMessages,
+                user = currentLoggedUser,
+                modifier = modifier
+                    .padding(innerPadding)
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -558,6 +589,7 @@ fun CompactChatScreen(
             ChatList(
                 postList = DataSource().loadChats(),
                 navController = navController,
+                showSpacer = true
             )
             if (showBottomSheet) {
                 ChatFilterBottomSheet(
@@ -576,13 +608,13 @@ fun CompactChatScreen(
 
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MediumChatWithScreen(
+fun MediumChatScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        verticalAlignment = Alignment.Bottom,
         modifier = modifier
     ) {
         TheComposeNavigationRail(
@@ -590,57 +622,13 @@ fun MediumChatWithScreen(
             navController = navController,
             modifier = Modifier
         )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
 
-            Scaffold(
+        ChatList(
+            postList = DataSource().loadChats(),
+            navController = navController,
+            showSpacer = false,
+        )
 
-            ) { innerPadding ->
-
-                ChatMessages(
-                    messages = listOf(
-                        Message(
-                            text = "Ismael Nunes Campos",
-                            to = "ismael221@ismael",
-                            senderId = "yasmin@ismael",
-                            timestamp = 0
-                        ),
-                        Message(
-                            text = "Ismael Nunes Campos",
-                            to = "ismael221@ismael",
-                            senderId = "yasmin@ismael",
-                            timestamp = 0
-                        ),
-                        Message(
-                            text = "Ismael Nunes Campos",
-                            to = "yasmin@ismael",
-                            senderId = "ismael221@ismael",
-                            timestamp = 0
-                        ),
-                        Message(
-                            text = "Ismael Nunes Campos",
-                            to = "yasmin@ismael",
-                            senderId = "ismael221@ismael",
-                            timestamp = 0
-                        )
-                        ,
-                        Message(
-                            text = "asdfasdfasdfasdf",
-                            to = "yasmin@ismael",
-                            senderId = "ismael221@ismael",
-                            timestamp = 0
-                        )
-
-                    ),
-                    user = "ismael221@ismael",
-                    modifier = modifier
-                        .padding(innerPadding)
-                )
-            }
-
-        }
 
     }
 
@@ -657,4 +645,17 @@ fun ExpandedChatScreen(
         navController = navController,
         modifier = modifier
     )
+}
+
+
+@Preview(showBackground = true, widthDp = 700)
+@Composable
+fun ChatScreenMediumPreview() {
+    MaterialTheme {
+        Surface {
+            MediumChatScreen(
+                navController = rememberNavController(),
+            )
+        }
+    }
 }
