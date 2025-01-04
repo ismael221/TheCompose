@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -102,4 +103,27 @@ fun CalendarScreen(
 
         }
     }
+}
+
+@Composable
+fun MediumCalendarScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.CalendarList,
+        navController = navController,
+        modifier = modifier
+    )
+}
+@Composable
+fun ExpandedCalendarScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.CalendarList,
+        navController = navController,
+        modifier = modifier
+    )
 }

@@ -22,9 +22,23 @@ import com.ismael.teams.R
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+enum class TeamsScreen(
+    @StringRes val title: Int
+) {
+    ChatList(title = R.string.chat),
+    ActivityList(title = R.string.activity),
+    CalendarList(title = R.string.calendar),
+    CallList(title = R.string.calls),
+    TeamsList(title = R.string.teams),
+    SearchBarList(title = R.string.search),
+    More(title = R.string.more),
+    ChatWithUser(title = R.string.ChatWithUser)
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,15 +96,27 @@ fun TeamsScreen(
     }
 }
 
-enum class TeamsScreen(
-    @StringRes val title: Int
+
+@Composable
+fun MediumTeamsScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
 ) {
-    ChatList(title = R.string.chat),
-    ActivityList(title = R.string.activity),
-    CalendarList(title = R.string.calendar),
-    CallList(title = R.string.calls),
-    TeamsList(title = R.string.teams),
-    SearchBarList(title = R.string.search),
-    More(title = R.string.more),
-    ChatWithUser(title = R.string.ChatWithUser)
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.TeamsList,
+        navController = navController,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ExpandedTeamsScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.TeamsList,
+        navController = navController,
+        modifier = modifier
+    )
 }

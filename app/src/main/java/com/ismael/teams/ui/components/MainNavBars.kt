@@ -17,6 +17,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -52,7 +54,6 @@ fun TeamsBottomNavigationBar(
     NavigationBar(
         modifier = modifier
     ) {
-        var selected = false
         var itemCount by remember { mutableIntStateOf(5) }
 
 
@@ -339,9 +340,119 @@ fun TopBarDropdownMenu(
     }
 }
 
+@Composable
+fun TheComposeNavigationRail(
+    currentScreen: TeamsScreen,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    NavigationRail(
+        modifier = modifier
+    ) {
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.ActivityList,
+            label = {
+                Text(
+                    text = "Activity",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = { navController.navigate(TeamsScreen.ActivityList.name) },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.ActivityList) painterResource(R.drawable.notifications_filled) else painterResource(R.drawable.notifications_24px),
+                    contentDescription = null
+                )
+            }
+        )
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.ChatList,
+            label = {
+                Text(
+                    text = "Chat",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = { navController.navigate(TeamsScreen.ChatList.name) },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(R.drawable.chat_24px),
+                    contentDescription = null
+                )
+            }
+        )
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.CalendarList,
+            label = {
+                Text(
+                    text = "Calendar",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = { navController.navigate(TeamsScreen.CalendarList.name) },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.CalendarList) painterResource(R.drawable.calendar_month_filled) else painterResource(R.drawable.calendar_month_24px),
+                    contentDescription = null
+                )
+            }
+        )
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.TeamsList,
+            label = {
+                Text(
+                    text = "Teams",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = { navController.navigate(TeamsScreen.TeamsList.name) },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.TeamsList) painterResource(R.drawable.groups_filled) else painterResource(R.drawable.groups_24px),
+                    contentDescription = null
+                )
+            }
+        )
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.CallList,
+            label = {
+                Text(
+                    text = "Calls",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = { navController.navigate(TeamsScreen.CallList.name) },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.CallList) painterResource(R.drawable.call_filled_24px) else painterResource(R.drawable.call_24px),
+                    contentDescription = null
+                )
+            }
+        )
+        NavigationRailItem(
+            selected = currentScreen == TeamsScreen.More,
+            label = {
+                Text(
+                    text = "More",
+                    style = AppTypography.bodySmall
+                )
+            },
+            onClick = {  },
+            icon = {
+                Icon(
+                    painter = if (currentScreen == TeamsScreen.More) painterResource(R.drawable.more_horiz_24px) else painterResource(R.drawable.more_horiz_24px),
+                    contentDescription = null
+                )
+            }
+        )
+    }
+
+}
 
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview() {
-
+//    TheComposeNavigationRail(
+//        currentScreen = TeamsScreen.ChatList
+//    )
 }

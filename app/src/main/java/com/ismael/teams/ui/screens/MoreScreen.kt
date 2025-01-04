@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,4 +61,29 @@ fun MoreScreen(
             }
         }
     }
+}
+
+
+@Composable
+fun MediumMoreScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+   TheComposeNavigationRail(
+       currentScreen = TeamsScreen.More,
+       navController = navController,
+       modifier = modifier
+   )
+}
+
+@Composable
+fun ExpandedMoreScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.More,
+        navController = navController,
+        modifier = modifier
+    )
 }

@@ -9,11 +9,22 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.compose.TeamsTheme
@@ -21,6 +32,7 @@ import com.ismael.teams.data.remote.xmpp.XmppManager
 import org.jxmpp.jid.impl.JidCreate
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,27 +40,24 @@ class MainActivity : ComponentActivity() {
         // enableEdgeToEdge()
         setContent {
             TeamsTheme {
+                val layoutDirection = LocalLayoutDirection.current
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    // val windowSize = calculateWindowSizeClass(this)
+                    modifier =  Modifier
+                        .padding(
+                            start = WindowInsets.safeDrawing.asPaddingValues()
+                                .calculateStartPadding(layoutDirection),
+                            end = WindowInsets.safeDrawing.asPaddingValues()
+                                .calculateEndPadding(layoutDirection)
+                        )
+                ) {
+                    val windowSize = calculateWindowSizeClass(this)
                     TheComposeApp(
-                        modifier = Modifier.padding(innerPadding)
+                        windowSize = windowSize.widthSizeClass,
                     )
                 }
             }
         }
     }
-
-//    override fun onStart() {
-//        super.onStart()
-//        initializeXmpp()
-//    }
-
-//    override fun onStop() {
-//        super.onStop()
-//        XmppManager.disconnect()
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -71,8 +80,3 @@ private fun initializeXmpp() {
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun TeamsAppPreview() {
-
-}

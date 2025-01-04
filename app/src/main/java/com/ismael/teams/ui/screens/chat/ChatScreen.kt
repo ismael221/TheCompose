@@ -3,6 +3,7 @@ package com.ismael.teams.ui.screens.chat
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Card
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,12 +39,14 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,23 +60,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
+import com.ismael.teams.TheComposeApp
 import com.ismael.teams.data.repository.DataSource
 import com.ismael.teams.data.model.Chat
+import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.GroupChat
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
@@ -106,17 +116,17 @@ fun UserIcon(
 
 @Composable
 fun UserIconWithStatus(
-    status: String ,
+    status: String,
     @DrawableRes userProfile: Int,
     modifier: Modifier = Modifier
-){
+) {
     BadgedBox(
         badge = {
             UserStatusBadge(
                 status = status,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .offset(x=-6.dp, y = 25.dp)
+                    .offset(x = -6.dp, y = 25.dp)
             )
         },
         modifier = modifier
@@ -138,19 +148,19 @@ fun UserStatusBadge(
     Box(
         modifier = modifier
             .background(color = Color.Black, shape = Shapes().small),
-    ){
+    ) {
         Image(
-           when (status){
-               "available" -> painterResource(R.drawable.available)
-               "busy" -> painterResource(R.drawable.busy)
-               "dnd" -> painterResource(R.drawable.dnd)
-               "away" -> painterResource(R.drawable.away)
-               "brb" -> painterResource(R.drawable.away)
-               "offline" -> painterResource(R.drawable.offline)
-               else -> {
-                   painterResource(R.drawable.offline)
-               }
-           },
+            when (status) {
+                "available" -> painterResource(R.drawable.available)
+                "busy" -> painterResource(R.drawable.busy)
+                "dnd" -> painterResource(R.drawable.dnd)
+                "away" -> painterResource(R.drawable.away)
+                "brb" -> painterResource(R.drawable.away)
+                "offline" -> painterResource(R.drawable.offline)
+                else -> {
+                    painterResource(R.drawable.offline)
+                }
+            },
             contentDescription = null,
             modifier = Modifier
                 .size(12.dp)
@@ -415,6 +425,7 @@ fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
     chatUiState: ChatUiState,
+    currentLoggedUser: String,
     chat: Chat,
     viewModel: ChatViewModel = viewModel(),
     selected: (String) -> Unit,
@@ -443,6 +454,7 @@ fun ChatWithUser(
 
         ChatMessages(
             messages = chatUiState.currentChatMessages,
+            user = currentLoggedUser,
             modifier = modifier
                 .padding(innerPadding)
         )
@@ -452,9 +464,9 @@ fun ChatWithUser(
 @Composable
 fun ChatMessages(
     messages: List<Message>,
+    user: String,
     modifier: Modifier = Modifier
 ) {
-    val myUser = "ismael221@ismael"
     val chatListState = rememberLazyListState()
 
     LaunchedEffect(messages) {
@@ -472,7 +484,7 @@ fun ChatMessages(
         ) { message ->
             ChatBubble(
                 message = message.text,
-                isUserMessage = message.senderId == myUser,
+                isUserMessage = message.senderId == user,
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp)
 
@@ -485,7 +497,7 @@ fun ChatMessages(
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ChatScreen(
+fun CompactChatScreen(
     navController: NavController,
     scope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
@@ -564,18 +576,85 @@ fun ChatScreen(
 
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun TeamsChatScreenPreview() {
-    val navController: NavHostController = rememberNavController()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    MaterialTheme(
-        darkColorScheme()
+fun MediumChatWithScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        modifier = modifier
     ) {
-       Column {
-//           UserIconWithStatus()
-       }
+        TheComposeNavigationRail(
+            currentScreen = TeamsScreen.ChatList,
+            navController = navController,
+            modifier = Modifier
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+
+            Scaffold(
+
+            ) { innerPadding ->
+
+                ChatMessages(
+                    messages = listOf(
+                        Message(
+                            text = "Ismael Nunes Campos",
+                            to = "ismael221@ismael",
+                            senderId = "yasmin@ismael",
+                            timestamp = 0
+                        ),
+                        Message(
+                            text = "Ismael Nunes Campos",
+                            to = "ismael221@ismael",
+                            senderId = "yasmin@ismael",
+                            timestamp = 0
+                        ),
+                        Message(
+                            text = "Ismael Nunes Campos",
+                            to = "yasmin@ismael",
+                            senderId = "ismael221@ismael",
+                            timestamp = 0
+                        ),
+                        Message(
+                            text = "Ismael Nunes Campos",
+                            to = "yasmin@ismael",
+                            senderId = "ismael221@ismael",
+                            timestamp = 0
+                        )
+                        ,
+                        Message(
+                            text = "asdfasdfasdfasdf",
+                            to = "yasmin@ismael",
+                            senderId = "ismael221@ismael",
+                            timestamp = 0
+                        )
+
+                    ),
+                    user = "ismael221@ismael",
+                    modifier = modifier
+                        .padding(innerPadding)
+                )
+            }
+
+        }
+
     }
+
+}
+
+
+@Composable
+fun ExpandedChatScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.ChatList,
+        navController = navController,
+        modifier = modifier
+    )
 }

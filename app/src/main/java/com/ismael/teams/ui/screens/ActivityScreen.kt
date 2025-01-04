@@ -36,11 +36,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.ui.components.FilterSwitch
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -239,6 +241,28 @@ fun ActivityScreen(
     }
 }
 
+
+@Composable
+fun MediumActivityScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.ActivityList,
+        navController = navController
+    )
+}
+
+@Composable
+fun ExpandedActivityScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.ActivityList,
+        navController = navController
+    )
+}
 
 @Composable
 @Preview(showBackground = true)

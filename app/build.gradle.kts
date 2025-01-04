@@ -65,6 +65,7 @@ dependencies {
     implementation("org.igniterealtime.smack:smack-tcp:4.4.0")
     implementation("org.igniterealtime.smack:smack-xmlparser-xpp3:4.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.compose.material3:material3-window-size-class")
 }
 
 configurations.all {

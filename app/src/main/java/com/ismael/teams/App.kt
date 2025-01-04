@@ -1,24 +1,25 @@
 package com.ismael.teams
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ismael.teams.data.repository.DataSource
@@ -27,18 +28,31 @@ import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.ui.screens.ActivityScreen
 import com.ismael.teams.ui.screens.CalendarScreen
 import com.ismael.teams.ui.screens.CallScreen
-import com.ismael.teams.ui.screens.chat.ChatScreen
+import com.ismael.teams.ui.screens.ExpandedActivityScreen
+import com.ismael.teams.ui.screens.ExpandedCalendarScreen
+import com.ismael.teams.ui.screens.ExpandedCallScreen
+import com.ismael.teams.ui.screens.ExpandedMoreScreen
+import com.ismael.teams.ui.screens.ExpandedTeamsScreen
+import com.ismael.teams.ui.screens.MediumActivityScreen
+import com.ismael.teams.ui.screens.MediumCalendarScreen
+import com.ismael.teams.ui.screens.MediumCallScreen
+import com.ismael.teams.ui.screens.MediumMoreScreen
+import com.ismael.teams.ui.screens.MediumTeamsScreen
+import com.ismael.teams.ui.screens.chat.CompactChatScreen
 import com.ismael.teams.ui.screens.chat.ChatWithUser
 import com.ismael.teams.ui.screens.MoreScreen
 import com.ismael.teams.ui.screens.SearchScreen
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.chat.ChatViewModel
+import com.ismael.teams.ui.screens.chat.ExpandedChatScreen
+import com.ismael.teams.ui.screens.chat.MediumChatWithScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TheComposeApp(
+    windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
     val viewModel: ChatViewModel = viewModel()
@@ -50,91 +64,205 @@ fun TheComposeApp(
         viewModel.observeIncomingMessages()
     }
 
-
     val chatUiState = viewModel.uiState.collectAsState().value
-
     val navController: NavHostController = rememberNavController()
-
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-
-    val backStackEntry by navController.currentBackStackEntryAsState()
-
-    val currentRoute = backStackEntry?.destination?.route
-
-
-    val currentScreen = when (currentRoute) {
-        NavigationRoutes.ChatList -> TeamsScreen.ChatList
-        NavigationRoutes.ActivityList -> TeamsScreen.ActivityList
-        NavigationRoutes.CalendarList -> TeamsScreen.CalendarList
-        NavigationRoutes.CallList -> TeamsScreen.CallList
-        NavigationRoutes.TeamsList -> TeamsScreen.TeamsList
-        NavigationRoutes.SearchBarList -> TeamsScreen.SearchBarList
-        NavigationRoutes.More -> TeamsScreen.More
-        NavigationRoutes.ChatWithUser.substringBefore("/") -> TeamsScreen.ChatWithUser
-        else -> TeamsScreen.ChatList
-    }
-
-
-    //Todo Create diffrent TopBars for Each Screen
 
     NavHost(
         navController = navController,
         startDestination = NavigationRoutes.ChatList
     ) {
-        composable(route = NavigationRoutes.ChatList) {
-            ChatScreen(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+        composable(route = NavigationRoutes.ChatList) { backStackEntry ->
+
+            val chatId = backStackEntry.arguments?.getString("chatId", "yasmin@ismael")
+            val selectedChat = DataSource().loadChats().find { it.jid == chatId }
+
+            when (windowSize) {
+
+                WindowWidthSizeClass.Compact -> {
+                    Log.i("WindowSize", windowSize.toString())
+                    CompactChatScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope,
+                        modifier = modifier
+                    )
+                }
+                WindowWidthSizeClass.Medium -> {
+                    MediumChatWithScreen(
+                        navController = navController,
+                        modifier = modifier
+                    )
+                }
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedChatScreen(
+                        navController = navController,
+                        modifier = modifier
+                    )
+                }
+                else -> {
+                    CompactChatScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+            }
+
         }
         composable(route = NavigationRoutes.ActivityList) {
-            ActivityScreen(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    ActivityScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    MediumActivityScreen(
+                        navController = navController
+                    )
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedActivityScreen(
+                        navController = navController,
+                    )
+                }
+
+                else -> {
+                    ActivityScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+            }
         }
         composable(route = NavigationRoutes.CalendarList) {
-            CalendarScreen(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    CalendarScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    MediumCalendarScreen(
+                        navController = navController
+                    )
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedCalendarScreen(
+                        navController = navController
+                    )
+                }
+
+            }
         }
         composable(route = NavigationRoutes.CallList) {
-            CallScreen(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    CallScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    MediumCallScreen(
+                        navController = navController
+                    )
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedCallScreen(
+                        navController = navController
+                    )
+                }
+
+            }
         }
         composable(route = NavigationRoutes.TeamsList) {
-            TeamsScreen(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    TeamsScreen(
+                        navController = navController,
+                        drawerState = drawerState,
+                        scope = scope
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    MediumTeamsScreen(
+                        navController = navController,
+                    )
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedTeamsScreen(
+                        navController = navController
+                    )
+                }
+
+            }
         }
         composable(route = NavigationRoutes.More) {
-            MoreScreen(
-                isVisible = true,
-                onDismiss = { },
-                navController = navController
-            )
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    MoreScreen(
+                        isVisible = true,
+                        onDismiss = { },
+                        navController = navController
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+                    MediumMoreScreen(
+                        navController = navController
+                    )
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+                    ExpandedMoreScreen(
+                        navController = navController
+                    )
+                }
+
+            }
         }
         composable(route = NavigationRoutes.SearchBarList) {
-            SearchScreen(
-                navController = navController,
-            )
+            when (windowSize) {
+                WindowWidthSizeClass.Compact -> {
+                    SearchScreen(
+                        navController = navController,
+                    )
+                }
+
+                WindowWidthSizeClass.Medium -> {
+
+                }
+
+                WindowWidthSizeClass.Expanded -> {
+
+                }
+
+            }
         }
         composable(
             route = NavigationRoutes.ChatWithUser,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
-
         ) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId")
@@ -154,24 +282,50 @@ fun TheComposeApp(
                         viewModel.loadMessagesForChat(chatId)
                         viewModel.updateCurrentSelectedChat(chat = selectedChat)
                     },
-                    chat = it
+                    chat = it,
+                    currentLoggedUser = "ismael221@ismael"
                 )
             }
-            
+
         }
     }
 
 }
 
 
+@Preview(showBackground = true)
 @Composable
-fun getCurrentRoute(navController: NavController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.destination?.route
+fun TeamsAppCompactPreview() {
+    MaterialTheme {
+        Surface {
+            TheComposeApp(
+                windowSize = WindowWidthSizeClass.Compact
+            )
+        }
+    }
 }
 
+@Preview(showBackground = true, widthDp = 700)
 @Composable
-@Preview(showBackground = true)
-fun TheComposeAppPreview() {
-    TheComposeApp()
+fun TeamsAppMediumPreview() {
+    MaterialTheme {
+        Surface {
+            TheComposeApp(
+                windowSize = WindowWidthSizeClass.Medium
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true, widthDp = 1000)
+@Composable
+fun TeamsAppExpandedPreview() {
+    MaterialTheme {
+        Surface {
+            TheComposeApp(
+                windowSize = WindowWidthSizeClass.Expanded
+            )
+        }
+    }
 }

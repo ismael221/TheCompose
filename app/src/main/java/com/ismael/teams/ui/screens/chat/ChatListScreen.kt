@@ -63,11 +63,13 @@ fun ChatList(
             items = postList,
             key = { it.jid }
         ) { post ->
+
             ChatCard(
                 chatPreview = post,
                 navController = navController,
                 modifier = modifier
             )
+
             HorizontalDivider(
                 modifier = Modifier
                     .padding(start = 70.dp, end = 0.dp)

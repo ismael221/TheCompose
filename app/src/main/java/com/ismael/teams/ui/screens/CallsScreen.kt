@@ -24,6 +24,7 @@ import com.ismael.teams.R
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
+import com.ismael.teams.ui.components.TheComposeNavigationRail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -101,4 +102,29 @@ fun CallScreen(
 
         }
     }
+}
+
+@Composable
+fun MediumCallScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.CallList,
+        navController = navController,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ExpandedCallScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+){
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.CallList,
+        navController = navController,
+        modifier = modifier
+    )
+
 }
