@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.ReconnectionManager
+import org.jivesoftware.smack.SmackConfiguration
 import org.jivesoftware.smack.SmackException
 import org.jivesoftware.smack.XMPPException
 import org.jivesoftware.smack.chat2.ChatManager
@@ -20,6 +21,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jivesoftware.smackx.carbons.CarbonManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
+import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.FullJid
@@ -101,7 +103,13 @@ object XmppManager {
                 Log.i("CarbonManager", "Message Carbons not supported by the server")
             }
 
-            ReconnectionManager.getInstanceFor(connection).enableAutomaticReconnection()
+            val reconnectionManager= ReconnectionManager.getInstanceFor(connection)
+            reconnectionManager.enableAutomaticReconnection()
+            ReconnectionManager.setEnabledPerDefault(true)
+
+            val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
+            ping.isEnabled = true
+
 
             chatManager = ChatManager.getInstanceFor(connection)
             val presence = PresenceBuilder
