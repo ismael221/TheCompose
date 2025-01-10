@@ -3,6 +3,17 @@ package com.ismael.teams.ui.screens.chat
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,9 +67,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -80,6 +93,8 @@ import com.ismael.teams.ui.utils.TheComposeNavigationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
+import org.jivesoftware.smackx.chatstates.ChatState
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -316,6 +331,97 @@ fun ChatBubble(
     }
 }
 
+@Composable
+fun ChatBubbleAnimation(
+    isUserMessage: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
+
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite")
+    val offset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(300,20, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+    val offset2 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(300,30, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+    val offset3 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(300,40, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+
+    Row(
+        modifier = modifier
+            .padding(
+                start = if (isUserMessage) 40.dp else 0.dp,
+                end = if (!isUserMessage) 40.dp else 0.dp
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp),
+            horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        backgroundColor,
+                        RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.dot_symbol),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .offset(y = offset.dp)
+                            .size(10.dp)
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.dot_symbol),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .offset(y = offset2.dp)
+                            .size(10.dp)
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.dot_symbol),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .offset(y = offset3.dp)
+                            .size(10.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserChatTopBar(
@@ -460,6 +566,7 @@ fun ChatWithUser(
                     modifier = modifier
                         .padding(innerPadding)
                 )
+
             }
         }
     }
@@ -520,6 +627,7 @@ fun ChatMessages(
                     .padding(start = 8.dp, end = 8.dp)
 
             )
+
         }
     }
 }
@@ -653,9 +761,9 @@ fun ExpandedChatScreen(
 fun ChatScreenMediumPreview() {
     MaterialTheme {
         Surface {
-            MediumChatScreen(
-                navController = rememberNavController(),
-            )
+//            MediumChatScreen(
+//                navController = rememberNavController(),
+//            )
         }
     }
 }

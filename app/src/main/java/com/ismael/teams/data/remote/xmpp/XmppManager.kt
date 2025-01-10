@@ -108,6 +108,7 @@ object XmppManager {
             ReconnectionManager.setEnabledPerDefault(true)
 
             val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
+
             ping.isEnabled = true
 
 
