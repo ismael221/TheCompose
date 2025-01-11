@@ -22,7 +22,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ismael.teams.data.repository.DataSource
+import com.ismael.teams.data.local.LocalAccountsDataProvider
+import com.ismael.teams.data.local.LocalChatsDataProvider
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.ui.screens.ActivityScreen
@@ -46,6 +47,7 @@ import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.chat.ChatViewModel
 import com.ismael.teams.ui.screens.chat.ExpandedChatScreen
 import com.ismael.teams.ui.screens.chat.MediumChatScreen
+import com.ismael.teams.ui.screens.chat.NewChatScreen
 import com.ismael.teams.ui.utils.TheComposeNavigationType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +78,7 @@ fun TheComposeApp(
         composable(route = NavigationRoutes.ChatList) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId", "yasmin@ismael")
-            val selectedChat = DataSource().loadChats().find { it.jid == chatId }
+            val selectedChat = chatUiState.chats.find { it.jid == chatId }
 
             when (windowSize) {
 
@@ -86,6 +88,7 @@ fun TheComposeApp(
                         navController = navController,
                         drawerState = drawerState,
                         scope = scope,
+                        chatUiState = chatUiState,
                         modifier = modifier
                     )
                 }
@@ -93,6 +96,7 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Medium -> {
                     MediumChatScreen(
                         navController = navController,
+                        chatUiState = chatUiState,
                         modifier = modifier
                     )
                 }
@@ -108,7 +112,8 @@ fun TheComposeApp(
                     CompactChatScreen(
                         navController = navController,
                         drawerState = drawerState,
-                        scope = scope
+                        scope = scope,
+                        chatUiState = chatUiState
                     )
                 }
 
@@ -263,13 +268,19 @@ fun TheComposeApp(
 
             }
         }
+        composable(route = NavigationRoutes.NewChat) {
+            NewChatScreen(
+                suggestions = LocalAccountsDataProvider.accounts,
+                navController = navController
+            )
+        }
         composable(
             route = NavigationRoutes.ChatWithUser,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId")
-            val selectedChat = DataSource().loadChats().find { it.jid == chatId }
+            val selectedChat = LocalChatsDataProvider.chats.find { it.jid == chatId }
 
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {

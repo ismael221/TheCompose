@@ -48,7 +48,7 @@ import com.ismael.teams.data.model.UserChat
 
 @Composable
 fun ChatList(
-    postList: List<Chat>,
+    chats: List<Chat>,
     navController: NavController,
     showSpacer: Boolean,
     modifier: Modifier = Modifier
@@ -70,12 +70,12 @@ fun ChatList(
             }
         }
         items(
-            items = postList,
+            items = chats,
             key = { it.jid }
-        ) { post ->
+        ) { chat ->
 
             ChatCard(
-                chatPreview = post,
+                chatPreview = chat,
                 navController = navController,
                 modifier = modifier
             )
@@ -178,7 +178,7 @@ fun ChatCard(
                 .fillMaxWidth()
         ) {
             Text(
-                text = "10:00 AM",
+                text = chatPreview.lastMessageTime.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
             )
@@ -198,8 +198,8 @@ fun NewChatFloatingActionButton(
         onClick = onclick,
         containerColor = containerColor,
         elevation = elevation,
-
-        ) {
+        modifier = modifier
+    ) {
         Icon(
             painter = painterResource(R.drawable.edit_square_24px),
             contentDescription = null

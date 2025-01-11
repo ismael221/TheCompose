@@ -1,6 +1,7 @@
 package com.ismael.teams.data.model
 
 object NavigationRoutes {
+    const val NewChat =  "NewChat"
     const val ChatList = "ChatList"
     const val ActivityList = "ActivityList"
     const val CalendarList = "CalendarList"

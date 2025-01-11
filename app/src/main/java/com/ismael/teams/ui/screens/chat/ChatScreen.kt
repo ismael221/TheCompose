@@ -77,10 +77,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ismael.teams.R
-import com.ismael.teams.data.repository.DataSource
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.GroupChat
 import com.ismael.teams.data.model.Message
+import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager.sendChatState
 import com.ismael.teams.ui.components.SideNavBarItems
@@ -717,6 +717,7 @@ fun ChatMessages(
 @Composable
 fun CompactChatScreen(
     navController: NavController,
+    chatUiState: ChatUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     modifier: Modifier = Modifier
@@ -764,7 +765,7 @@ fun CompactChatScreen(
             },
             floatingActionButton = {
                 NewChatFloatingActionButton(
-                    onclick = { },
+                    onclick = { navController.navigate(NavigationRoutes.NewChat) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                 )
@@ -774,7 +775,7 @@ fun CompactChatScreen(
 
         ) {
             ChatList(
-                postList = DataSource().loadChats(),
+                chats = chatUiState.chats,
                 navController = navController,
                 showSpacer = true
             )
@@ -799,6 +800,7 @@ fun CompactChatScreen(
 @Composable
 fun MediumChatScreen(
     navController: NavController,
+    chatUiState: ChatUiState,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -811,7 +813,7 @@ fun MediumChatScreen(
         )
 
         ChatList(
-            postList = DataSource().loadChats(),
+            chats = chatUiState.chats,
             navController = navController,
             showSpacer = false,
         )

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalChatsDataProvider
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.User
@@ -30,11 +31,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
-import org.jivesoftware.smackx.chatstates.ChatStateListener
 import org.jxmpp.jid.impl.JidCreate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.UUID
-import kotlin.collections.orEmpty
-import kotlin.collections.toMutableMap
+
 
 class ChatViewModel : ViewModel() {
 
@@ -55,6 +57,17 @@ class ChatViewModel : ViewModel() {
         displayName = "Ismael Nunes Campos"
     )
 
+    private fun initializeUiState() {
+        val chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+        _uiState.value =
+            ChatUiState(
+                chats = chats,
+                currentLoggedInUser = currentLoggedInUser,
+                lastSelectedChat = chats[0]
+            )
+
+    }
+
 
     fun loadMessagesForChat(chatId: String) {
         viewModelScope.launch {
@@ -69,7 +82,9 @@ class ChatViewModel : ViewModel() {
                             }
                         },
                         chatState = _chatStatesFlow.value.get(key = chatId),
-                        isLoading = false
+                        isLoading = false,
+                        lastMessage = messages?.lastOrNull(),
+                        lastMessageTimestamp = messages?.lastOrNull()?.timestamp
                     )
                 }
             } catch (e: Exception) {
@@ -101,7 +116,7 @@ class ChatViewModel : ViewModel() {
 
     }
 
-    fun removeAfterSlash(input: String): String {
+    private fun removeAfterSlash(input: String): String {
         return input.substringBefore("/")
     }
 
@@ -232,7 +247,7 @@ class ChatViewModel : ViewModel() {
     }
 
 
-    fun createNotificationChannel() {
+    private fun createNotificationChannel() {
         val context = this.context
         context?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -326,6 +341,7 @@ class ChatViewModel : ViewModel() {
 
     init {
         observeChatStates()
+        initializeUiState()
     }
 
 

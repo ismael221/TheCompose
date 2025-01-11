@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap
 data class ChatUiState(
     val chats: List<Chat> = emptyList(),
     val currentSelectedChat: Chat? = null,
+    val lastMessage: Message? = null,
+    val lastMessageTimestamp: Long? = null,
+    val lastSelectedChat: Chat? = null,
     val users: List<User> = emptyList(),
     val isLoading: Boolean = false,
     val currentLoggedInUser: User? = null,
