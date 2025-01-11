@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalChatsDataProvider
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.User
@@ -32,9 +33,7 @@ import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jxmpp.jid.impl.JidCreate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Date
+
 import java.util.UUID
 
 
@@ -50,12 +49,7 @@ class ChatViewModel : ViewModel() {
     private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
     val presenceUpdates = _presenceUpdates.asStateFlow()
 
-    private val currentLoggedInUser = User(
-        id = "1",
-        jid = "ismael221@ismael",
-        username = "ismael221",
-        displayName = "Ismael Nunes Campos"
-    )
+    private val currentLoggedInUser = LocalLoggedAccounts.account
 
     private fun initializeUiState() {
         val chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }

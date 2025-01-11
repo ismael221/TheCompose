@@ -258,7 +258,7 @@ fun ChatMessageBottomAppBar(
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
                                     text = content,
-                                    senderId = "ismael221@ismael",
+                                    senderId = it,
                                     timestamp = System.currentTimeMillis(),
                                     to = it
                                 )
