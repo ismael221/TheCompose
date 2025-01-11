@@ -314,9 +314,12 @@ class ChatViewModel : ViewModel() {
         if (
             _uiState.value.currentSelectedChat?.jid == user
         ) {
-            updateCurrentSelectedChat(
-                chat = _uiState.value.currentSelectedChat!!,
-            )
+            _uiState.update {
+                it.copy(
+                    chatState = _chatStatesFlow.value.get(key = user),
+                    currentSelectedChat = _uiState.value.currentSelectedChat
+                )
+            }
         }
     }
 
