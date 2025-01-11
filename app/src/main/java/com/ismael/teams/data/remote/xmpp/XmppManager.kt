@@ -165,7 +165,7 @@ object XmppManager {
     }
 
 
-    fun setupMessageListener() {
+    private fun setupMessageListener() {
         connection?.addAsyncStanzaListener({ stanza ->
             if (stanza is Message) {
                 val carbonCopy =

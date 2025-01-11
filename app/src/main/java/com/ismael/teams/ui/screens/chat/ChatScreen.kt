@@ -624,15 +624,14 @@ fun ChatWithUser(
                 ) { innerPadding ->
 
 
-                chatUiState.chatState?.let {
                     ChatMessages(
                         messages = chatUiState.currentChatMessages,
                         user = currentLoggedUser,
                         modifier = modifier
                             .padding(innerPadding),
-                        states = it
+                        states = chatUiState.chatState
                     )
-                }
+
 
 
             }
@@ -655,15 +654,14 @@ fun ChatWithUser(
 
             ) { innerPadding ->
 
-            chatUiState.chatState?.let {
                 ChatMessages(
-                    states = it,
+                    states = chatUiState.chatState,
                     messages = chatUiState.currentChatMessages,
                     user = currentLoggedUser,
                     modifier = modifier
                         .padding(innerPadding)
                 )
-            }
+
         }
     }
 
@@ -671,7 +669,7 @@ fun ChatWithUser(
 
 @Composable
 fun ChatMessages(
-    states: ChatState,
+    states: ChatState? = null,
     messages: List<Message>,
     user: String,
     modifier: Modifier = Modifier
