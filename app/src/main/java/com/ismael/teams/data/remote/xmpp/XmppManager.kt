@@ -1,17 +1,17 @@
 package com.ismael.teams.data.remote.xmpp
 
 import android.util.Log
-import com.ismael.teams.data.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.ReconnectionManager
-import org.jivesoftware.smack.SmackConfiguration
 import org.jivesoftware.smack.SmackException
 import org.jivesoftware.smack.XMPPException
+import org.jivesoftware.smack.chat2.Chat
 import org.jivesoftware.smack.chat2.ChatManager
+import org.jivesoftware.smack.packet.Message
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.PresenceBuilder
 import org.jivesoftware.smack.packet.Stanza
@@ -20,6 +20,10 @@ import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jivesoftware.smackx.carbons.CarbonManager
+import org.jivesoftware.smackx.carbons.packet.CarbonExtension
+import org.jivesoftware.smackx.chatstates.ChatState
+import org.jivesoftware.smackx.chatstates.ChatStateListener
+import org.jivesoftware.smackx.chatstates.ChatStateManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
 import org.jxmpp.jid.BareJid
@@ -34,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
 object XmppManager {
 
     private val _receivedMessages =
-        MutableStateFlow<List<org.jivesoftware.smack.packet.Message>>(emptyList())
+        MutableStateFlow<List<Message>>(emptyList())
     val receivedMessages = _receivedMessages.asStateFlow()
 
     private val _incomingMessages = MutableStateFlow<List<String>>(emptyList())
@@ -48,15 +52,16 @@ object XmppManager {
 
     private var connection: AbstractXMPPConnection? = null
     private var chatManager: ChatManager? = null
-    private val messageListeners = mutableListOf<(org.jivesoftware.smack.packet.Message) -> Unit>()
+    private val messageListeners = mutableListOf<(Message) -> Unit>()
 
     private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
     val presenceUpdates = _presenceUpdates.asStateFlow()
 
     private val lastActivityMap = ConcurrentHashMap<String, Long>()
 
+    private val _chatStates = mutableMapOf<String, ChatState>()
 
-    fun addMessageListener(listener: (org.jivesoftware.smack.packet.Message) -> Unit) {
+    fun addMessageListener(listener: (Message) -> Unit) {
         messageListeners.add(listener)
     }
 
@@ -64,7 +69,7 @@ object XmppManager {
         setupMessageListener()
     }
 
-    private fun notifyMessageListeners(message: org.jivesoftware.smack.packet.Message) {
+    private fun notifyMessageListeners(message: Message) {
         messageListeners.forEach { it(message) }
     }
 
@@ -103,7 +108,7 @@ object XmppManager {
                 Log.i("CarbonManager", "Message Carbons not supported by the server")
             }
 
-            val reconnectionManager= ReconnectionManager.getInstanceFor(connection)
+            val reconnectionManager = ReconnectionManager.getInstanceFor(connection)
             reconnectionManager.enableAutomaticReconnection()
             ReconnectionManager.setEnabledPerDefault(true)
 
@@ -135,14 +140,38 @@ object XmppManager {
             println("Erro de Interrupção: ${e.message}")
         }
     }
+//    ChatStateManager.getInstance(connection).addChatStateListener { chat, state, message ->
+//        updateLatestChatState(
+//            map = _chatStates,
+//            key = chat.xmppAddressOfChatPartner.toString(),
+//            chatState = state,
+//        )
+//        println("Chat state changed: Chat: ${chat.xmppAddressOfChatPartner}, State: $state, Message: $message")
+//    }
+
+    fun getChatStateManager(): ChatStateManager {
+        return ChatStateManager.getInstance(connection)
+    }
+
+    private fun updateLatestChatState(
+        map: MutableMap<String, ChatState>,
+        key: String,
+        chatState: ChatState
+    ) {
+        Log.i("Add Chat State", "Adding state: $chatState for user: $key")
+        map[key] = chatState
+        val latestChatState: ChatState? = map[key]
+        println("Latest chat state: $latestChatState")
+    }
+
 
     fun setupMessageListener() {
         connection?.addAsyncStanzaListener({ stanza ->
-            if (stanza is org.jivesoftware.smack.packet.Message) {
+            if (stanza is Message) {
                 val carbonCopy =
-                    stanza.getExtension("urn:xmpp:carbons:2") as? org.jivesoftware.smackx.carbons.packet.CarbonExtension
+                    stanza.getExtension("urn:xmpp:carbons:2") as? CarbonExtension
                 val actualMessage =
-                    carbonCopy?.forwarded?.forwardedStanza as? org.jivesoftware.smack.packet.Message
+                    carbonCopy?.forwarded?.forwardedStanza as? Message
                         ?: stanza
 
                 val from = actualMessage.from?.asBareJid()
@@ -163,7 +192,7 @@ object XmppManager {
                     _incomingMessages.value += newMessage
                 }
             }
-        }, { stanza -> stanza is org.jivesoftware.smack.packet.Message })
+        }, { stanza -> stanza is Message })
     }
 
 
@@ -208,6 +237,8 @@ object XmppManager {
             null
         }
     }
+
+
 
 
     fun getUserActivity(jid: String): String {
@@ -259,6 +290,19 @@ object XmppManager {
     fun getLastActivity(jid: String): Long? {
         return lastActivityMap[jid]
     }
+
+    fun sendChatState(to: String, chatState: ChatState) {
+        try {
+            val chat = chatManager?.chatWith(JidCreate.entityBareFrom(to))
+            ChatStateManager.getInstance(connection).setCurrentState(chatState, chat)
+            println("Chat state $chatState enviado para $to")
+        } catch (e: Exception) {
+            println("Erro ao enviar chat state: ${e.message}")
+        }
+    }
+
+    private val _chatStateUpdates = MutableStateFlow<Pair<String, ChatState?>>(Pair("", null))
+    val chatStateUpdates = _chatStateUpdates.asStateFlow()
 
 
 }

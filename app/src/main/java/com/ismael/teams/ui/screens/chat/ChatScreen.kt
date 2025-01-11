@@ -4,19 +4,15 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -53,7 +51,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,22 +63,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
 import com.ismael.teams.data.repository.DataSource
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.GroupChat
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.UserChat
+import com.ismael.teams.data.remote.xmpp.XmppManager.sendChatState
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
@@ -94,7 +95,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
-import kotlin.math.roundToInt
 
 
 @Composable
@@ -214,7 +214,20 @@ fun ChatMessageBottomAppBar(
                 OutlinedTextField(
                     value = content,
                     shape = MaterialTheme.shapes.large,
-                    onValueChange = { content = it },
+                    onValueChange = {
+                        content = it
+                        if (content.isNotBlank() && content.isNotEmpty()) {
+                            sendChatState(
+                                to = uiState.currentSelectedChat?.jid.toString(),
+                                ChatState.composing
+                            )
+                        } else {
+                            sendChatState(
+                                to = uiState.currentSelectedChat?.jid.toString(),
+                                ChatState.paused
+                            )
+                        }
+                    },
                     label = {
                         Text(
                             text = stringResource(R.string.type_message),
@@ -227,7 +240,52 @@ fun ChatMessageBottomAppBar(
                             modifier = Modifier
                         )
                     },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Send
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            sendChatState(
+                                to = uiState.currentSelectedChat?.jid.toString(),
+                                ChatState.active
+                            )
+                        },
+                        onSend = {
+                            sendChatState(
+                                to = uiState.currentSelectedChat?.jid.toString(),
+                                ChatState.gone
+                            )
+                            uiState.currentSelectedChat?.jid?.let {
+                                Message(
+                                    text = content,
+                                    senderId = "ismael221@ismael",
+                                    timestamp = System.currentTimeMillis(),
+                                    to = it
+                                )
+                            }?.let {
+                                onSendClick(
+                                    it
+                                )
+                            }
+                            content = ""
+                        }
+
+                    ),
                     modifier = Modifier
+                        .focusable()
+                        .onKeyEvent {
+
+                            //TODO add a counter when I delete it decreases, so I compare it with the last value
+                            if (it.key == Key.Backspace || it.key == Key.Delete) {
+                                sendChatState(
+                                    to = uiState.currentSelectedChat?.jid.toString(),
+                                    ChatState.paused
+                                )
+                                true
+                            } else {
+                                false
+                            }
+                        }
                         .padding(bottom = 8.dp)
                         .wrapContentSize()
                         .weight(1f)
@@ -259,6 +317,10 @@ fun ChatMessageBottomAppBar(
                 } else {
                     IconButton(
                         onClick = {
+                            sendChatState(
+                                to = uiState.currentSelectedChat?.jid.toString(),
+                                ChatState.gone
+                            )
                             Log.i("Botão de envio clicado", content)
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
@@ -334,6 +396,7 @@ fun ChatBubble(
 @Composable
 fun ChatBubbleAnimation(
     isUserMessage: Boolean,
+    states: ChatState,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
@@ -343,7 +406,7 @@ fun ChatBubbleAnimation(
         initialValue = 0f,
         targetValue = 5f,
         animationSpec = infiniteRepeatable(
-            animation = tween(300,20, easing = FastOutLinearInEasing),
+            animation = tween(300, 20, easing = FastOutLinearInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "offset"
@@ -352,7 +415,7 @@ fun ChatBubbleAnimation(
         initialValue = 0f,
         targetValue = 5f,
         animationSpec = infiniteRepeatable(
-            animation = tween(300,30, easing = FastOutLinearInEasing),
+            animation = tween(300, 30, easing = FastOutLinearInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "offset"
@@ -361,7 +424,7 @@ fun ChatBubbleAnimation(
         initialValue = 0f,
         targetValue = 5f,
         animationSpec = infiniteRepeatable(
-            animation = tween(300,40, easing = FastOutLinearInEasing),
+            animation = tween(300, 40, easing = FastOutLinearInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "offset"
@@ -396,7 +459,7 @@ fun ChatBubbleAnimation(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(2.dp)
-                            .offset(y = offset.dp)
+                            .offset(y = if (states == ChatState.composing) offset.dp else 0.dp)
                             .size(10.dp)
                     )
                     Image(
@@ -404,7 +467,7 @@ fun ChatBubbleAnimation(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(2.dp)
-                            .offset(y = offset2.dp)
+                            .offset(y = if (states == ChatState.composing) offset2.dp else 0.dp)
                             .size(10.dp)
                     )
                     Image(
@@ -412,7 +475,7 @@ fun ChatBubbleAnimation(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(2.dp)
-                            .offset(y = offset3.dp)
+                            .offset(y = if (states == ChatState.composing) offset3.dp else 0.dp)
                             .size(10.dp)
                     )
                 }
@@ -560,17 +623,21 @@ fun ChatWithUser(
 
                 ) { innerPadding ->
 
-                ChatMessages(
-                    messages = chatUiState.currentChatMessages,
-                    user = currentLoggedUser,
-                    modifier = modifier
-                        .padding(innerPadding)
-                )
+
+                chatUiState.chatState?.let {
+                    ChatMessages(
+                        messages = chatUiState.currentChatMessages,
+                        user = currentLoggedUser,
+                        modifier = modifier
+                            .padding(innerPadding),
+                        states = it
+                    )
+                }
+
 
             }
         }
-    }
-    else {
+    } else {
         Scaffold(
             topBar = {
                 UserChatTopBar(
@@ -588,12 +655,15 @@ fun ChatWithUser(
 
             ) { innerPadding ->
 
-            ChatMessages(
-                messages = chatUiState.currentChatMessages,
-                user = currentLoggedUser,
-                modifier = modifier
-                    .padding(innerPadding)
-            )
+            chatUiState.chatState?.let {
+                ChatMessages(
+                    states = it,
+                    messages = chatUiState.currentChatMessages,
+                    user = currentLoggedUser,
+                    modifier = modifier
+                        .padding(innerPadding)
+                )
+            }
         }
     }
 
@@ -601,6 +671,7 @@ fun ChatWithUser(
 
 @Composable
 fun ChatMessages(
+    states: ChatState,
     messages: List<Message>,
     user: String,
     modifier: Modifier = Modifier
@@ -627,9 +698,19 @@ fun ChatMessages(
                     .padding(start = 8.dp, end = 8.dp)
 
             )
-
+        }
+        item {
+            if (states == ChatState.composing || states == ChatState.paused) {
+                ChatBubbleAnimation(
+                    states = states,
+                    isUserMessage = false,
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                )
+            }
         }
     }
+
 }
 
 

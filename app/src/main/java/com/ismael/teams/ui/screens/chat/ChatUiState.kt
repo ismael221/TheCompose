@@ -5,6 +5,7 @@ import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.User
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.Presence.Mode
+import org.jivesoftware.smackx.chatstates.ChatState
 import java.util.concurrent.ConcurrentHashMap
 
 data class ChatUiState(
@@ -16,6 +17,7 @@ data class ChatUiState(
     val mode: Enum<Mode>? = null,
     val type: String? = null,
     val error: String? = null,
+    val chatState: ChatState? = null,
     val messages: Map<String, List<Message>> = emptyMap() // Added messages map
 ) {
     val currentChatMessages: List<Message>  = currentSelectedChat?.let { messages[it.jid] } ?: emptyList()

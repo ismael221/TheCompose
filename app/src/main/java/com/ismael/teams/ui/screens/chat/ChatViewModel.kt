@@ -17,10 +17,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ismael.teams.R
 import com.ismael.teams.data.model.Chat
-import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.User
-import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +29,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
+import org.jivesoftware.smackx.chatstates.ChatState
+import org.jivesoftware.smackx.chatstates.ChatStateListener
 import org.jxmpp.jid.impl.JidCreate
 import java.util.UUID
 import kotlin.collections.orEmpty
@@ -68,6 +68,7 @@ class ChatViewModel : ViewModel() {
                                 put(chatId, messages)
                             }
                         },
+                        chatState = _chatStatesFlow.value.get(key = chatId),
                         isLoading = false
                     )
                 }
@@ -82,6 +83,7 @@ class ChatViewModel : ViewModel() {
         getPresence(chat.jid)
         _uiState.update {
             it.copy(
+                chatState = _chatStatesFlow.value.get(key = chat.jid),
                 currentSelectedChat = chat
             )
         }
@@ -120,6 +122,7 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
+
 
     fun getPresence(jid: String) {
         val presence = xmppManager.getUserPresence(jid)
@@ -200,6 +203,7 @@ class ChatViewModel : ViewModel() {
                             _uiState.update {
                                 it.copy(
                                     currentSelectedChat = _uiState.value.currentSelectedChat,
+                                    chatState = _chatStatesFlow.value.get(key = key),
                                     messages = it.messages.toMutableMap().apply {
                                         val currentMessages =
                                             get(_uiState.value.currentSelectedChat?.jid).orEmpty()
@@ -286,6 +290,40 @@ class ChatViewModel : ViewModel() {
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
+    private val _chatStatesFlow = MutableStateFlow<Map<String, ChatState>>(emptyMap())
+    private val chatStatesFlow: StateFlow<Map<String, ChatState>> = _chatStatesFlow
+
+
+    private fun observeChatStates() {
+        val chatStateManager = XmppManager.getChatStateManager()
+
+        chatStateManager.addChatStateListener { chat, state, message ->
+            updateChatState(
+                chat.xmppAddressOfChatPartner.toString(),
+                state
+            )
+            println("Chat state changed: Chat: ${chat.xmppAddressOfChatPartner}, State: $state, Message: $message")
+        }
+    }
+
+    private fun updateChatState(user: String, state: ChatState) {
+        val updatedMap = _chatStatesFlow.value.toMutableMap()
+        updatedMap[user] = state
+        _chatStatesFlow.value = updatedMap
+
+        if (
+            _uiState.value.currentSelectedChat?.jid == user
+        ) {
+            updateCurrentSelectedChat(
+                chat = _uiState.value.currentSelectedChat!!,
+            )
+        }
+    }
+
+
+    init {
+        observeChatStates()
+    }
 
 
 }
