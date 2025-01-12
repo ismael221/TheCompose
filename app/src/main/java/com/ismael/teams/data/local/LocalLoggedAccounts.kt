@@ -5,9 +5,9 @@ import com.ismael.teams.data.model.User
 object LocalLoggedAccounts {
     val account = User(
         id = 1.toString(),
-        jid = "ismael221@ismael",
-        username = "ismael221",
-        displayName = "Ismael Nunes Campos",
+        jid = "yasmin@ismael",
+        username = "yasmin",
+        displayName = "Yasmin Rodrigues",
         avatarUrl = "",
         status = "dnd",
         lastSeen = System.currentTimeMillis()

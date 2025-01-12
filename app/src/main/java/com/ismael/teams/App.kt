@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ismael.teams.data.local.LocalAccountsDataProvider
 import com.ismael.teams.data.local.LocalChatsDataProvider
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.ui.screens.ActivityScreen
@@ -76,9 +77,6 @@ fun TheComposeApp(
         startDestination = NavigationRoutes.ChatList
     ) {
         composable(route = NavigationRoutes.ChatList) { backStackEntry ->
-
-            val chatId = backStackEntry.arguments?.getString("chatId", "yasmin@ismael")
-            val selectedChat = chatUiState.chats.find { it.jid == chatId }
 
             when (windowSize) {
 
@@ -300,7 +298,7 @@ fun TheComposeApp(
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
-                            currentLoggedUser = "ismael221@ismael"
+                            currentLoggedUser = LocalLoggedAccounts.account.jid
                         )
                     }
                 }
@@ -322,7 +320,7 @@ fun TheComposeApp(
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
-                            currentLoggedUser = "ismael221@ismael"
+                            currentLoggedUser = LocalLoggedAccounts.account.jid
                         )
                     }
                 }
@@ -344,7 +342,7 @@ fun TheComposeApp(
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
-                            currentLoggedUser = "ismael221@ismael"
+                            currentLoggedUser = LocalLoggedAccounts.account.jid
                         )
                     }
                 }

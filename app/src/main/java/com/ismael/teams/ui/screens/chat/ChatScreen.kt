@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.GroupChat
 import com.ismael.teams.data.model.Message
@@ -258,7 +259,7 @@ fun ChatMessageBottomAppBar(
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
                                     text = content,
-                                    senderId = it,
+                                    senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
                                     to = it
                                 )
@@ -325,7 +326,7 @@ fun ChatMessageBottomAppBar(
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
                                     text = content,
-                                    senderId = "ismael221@ismael",
+                                    senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
                                     to = it
                                 )
