@@ -35,8 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalChatsDataProvider
+import com.ismael.teams.data.model.Chat
+import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.User
+import com.ismael.teams.data.model.UserChat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,6 +126,7 @@ fun SuggestionsList(
             UserCard(
                 user = suggestion,
                 navController = navController,
+                addChatIfNotExists = { addChatIfNotExists(suggestion) },
             )
             HorizontalDivider(
                 modifier = Modifier
@@ -137,7 +142,7 @@ fun SuggestionsList(
 @Composable
 fun NewChatScreen(
     navController: NavController,
-    suggestions: List<User> ,
+    suggestions: List<User>,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -175,6 +180,7 @@ fun NewChatScreen(
 fun UserCard(
     user: User,
     navController: NavController,
+    addChatIfNotExists: (User) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -182,6 +188,7 @@ fun UserCard(
         modifier = modifier
             .combinedClickable(
                 onClick = {
+                    addChatIfNotExists(user)
                     navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${user.jid}")
                 }
             )
@@ -200,12 +207,33 @@ fun UserCard(
     }
 }
 
+fun addChatIfNotExists(user: User) {
+    val existingChat = LocalChatsDataProvider.chats.find { it.jid == user.jid }
+    if (existingChat == null) {
+        // Adicionar o chat à lista de chats
+        val newChat = UserChat(
+            jid = user.jid,
+            lastMessage = "",
+            lastMessageTime = 0,
+            chatName = user.displayName,
+            chatPhotoUrl = "",
+            isUnread = false,
+            chatType = ChatType.User,
+            lastSeen = 0
+        )
+        LocalChatsDataProvider.chats += newChat
+        println(LocalChatsDataProvider.chats.toString())
+
+        // Atualize a fonte de dados de chats conforme necessário (ex: salvar no banco de dados)
+    }
+}
+
 @Composable
 @Preview(showBackground = true)
 fun NewChatTopAppBarPreview() {
-   MaterialTheme(
-       darkColorScheme()
-   ) {
+    MaterialTheme(
+        darkColorScheme()
+    ) {
 
-   }
+    }
 }
