@@ -124,6 +124,7 @@ fun TheComposeApp(
                     ActivityScreen(
                         navController = navController,
                         drawerState = drawerState,
+                        chatUiState =  chatUiState,
                         scope = scope
                     )
                 }
@@ -144,6 +145,7 @@ fun TheComposeApp(
                     ActivityScreen(
                         navController = navController,
                         drawerState = drawerState,
+                        chatUiState = chatUiState,
                         scope = scope
                     )
                 }
@@ -157,6 +159,7 @@ fun TheComposeApp(
                     CalendarScreen(
                         navController = navController,
                         drawerState = drawerState,
+                        chatUiState = chatUiState,
                         scope = scope
                     )
                 }
@@ -182,6 +185,7 @@ fun TheComposeApp(
                     CallScreen(
                         navController = navController,
                         drawerState = drawerState,
+                        chatUiState = chatUiState,
                         scope = scope
                     )
                 }
@@ -206,6 +210,7 @@ fun TheComposeApp(
                     TeamsScreen(
                         navController = navController,
                         drawerState = drawerState,
+                        chatUiState = chatUiState,
                         scope = scope
                     )
                 }
@@ -230,7 +235,8 @@ fun TheComposeApp(
                     MoreScreen(
                         isVisible = true,
                         onDismiss = { },
-                        navController = navController
+                        navController = navController,
+                        chatUiState = chatUiState
                     )
                 }
 

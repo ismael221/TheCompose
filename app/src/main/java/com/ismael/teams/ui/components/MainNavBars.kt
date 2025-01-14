@@ -48,6 +48,7 @@ import com.ismael.teams.ui.screens.TeamsScreen
 @Composable
 fun TeamsBottomNavigationBar(
     modifier: Modifier = Modifier,
+    unReadMessages: Int,
     currentScreen: TeamsScreen,
     navController: NavController,
 ) {
@@ -94,12 +95,27 @@ fun TeamsBottomNavigationBar(
             selected = currentScreen == TeamsScreen.ChatList,
             onClick = { navController.navigate(TeamsScreen.ChatList.name) },
             icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(
-                        R.drawable.chat_24px
-                    ),
-                    contentDescription = null
-                )
+                BadgedBox(
+                    badge = {
+                        if (unReadMessages > 0) {
+                            Badge(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            ) {
+                                Text(
+                                    text = unReadMessages.toString()
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(
+                            R.drawable.chat_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
             },
             label = {
                 Text(
@@ -360,7 +376,9 @@ fun TheComposeNavigationRail(
             onClick = { navController.navigate(TeamsScreen.ActivityList.name) },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.ActivityList) painterResource(R.drawable.notifications_filled) else painterResource(R.drawable.notifications_24px),
+                    painter = if (currentScreen == TeamsScreen.ActivityList) painterResource(R.drawable.notifications_filled) else painterResource(
+                        R.drawable.notifications_24px
+                    ),
                     contentDescription = null
                 )
             }
@@ -376,7 +394,9 @@ fun TheComposeNavigationRail(
             onClick = { navController.navigate(TeamsScreen.ChatList.name) },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(R.drawable.chat_24px),
+                    painter = if (currentScreen == TeamsScreen.ChatList) painterResource(R.drawable.chat_filled) else painterResource(
+                        R.drawable.chat_24px
+                    ),
                     contentDescription = null
                 )
             }
@@ -392,7 +412,9 @@ fun TheComposeNavigationRail(
             onClick = { navController.navigate(TeamsScreen.CalendarList.name) },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.CalendarList) painterResource(R.drawable.calendar_month_filled) else painterResource(R.drawable.calendar_month_24px),
+                    painter = if (currentScreen == TeamsScreen.CalendarList) painterResource(R.drawable.calendar_month_filled) else painterResource(
+                        R.drawable.calendar_month_24px
+                    ),
                     contentDescription = null
                 )
             }
@@ -408,7 +430,9 @@ fun TheComposeNavigationRail(
             onClick = { navController.navigate(TeamsScreen.TeamsList.name) },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.TeamsList) painterResource(R.drawable.groups_filled) else painterResource(R.drawable.groups_24px),
+                    painter = if (currentScreen == TeamsScreen.TeamsList) painterResource(R.drawable.groups_filled) else painterResource(
+                        R.drawable.groups_24px
+                    ),
                     contentDescription = null
                 )
             }
@@ -424,7 +448,9 @@ fun TheComposeNavigationRail(
             onClick = { navController.navigate(TeamsScreen.CallList.name) },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.CallList) painterResource(R.drawable.call_filled_24px) else painterResource(R.drawable.call_24px),
+                    painter = if (currentScreen == TeamsScreen.CallList) painterResource(R.drawable.call_filled_24px) else painterResource(
+                        R.drawable.call_24px
+                    ),
                     contentDescription = null
                 )
             }
@@ -437,10 +463,12 @@ fun TheComposeNavigationRail(
                     style = AppTypography.bodySmall
                 )
             },
-            onClick = {  },
+            onClick = { },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.More) painterResource(R.drawable.more_horiz_24px) else painterResource(R.drawable.more_horiz_24px),
+                    painter = if (currentScreen == TeamsScreen.More) painterResource(R.drawable.more_horiz_24px) else painterResource(
+                        R.drawable.more_horiz_24px
+                    ),
                     contentDescription = null
                 )
             }

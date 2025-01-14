@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TheComposeNavigationRail
+import com.ismael.teams.ui.screens.chat.ChatUiState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +27,7 @@ import com.ismael.teams.ui.components.TheComposeNavigationRail
 fun MoreScreen(
     isVisible: Boolean,
     onDismiss: () -> Unit,
+    chatUiState: ChatUiState,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
@@ -45,6 +47,7 @@ fun MoreScreen(
                 bottomBar = {
                     TeamsBottomNavigationBar(
                         currentScreen = TeamsScreen.More,
+                        unReadMessages = chatUiState.unReadMessages,
                         navController = navController
                     )
                 }

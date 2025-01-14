@@ -25,6 +25,7 @@ import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
 import com.ismael.teams.ui.components.TheComposeNavigationRail
+import com.ismael.teams.ui.screens.chat.ChatUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -55,6 +56,7 @@ fun NewCalendarEventActionButton(
 fun CalendarScreen(
     navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    chatUiState: ChatUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -89,6 +91,7 @@ fun CalendarScreen(
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.CalendarList,
                     navController = navController,
+                    unReadMessages = chatUiState.unReadMessages,
                     modifier = modifier
                 )
             },

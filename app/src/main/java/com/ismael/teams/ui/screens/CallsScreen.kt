@@ -25,6 +25,7 @@ import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
 import com.ismael.teams.ui.components.TheComposeNavigationRail
+import com.ismael.teams.ui.screens.chat.ChatUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -54,9 +55,10 @@ fun NewCallActionButton(
 fun CallScreen(
     navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    chatUiState: ChatUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
-){
+) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     ModalNavigationDrawer(
@@ -70,7 +72,7 @@ fun CallScreen(
             topBar = {
                 TeamsTopAppBar(
                     currentScreen = TeamsScreen.CallList,
-                    onFilterClick = {  },
+                    onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
                         navController.navigate(TeamsScreen.SearchBarList.name)
@@ -88,6 +90,7 @@ fun CallScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.CallList,
+                    unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
             },
@@ -108,7 +111,7 @@ fun CallScreen(
 fun MediumCallScreen(
     navController: NavController,
     modifier: Modifier = Modifier
-){
+) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CallList,
         navController = navController,
@@ -120,7 +123,7 @@ fun MediumCallScreen(
 fun ExpandedCallScreen(
     navController: NavController,
     modifier: Modifier = Modifier
-){
+) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CallList,
         navController = navController,

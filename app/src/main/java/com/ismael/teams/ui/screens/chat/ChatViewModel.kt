@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jxmpp.jid.impl.JidCreate
+import java.time.Instant
 
 import java.util.UUID
 
@@ -62,6 +63,7 @@ class ChatViewModel : ViewModel() {
             ChatUiState(
                 chats = chats,
                 currentLoggedInUser = currentLoggedInUser,
+                unReadMessages = LocalChatsDataProvider.chats.filter { it.isUnread }.size,
                 lastSelectedChat = chats[0]
             )
 
@@ -92,6 +94,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+
     fun updateCurrentSelectedChat(chat: Chat) {
         Log.i("Roster", chat.jid)
         getPresence(chat.jid)
@@ -109,6 +112,7 @@ class ChatViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 chatState = _chatStatesFlow.value.get(key = chat.jid),
+                unReadMessages = LocalChatsDataProvider.chats.filter { chat -> chat.isUnread }.size,
                 currentSelectedChat = chat
             )
         }
@@ -144,7 +148,7 @@ class ChatViewModel : ViewModel() {
                 val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chatId }
                 itemToUpdate?.lastMessage = "You: ${message.text}"
                 itemToUpdate?.lastMessageTime = System.currentTimeMillis()
-                itemToUpdate?.isUnread = true
+                itemToUpdate?.isUnread = false
                 val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
                 if (itemToUpdate != null) {
                     LocalChatsDataProvider.chats[index] = itemToUpdate
@@ -251,6 +255,7 @@ class ChatViewModel : ViewModel() {
                                 LocalChatsDataProvider.chats.add(newChat)
                                 _uiState.update {
                                     it.copy(
+                                        unReadMessages = LocalChatsDataProvider.chats.filter { chat -> chat.isUnread }.size,
                                         chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
                                     )
                                 }
@@ -289,6 +294,7 @@ class ChatViewModel : ViewModel() {
                                 it.copy(
                                     currentSelectedChat = _uiState.value.currentSelectedChat,
                                     chatState = _chatStatesFlow.value.get(key = key),
+                                    unReadMessages = LocalChatsDataProvider.chats.filter { chat -> chat.isUnread }.size,
                                     messages = it.messages.toMutableMap().apply {
                                         val currentMessages =
                                             get(_uiState.value.currentSelectedChat?.jid).orEmpty()
@@ -406,6 +412,7 @@ class ChatViewModel : ViewModel() {
                 )
             }
         }
+
     }
 
 

@@ -491,7 +491,6 @@ fun ChatBubbleAnimation(
 fun UserChatTopBar(
     navController: NavController,
     chatUiState: ChatUiState,
-
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
@@ -536,7 +535,7 @@ fun UserChatTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigateUp()
+                    navController.navigate(NavigationRoutes.ChatList)
                 }
             ) {
                 Icon(
@@ -761,6 +760,7 @@ fun CompactChatScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.ChatList,
+                    unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
             },

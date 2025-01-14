@@ -24,6 +24,7 @@ import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
 import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
+import com.ismael.teams.ui.screens.chat.ChatUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -46,6 +47,7 @@ enum class TeamsScreen(
 fun TeamsScreen(
     navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    chatUiState: ChatUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -83,6 +85,7 @@ fun TeamsScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.TeamsList,
+                    unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
             }

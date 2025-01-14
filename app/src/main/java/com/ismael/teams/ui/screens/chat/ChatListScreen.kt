@@ -45,6 +45,7 @@ import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
+import org.jivesoftware.smackx.chatstates.ChatState
 
 @Composable
 fun ChatList(
@@ -156,7 +157,6 @@ fun ChatCard(
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)
-                //.padding(end = 24.dp)
             ) {
                 Text(
                     text = chatPreview.chatName,
