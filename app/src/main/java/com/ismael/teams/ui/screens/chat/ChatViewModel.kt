@@ -16,11 +16,14 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalAccountsDataProvider
 import com.ismael.teams.data.local.LocalChatsDataProvider
 import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
+import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.User
+import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +56,8 @@ class ChatViewModel : ViewModel() {
 
     private fun initializeUiState() {
         val chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+        Log.i("LoadedMessages", chats.toString())
+
         _uiState.value =
             ChatUiState(
                 chats = chats,
@@ -125,6 +130,21 @@ class ChatViewModel : ViewModel() {
                     xmppManager.sendMessage(recipientJid, message.text)
 
                 }
+                val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chatId }
+                itemToUpdate?.lastMessage = "You: ${message.text}"
+                itemToUpdate?.lastMessageTime = System.currentTimeMillis()
+                itemToUpdate?.isUnread = true
+                val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
+                if (itemToUpdate != null) {
+                    LocalChatsDataProvider.chats[index] = itemToUpdate
+                    _uiState.update { it ->
+                        it.copy(
+                            chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+                        )
+                    }
+                }
+
+
                 loadMessagesForChat(chatId)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
@@ -181,7 +201,6 @@ class ChatViewModel : ViewModel() {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
                     if (message.body != null) {
-
                         var key: String? = null
 
                         println("Recebida no dispatcher: " + message)
@@ -196,6 +215,31 @@ class ChatViewModel : ViewModel() {
                         if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) {
                             key = message.to.toString()
                         } else {
+                            val existingChat =
+                                LocalChatsDataProvider.chats.find {
+                                    it.jid == removeAfterSlash(
+                                        message.from.toString()
+                                    )
+                                }
+                            if (existingChat == null) {
+                                println("Usuário vazio")
+                                val newChat = UserChat(
+                                    jid = removeAfterSlash(message.from.toString()),
+                                    lastMessage = "",
+                                    lastMessageTime = 0,
+                                    chatName = LocalAccountsDataProvider.accounts.find {
+                                        it.jid == removeAfterSlash(
+                                            message.from.toString()
+                                        )
+                                    }?.displayName.toString(),
+                                    chatPhotoUrl = "",
+                                    isUnread = false,
+                                    chatType = ChatType.User,
+                                    lastSeen = 0
+                                )
+                                LocalChatsDataProvider.chats.add(newChat)
+                                println("Chat adicionado")
+                            }
                             notifyUser(message.from.toString(), message.body, context!!)
                             key = message.from.toString()
                         }
@@ -205,6 +249,11 @@ class ChatViewModel : ViewModel() {
                             key = removeAfterSlash(key),
                             message = mensagem
                         )
+                        _uiState.update {
+                            it.copy(
+                                chats = LocalChatsDataProvider.chats
+                            )
+                        }
                         if ((_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())) || (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(
                                 message.to.toString()
                             ))

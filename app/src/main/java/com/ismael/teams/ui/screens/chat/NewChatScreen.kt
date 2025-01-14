@@ -221,10 +221,9 @@ fun addChatIfNotExists(user: User) {
             chatType = ChatType.User,
             lastSeen = 0
         )
-        LocalChatsDataProvider.chats += newChat
+        LocalChatsDataProvider.chats.add(newChat)
         println(LocalChatsDataProvider.chats.toString())
 
-        // Atualize a fonte de dados de chats conforme necessário (ex: salvar no banco de dados)
     }
 }
 

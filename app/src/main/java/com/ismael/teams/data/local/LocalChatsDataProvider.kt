@@ -6,7 +6,7 @@ import com.ismael.teams.data.model.UserChat
 
 object LocalChatsDataProvider {
 
-    var chats = listOf(
+    var chats = mutableListOf(
         UserChat(
             jid = "yasmin@ismael",
             lastMessage = "Olá amor",
@@ -25,15 +25,15 @@ object LocalChatsDataProvider {
 //            lastSeen = System.currentTimeMillis(),
 //            chatPhotoUrl = ""
 //        ),
-        UserChat(
-            jid = "ismael221@ismael",
-            lastMessage = "Olá",
-            lastMessageTime = System.currentTimeMillis()- 2,
-            chatName = "Ismael Nunes Campos",
-            isUnread = false,
-            lastSeen = System.currentTimeMillis(),
-            chatPhotoUrl = ""
-        ),
+//        UserChat(
+//            jid = "ismael221@ismael",
+//            lastMessage = "Olá",
+//            lastMessageTime = System.currentTimeMillis()- 2,
+//            chatName = "Ismael Nunes Campos",
+//            isUnread = false,
+//            lastSeen = System.currentTimeMillis(),
+//            chatPhotoUrl = ""
+//        ),
 //        GroupChat(
 //            jid = "group@ismael",
 //            chatName = "Familia",
