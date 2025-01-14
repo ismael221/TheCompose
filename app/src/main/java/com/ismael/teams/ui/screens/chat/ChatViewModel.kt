@@ -95,6 +95,17 @@ class ChatViewModel : ViewModel() {
     fun updateCurrentSelectedChat(chat: Chat) {
         Log.i("Roster", chat.jid)
         getPresence(chat.jid)
+        val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chat.jid }
+        itemToUpdate?.isUnread = false
+        val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
+        if (itemToUpdate != null) {
+            LocalChatsDataProvider.chats[index] = itemToUpdate
+            _uiState.update { it ->
+                it.copy(
+                    chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+                )
+            }
+        }
         _uiState.update {
             it.copy(
                 chatState = _chatStatesFlow.value.get(key = chat.jid),
@@ -233,14 +244,14 @@ class ChatViewModel : ViewModel() {
                                         )
                                     }?.displayName.toString(),
                                     chatPhotoUrl = "",
-                                    isUnread = false,
+                                    isUnread = true,
                                     chatType = ChatType.User,
                                     lastSeen = 0
                                 )
                                 LocalChatsDataProvider.chats.add(newChat)
                                 _uiState.update {
                                     it.copy(
-                                        chats = LocalChatsDataProvider.chats
+                                        chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
                                     )
                                 }
                                 println("Chat adicionado")
