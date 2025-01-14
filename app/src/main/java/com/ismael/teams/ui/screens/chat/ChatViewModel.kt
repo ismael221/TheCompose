@@ -225,8 +225,8 @@ class ChatViewModel : ViewModel() {
                                 println("Usuário vazio")
                                 val newChat = UserChat(
                                     jid = removeAfterSlash(message.from.toString()),
-                                    lastMessage = "",
-                                    lastMessageTime = 0,
+                                    lastMessage = message.body.toString(),
+                                    lastMessageTime = System.currentTimeMillis(),
                                     chatName = LocalAccountsDataProvider.accounts.find {
                                         it.jid == removeAfterSlash(
                                             message.from.toString()
@@ -238,7 +238,28 @@ class ChatViewModel : ViewModel() {
                                     lastSeen = 0
                                 )
                                 LocalChatsDataProvider.chats.add(newChat)
+                                _uiState.update {
+                                    it.copy(
+                                        chats = LocalChatsDataProvider.chats
+                                    )
+                                }
                                 println("Chat adicionado")
+                            } else {
+                                val itemToUpdate = LocalChatsDataProvider.chats.find {
+                                    it.jid == removeAfterSlash(message.from.toString())
+                                }
+                                itemToUpdate?.lastMessage = message.body
+                                itemToUpdate?.lastMessageTime = System.currentTimeMillis()
+                                itemToUpdate?.isUnread = true
+                                val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
+                                if (itemToUpdate != null) {
+                                    LocalChatsDataProvider.chats[index] = itemToUpdate
+                                    _uiState.update { it ->
+                                        it.copy(
+                                            chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+                                        )
+                                    }
+                                }
                             }
                             notifyUser(message.from.toString(), message.body, context!!)
                             key = message.from.toString()
@@ -249,11 +270,6 @@ class ChatViewModel : ViewModel() {
                             key = removeAfterSlash(key),
                             message = mensagem
                         )
-                        _uiState.update {
-                            it.copy(
-                                chats = LocalChatsDataProvider.chats
-                            )
-                        }
                         if ((_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())) || (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(
                                 message.to.toString()
                             ))
