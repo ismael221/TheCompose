@@ -15,6 +15,7 @@ import org.jivesoftware.smack.packet.Message
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.PresenceBuilder
 import org.jivesoftware.smack.packet.Stanza
+import org.jivesoftware.smack.packet.StanzaBuilder
 import org.jivesoftware.smack.roster.PresenceEventListener
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
@@ -140,14 +141,6 @@ object XmppManager {
             println("Erro de Interrupção: ${e.message}")
         }
     }
-//    ChatStateManager.getInstance(connection).addChatStateListener { chat, state, message ->
-//        updateLatestChatState(
-//            map = _chatStates,
-//            key = chat.xmppAddressOfChatPartner.toString(),
-//            chatState = state,
-//        )
-//        println("Chat state changed: Chat: ${chat.xmppAddressOfChatPartner}, State: $state, Message: $message")
-//    }
 
     fun getChatStateManager(): ChatStateManager {
         return ChatStateManager.getInstance(connection)
@@ -208,7 +201,8 @@ object XmppManager {
 
     fun sendMessage(to: EntityBareJid, message: String) {
         try {
-            val presence = Presence(Presence.Type.subscribe)
+         //   val presence = Presence(Presence.Type.subscribe)
+            val presence = StanzaBuilder.buildPresence().ofType(Presence.Type.subscribe).build()
             presence.to = to
             println(presence)
             connection?.sendStanza(presence)
@@ -220,9 +214,11 @@ object XmppManager {
         }
     }
 
+
     fun setPresence(presence: Stanza) {
         try {
             connection?.sendStanza(presence)
+            println("Presença definida: $presence")
         } catch (e: Exception) {
             println("Erro ao definir presença: ${e.message}")
         }
@@ -237,9 +233,6 @@ object XmppManager {
             null
         }
     }
-
-
-
 
     fun getUserActivity(jid: String): String {
         val activity = LastActivityManager.getInstanceFor(connection)

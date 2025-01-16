@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
 import com.ismael.teams.ui.components.TeamsTopAppBar
@@ -65,7 +66,9 @@ fun CalendarScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SideNavBarItems()
+            SideNavBarItems(
+                loggedUser = LocalLoggedAccounts.account,
+            )
         }
     ) {
         Scaffold(

@@ -49,25 +49,28 @@ import com.ismael.teams.ui.screens.chat.ChatViewModel
 import com.ismael.teams.ui.screens.chat.ExpandedChatScreen
 import com.ismael.teams.ui.screens.chat.MediumChatScreen
 import com.ismael.teams.ui.screens.chat.NewChatScreen
+import com.ismael.teams.ui.screens.user.UserViewModel
 import com.ismael.teams.ui.utils.TheComposeNavigationType
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TheComposeApp(
     windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: ChatViewModel = viewModel()
+    val chatViewModel: ChatViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
 
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.setContext(context)
-        viewModel.observeIncomingMessages()
+        chatViewModel.setContext(context)
+        chatViewModel.observeIncomingMessages()
     }
 
-    val chatUiState = viewModel.uiState.collectAsState().value
+    val chatUiState = chatViewModel.uiState.collectAsState().value
+    val userUiState = userViewModel.uiState.collectAsState().value
     val navController: NavHostController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -76,7 +79,7 @@ fun TheComposeApp(
         navController = navController,
         startDestination = NavigationRoutes.ChatList
     ) {
-        composable(route = NavigationRoutes.ChatList) { backStackEntry ->
+        composable(route = NavigationRoutes.ChatList) {
 
             when (windowSize) {
 
@@ -87,6 +90,9 @@ fun TheComposeApp(
                         drawerState = drawerState,
                         scope = scope,
                         chatUiState = chatUiState,
+                        onStatusClick = { status: String ->
+                            userViewModel.updatePresence(status)
+                        },
                         modifier = modifier
                     )
                 }
@@ -111,7 +117,10 @@ fun TheComposeApp(
                         navController = navController,
                         drawerState = drawerState,
                         scope = scope,
-                        chatUiState = chatUiState
+                        chatUiState = chatUiState,
+                        onStatusClick = { status: String ->
+                            userViewModel.updatePresence(status)
+                        }
                     )
                 }
 
@@ -124,7 +133,7 @@ fun TheComposeApp(
                     ActivityScreen(
                         navController = navController,
                         drawerState = drawerState,
-                        chatUiState =  chatUiState,
+                        chatUiState = chatUiState,
                         scope = scope
                     )
                 }
@@ -292,19 +301,20 @@ fun TheComposeApp(
                         ChatWithUser(
                             navController = navController,
                             onSendClick = { message: Message ->
-                                viewModel.sendMessage(
+                                chatViewModel.sendMessage(
                                     chatId = message.to,
                                     message = message
                                 )
                             },
                             chatUiState = chatUiState,
                             selected = { chatId: String ->
-                                viewModel.loadMessagesForChat(chatId)
-                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                                chatViewModel.loadMessagesForChat(chatId)
+                                chatViewModel.updateCurrentSelectedChat(chat = selectedChat)
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
-                            currentLoggedUser = LocalLoggedAccounts.account.jid
+                            currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            userUiState = userUiState,
                         )
                     }
                 }
@@ -314,19 +324,20 @@ fun TheComposeApp(
                         ChatWithUser(
                             navController = navController,
                             onSendClick = { message: Message ->
-                                viewModel.sendMessage(
+                                chatViewModel.sendMessage(
                                     chatId = message.to,
                                     message = message
                                 )
                             },
                             chatUiState = chatUiState,
                             selected = { chatId: String ->
-                                viewModel.loadMessagesForChat(chatId)
-                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                                chatViewModel.loadMessagesForChat(chatId)
+                                chatViewModel.updateCurrentSelectedChat(chat = selectedChat)
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
-                            currentLoggedUser = LocalLoggedAccounts.account.jid
+                            currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            userUiState = userUiState
                         )
                     }
                 }
@@ -336,19 +347,20 @@ fun TheComposeApp(
                         ChatWithUser(
                             navController = navController,
                             onSendClick = { message: Message ->
-                                viewModel.sendMessage(
+                                chatViewModel.sendMessage(
                                     chatId = message.to,
                                     message = message
                                 )
                             },
                             chatUiState = chatUiState,
                             selected = { chatId: String ->
-                                viewModel.loadMessagesForChat(chatId)
-                                viewModel.updateCurrentSelectedChat(chat = selectedChat)
+                                chatViewModel.loadMessagesForChat(chatId)
+                                chatViewModel.updateCurrentSelectedChat(chat = selectedChat)
                             },
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
-                            currentLoggedUser = LocalLoggedAccounts.account.jid
+                            currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            userUiState = userUiState
                         )
                     }
                 }

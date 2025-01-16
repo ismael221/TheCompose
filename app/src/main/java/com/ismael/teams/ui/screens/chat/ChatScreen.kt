@@ -91,6 +91,7 @@ import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
+import com.ismael.teams.ui.screens.user.UserUiState
 import com.ismael.teams.ui.utils.TheComposeNavigationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -490,7 +491,7 @@ fun ChatBubbleAnimation(
 @Composable
 fun UserChatTopBar(
     navController: NavController,
-    chatUiState: ChatUiState,
+    userUiState: UserUiState,
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
@@ -502,7 +503,7 @@ fun UserChatTopBar(
                 is UserChat -> {
                     UserDetails(
                         userName = chat.chatName,
-                        secondaryText = when (chatUiState.mode) {
+                        secondaryText = when (userUiState.mode) {
                             Presence.Mode.available -> "Online"
                             Presence.Mode.dnd -> "Do not disturb"
                             Presence.Mode.away -> "Away"
@@ -513,7 +514,7 @@ fun UserChatTopBar(
                         },
                         modifier = Modifier
                             .fillMaxWidth(),
-                        userStatus = chatUiState.mode.toString(),
+                        userStatus = userUiState.mode.toString(),
                         userProfilePic = R.drawable.yasmin
                     )
                 }
@@ -586,6 +587,7 @@ fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
     chatUiState: ChatUiState,
+    userUiState: UserUiState,
     currentLoggedUser: String,
     chat: Chat,
     viewModel: ChatViewModel = viewModel(),
@@ -609,7 +611,7 @@ fun ChatWithUser(
             Scaffold(
                 topBar = {
                     UserChatTopBar(
-                        chatUiState = chatUiState,
+                        userUiState = userUiState,
                         chat = chat,
                         navController = navController
                     )
@@ -640,7 +642,7 @@ fun ChatWithUser(
         Scaffold(
             topBar = {
                 UserChatTopBar(
-                    chatUiState = chatUiState,
+                    userUiState = userUiState,
                     chat = chat,
                     navController = navController
                 )
@@ -718,6 +720,7 @@ fun ChatMessages(
 fun CompactChatScreen(
     navController: NavController,
     chatUiState: ChatUiState,
+    onStatusClick: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     modifier: Modifier = Modifier
@@ -730,7 +733,10 @@ fun CompactChatScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SideNavBarItems()
+            SideNavBarItems(
+                onItemClick = { onStatusClick(it) },
+                loggedUser = LocalLoggedAccounts.account,
+            )
         }
     ) {
         var showBottomSheet by remember { mutableStateOf(false) }

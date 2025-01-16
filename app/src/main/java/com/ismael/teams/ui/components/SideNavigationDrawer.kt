@@ -38,12 +38,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCbrt
 import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalLoggedAccounts
+import com.ismael.teams.data.model.User
 import com.ismael.teams.ui.screens.chat.UserIcon
 import com.ismael.teams.ui.screens.chat.UserIconWithStatus
 import kotlin.math.exp
+
 //TODO pass the uistate in order to get the user activity
 @Composable
 fun SideNavBarItems(
+    loggedUser: User,
+    onItemClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -58,10 +63,10 @@ fun SideNavBarItems(
         NavigationDrawerItem(
             label = {
                 UserDetails(
-                    userName = "Ismael Nunes Campos - External",
+                    userName = loggedUser.displayName,
                     secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA",
-                    userStatus =  "available",
-                    userProfilePic = R.drawable.perfil,
+                    userStatus = "available",
+                    userProfilePic = R.drawable.yasmin,
                     modifier = Modifier
                 )
             },
@@ -103,7 +108,7 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {},
                 shape = ShapeDefaults.ExtraSmall
@@ -117,9 +122,11 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
-                onClick = {},
+                onClick = {
+                    onItemClick("dnd")
+                },
                 shape = ShapeDefaults.ExtraSmall
 
             )
@@ -131,9 +138,11 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
-                onClick = {},
+                onClick = {
+                    onItemClick("brb")
+                },
                 shape = ShapeDefaults.ExtraSmall
 
             )
@@ -145,9 +154,11 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
-                onClick = {},
+                onClick = {
+                    onItemClick("away")
+                },
                 shape = ShapeDefaults.ExtraSmall
 
             )
@@ -159,7 +170,7 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {},
                 shape = ShapeDefaults.ExtraSmall
@@ -173,7 +184,7 @@ fun SideNavBarItems(
                     )
                 },
                 selected = false,
-                modifier =  Modifier
+                modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {},
                 shape = ShapeDefaults.ExtraSmall
@@ -235,7 +246,7 @@ fun SideNavBarItems(
 @Composable
 fun UserDetails(
     userName: String,
-    secondaryText: String,
+    secondaryText: String? = null,
     userStatus: String,
     userProfilePic: Int,
     modifier: Modifier = Modifier
@@ -259,11 +270,13 @@ fun UserDetails(
                 fontWeight = FontWeight.Bold,
                 style = AppTypography.bodyLarge
             )
-            Text(
-                text = secondaryText,
-                style = AppTypography.labelSmall,
-                fontWeight = FontWeight.Thin
-            )
+            if (secondaryText != null) {
+                Text(
+                    text = secondaryText,
+                    style = AppTypography.labelSmall,
+                    fontWeight = FontWeight.Thin
+                )
+            }
         }
     }
 }
@@ -348,6 +361,8 @@ fun SideNavBarItemsPreview() {
         darkColorScheme()
     ) {
         //  UserStatusItem()
-        SideNavBarItems()
+        SideNavBarItems(
+            loggedUser = LocalLoggedAccounts.account
+        )
     }
 }

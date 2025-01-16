@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ismael.teams.R
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.ui.components.FilterSwitch
 import com.ismael.teams.ui.components.SideNavBarItems
 import com.ismael.teams.ui.components.TeamsBottomNavigationBar
@@ -186,7 +187,9 @@ fun ActivityScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SideNavBarItems()
+            SideNavBarItems(
+                loggedUser = LocalLoggedAccounts.account,
+            )
         }
     ) {
         Scaffold(
