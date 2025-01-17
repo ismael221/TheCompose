@@ -64,10 +64,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -161,11 +159,9 @@ fun UserStatusBadge(
         Image(
             when (status) {
                 "available" -> painterResource(R.drawable.available)
-                "busy" -> painterResource(R.drawable.busy)
                 "dnd" -> painterResource(R.drawable.dnd)
                 "away" -> painterResource(R.drawable.away)
-                "brb" -> painterResource(R.drawable.away)
-                "offline" -> painterResource(R.drawable.offline)
+                "xa" -> painterResource(R.drawable.away)
                 else -> {
                     painterResource(R.drawable.offline)
                 }
@@ -491,7 +487,7 @@ fun ChatBubbleAnimation(
 @Composable
 fun UserChatTopBar(
     navController: NavController,
-    userUiState: UserUiState,
+    chatUiState: ChatUiState,
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
@@ -503,7 +499,7 @@ fun UserChatTopBar(
                 is UserChat -> {
                     UserDetails(
                         userName = chat.chatName,
-                        secondaryText = when (userUiState.mode) {
+                        secondaryText = when (chatUiState.mode) {
                             Presence.Mode.available -> "Online"
                             Presence.Mode.dnd -> "Do not disturb"
                             Presence.Mode.away -> "Away"
@@ -514,7 +510,7 @@ fun UserChatTopBar(
                         },
                         modifier = Modifier
                             .fillMaxWidth(),
-                        userStatus = userUiState.mode.toString(),
+                        userStatus = chatUiState.mode.toString(),
                         userProfilePic = R.drawable.yasmin
                     )
                 }
@@ -536,7 +532,7 @@ fun UserChatTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigate(NavigationRoutes.ChatList)
+                    navController.navigate(NavigationRoutes.CHATLIST)
                 }
             ) {
                 Icon(
@@ -587,7 +583,6 @@ fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
     chatUiState: ChatUiState,
-    userUiState: UserUiState,
     currentLoggedUser: String,
     chat: Chat,
     viewModel: ChatViewModel = viewModel(),
@@ -611,7 +606,7 @@ fun ChatWithUser(
             Scaffold(
                 topBar = {
                     UserChatTopBar(
-                        userUiState = userUiState,
+                        chatUiState = chatUiState,
                         chat = chat,
                         navController = navController
                     )
@@ -642,7 +637,7 @@ fun ChatWithUser(
         Scaffold(
             topBar = {
                 UserChatTopBar(
-                    userUiState = userUiState,
+                    chatUiState = chatUiState,
                     chat = chat,
                     navController = navController
                 )
@@ -721,6 +716,7 @@ fun CompactChatScreen(
     navController: NavController,
     chatUiState: ChatUiState,
     onStatusClick: (String) -> Unit,
+    userUiState: UserUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     modifier: Modifier = Modifier
@@ -736,6 +732,8 @@ fun CompactChatScreen(
             SideNavBarItems(
                 onItemClick = { onStatusClick(it) },
                 loggedUser = LocalLoggedAccounts.account,
+                userUiState = userUiState,
+                navController = navController
             )
         }
     ) {
@@ -772,7 +770,7 @@ fun CompactChatScreen(
             },
             floatingActionButton = {
                 NewChatFloatingActionButton(
-                    onclick = { navController.navigate(NavigationRoutes.NewChat) },
+                    onclick = { navController.navigate(NavigationRoutes.NEWCHAT) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                 )

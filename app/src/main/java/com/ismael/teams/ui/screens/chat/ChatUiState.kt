@@ -18,6 +18,8 @@ data class ChatUiState(
     val isLoading: Boolean = false,
     val unReadMessages: Int = 0,
     val currentLoggedInUser: User? = null,
+    val mode: Enum<Mode>? = null,
+    val type: String? = null,
     val error: String? = null,
     val chatState: ChatState? = null,
     val messages: Map<String, List<Message>> = emptyMap() // Added messages map

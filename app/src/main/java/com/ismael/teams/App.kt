@@ -3,7 +3,6 @@ package com.ismael.teams
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
@@ -49,8 +48,10 @@ import com.ismael.teams.ui.screens.chat.ChatViewModel
 import com.ismael.teams.ui.screens.chat.ExpandedChatScreen
 import com.ismael.teams.ui.screens.chat.MediumChatScreen
 import com.ismael.teams.ui.screens.chat.NewChatScreen
+import com.ismael.teams.ui.screens.status.StatusScreen
 import com.ismael.teams.ui.screens.user.UserViewModel
 import com.ismael.teams.ui.utils.TheComposeNavigationType
+import org.jivesoftware.smack.packet.Presence
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -77,9 +78,9 @@ fun TheComposeApp(
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.ChatList
+        startDestination = NavigationRoutes.CHATLIST
     ) {
-        composable(route = NavigationRoutes.ChatList) {
+        composable(route = NavigationRoutes.CHATLIST) {
 
             when (windowSize) {
 
@@ -90,9 +91,13 @@ fun TheComposeApp(
                         drawerState = drawerState,
                         scope = scope,
                         chatUiState = chatUiState,
-                        onStatusClick = { status: String ->
-                            userViewModel.updatePresence(status)
+                        onStatusClick = { presence: String ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
                         },
+                        userUiState = userUiState,
                         modifier = modifier
                     )
                 }
@@ -118,22 +123,28 @@ fun TheComposeApp(
                         drawerState = drawerState,
                         scope = scope,
                         chatUiState = chatUiState,
-                        onStatusClick = { status: String ->
-                            userViewModel.updatePresence(status)
-                        }
+                        userUiState = userUiState,
+                        modifier = modifier,
+                        onStatusClick = { presence: String ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        },
                     )
                 }
 
             }
 
         }
-        composable(route = NavigationRoutes.ActivityList) {
+        composable(route = NavigationRoutes.ACTIVITYS) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     ActivityScreen(
                         navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
+                        userUiState = userUiState,
                         scope = scope
                     )
                 }
@@ -155,13 +166,14 @@ fun TheComposeApp(
                         navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
+                        userUiState = userUiState,
                         scope = scope
                     )
                 }
 
             }
         }
-        composable(route = NavigationRoutes.CalendarList) {
+        composable(route = NavigationRoutes.CALENDAR) {
 
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
@@ -169,7 +181,8 @@ fun TheComposeApp(
                         navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
-                        scope = scope
+                        scope = scope,
+                        userUiState = userUiState,
                     )
                 }
 
@@ -187,7 +200,7 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.CallList) {
+        composable(route = NavigationRoutes.CALLS) {
 
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
@@ -195,6 +208,7 @@ fun TheComposeApp(
                         navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
+                        userUiState = userUiState,
                         scope = scope
                     )
                 }
@@ -213,13 +227,14 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.TeamsList) {
+        composable(route = NavigationRoutes.TEAMS) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     TeamsScreen(
                         navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
+                        userUiState = userUiState,
                         scope = scope
                     )
                 }
@@ -238,7 +253,7 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.More) {
+        composable(route = NavigationRoutes.MORE) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     MoreScreen(
@@ -263,7 +278,7 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.SearchBarList) {
+        composable(route = NavigationRoutes.SEARCHBAR) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     SearchScreen(
@@ -281,14 +296,26 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.NewChat) {
+        composable(route = NavigationRoutes.NEWCHAT) {
             NewChatScreen(
                 suggestions = LocalAccountsDataProvider.accounts,
                 navController = navController
             )
         }
+        composable(route = NavigationRoutes.STATUS) {
+            StatusScreen(
+                navController = navController,
+                status = userUiState.status.toString(),
+                onStatusChange = { status ->
+                    userViewModel.updateStatus(
+                        status,
+                        Presence.Mode.fromString(userUiState.mode.toString())
+                    )
+                },
+            )
+        }
         composable(
-            route = NavigationRoutes.ChatWithUser,
+            route = NavigationRoutes.CHATWITHUSER,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { backStackEntry ->
 
@@ -314,7 +341,6 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            userUiState = userUiState,
                         )
                     }
                 }
@@ -337,7 +363,6 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            userUiState = userUiState
                         )
                     }
                 }
@@ -360,7 +385,6 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            userUiState = userUiState
                         )
                     }
                 }

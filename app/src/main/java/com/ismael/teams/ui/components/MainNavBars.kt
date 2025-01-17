@@ -189,7 +189,7 @@ fun TeamsBottomNavigationBar(
             },
             label = {
                 Text(
-                    text = "More",
+                    text = "MORE",
                     style = AppTypography.bodySmall
                 )
             }
@@ -459,7 +459,7 @@ fun TheComposeNavigationRail(
             selected = currentScreen == TeamsScreen.More,
             label = {
                 Text(
-                    text = "More",
+                    text = "MORE",
                     style = AppTypography.bodySmall
                 )
             },
@@ -481,6 +481,6 @@ fun TheComposeNavigationRail(
 @Composable
 private fun TeamsHomeScreenPreview() {
 //    TheComposeNavigationRail(
-//        currentScreen = TeamsScreen.ChatList
+//        currentScreen = TeamsScreen.CHATLIST
 //    )
 }

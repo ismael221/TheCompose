@@ -46,6 +46,7 @@ import com.ismael.teams.ui.components.TeamsTopAppBar
 import com.ismael.teams.ui.components.TheComposeNavigationRail
 import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.screens.chat.ChatUiState
+import com.ismael.teams.ui.screens.user.UserUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -175,6 +176,7 @@ fun ActivityScreen(
     navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     chatUiState: ChatUiState,
+    userUiState: UserUiState,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -188,6 +190,8 @@ fun ActivityScreen(
         drawerState = drawerState,
         drawerContent = {
             SideNavBarItems(
+                navController = navController,
+                userUiState = userUiState,
                 loggedUser = LocalLoggedAccounts.account,
             )
         }

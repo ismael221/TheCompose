@@ -2,6 +2,7 @@ package com.ismael.teams.ui.screens.user
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,9 +18,10 @@ class UserViewModel: ViewModel() {
     val uiState = _uiState.asStateFlow()
 
 
-    fun updatePresence(presence: String) {
+    fun updatePresence(presence: String, lastStatus:String) {
         println("Presença alterada: $presence")
         val newPresence = PresenceBuilder.buildPresence()
+        newPresence.setStatus(lastStatus)
         when (presence) {
             "available" -> {
                 _uiState.update {
@@ -59,15 +61,30 @@ class UserViewModel: ViewModel() {
         }
     }
 
-    fun getPresence(jid: String) {
+    private fun getPresence(jid: String) {
         val presence = xmppManager.getUserPresence(jid)
         Log.i("Roster", presence?.mode.toString())
         Log.i("Roster", presence?.status.toString())
         _uiState.update {
             it.copy(
                 mode = presence?.mode,
+                status = presence?.status,
                 type = presence?.type.toString()
             )
         }
+    }
+
+    fun updateStatus(status: String, lastPresence: Presence.Mode) {
+        _uiState.update {
+            it.copy(
+                mode = lastPresence,
+                status = status,
+            )
+        }
+        xmppManager.updateStatus(status,lastPresence)
+    }
+
+    init {
+        getPresence(LocalLoggedAccounts.account.jid)
     }
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalChatsDataProvider
-import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.User
@@ -189,7 +188,7 @@ fun UserCard(
             .combinedClickable(
                 onClick = {
                     addChatIfNotExists(user)
-                    navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${user.jid}")
+                    navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${user.jid}")
                 }
             )
             .padding(8.dp)

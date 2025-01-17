@@ -22,6 +22,7 @@ import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
+import com.ismael.teams.data.model.User
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.Dispatchers
@@ -33,8 +34,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
+import org.jivesoftware.smack.packet.PresenceBuilder
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jxmpp.jid.impl.JidCreate
+import java.time.Instant
 
 import java.util.UUID
 
@@ -94,7 +97,7 @@ class ChatViewModel : ViewModel() {
 
     fun updateCurrentSelectedChat(chat: Chat) {
         Log.i("Roster", chat.jid)
-       // getPresence(chat.jid)
+        getPresence(chat.jid)
         val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chat.jid }
         itemToUpdate?.isUnread = false
         val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
@@ -164,10 +167,25 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+
+    fun getPresence(jid: String) {
+        val presence = xmppManager.getUserPresence(jid)
+        Log.i("Roster", presence?.mode.toString())
+        Log.i("Roster", presence?.status.toString())
+        _uiState.update {
+            it.copy(
+                mode = presence?.mode,
+                type = presence?.type.toString()
+            )
+        }
+    }
+
+    // States for Compose UI
     var messages = mutableListOf<String>()
         private set
 
-    private val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> =
+    // Expor as mensagens recebidas para a UI
+    val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> =
         xmppManager.receivedMessages
 
 

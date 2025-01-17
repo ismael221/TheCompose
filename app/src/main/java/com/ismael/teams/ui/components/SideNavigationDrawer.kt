@@ -36,19 +36,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCbrt
+import androidx.navigation.NavController
 import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalLoggedAccounts
+import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.User
 import com.ismael.teams.ui.screens.chat.UserIcon
 import com.ismael.teams.ui.screens.chat.UserIconWithStatus
+import com.ismael.teams.ui.screens.user.UserUiState
+import org.jivesoftware.smack.packet.Presence
 import kotlin.math.exp
 
 //TODO pass the uistate in order to get the user activity
 @Composable
 fun SideNavBarItems(
     loggedUser: User,
+    userUiState: UserUiState,
     onItemClick: (String) -> Unit = {},
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -65,7 +71,7 @@ fun SideNavBarItems(
                 UserDetails(
                     userName = loggedUser.displayName,
                     secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA",
-                    userStatus = "available",
+                    userStatus =  userUiState.mode.toString(),
                     userProfilePic = R.drawable.yasmin,
                     modifier = Modifier
                 )
@@ -77,8 +83,25 @@ fun SideNavBarItems(
         NavigationDrawerItem(
             label = {
                 UserStatusItem(
-                    icon = R.drawable.available,
-                    description = R.string.available
+                    icon = when (userUiState.mode){
+                        Presence.Mode.available -> R.drawable.available
+                        Presence.Mode.dnd -> R.drawable.dnd
+                        Presence.Mode.away -> R.drawable.away
+                        Presence.Mode.xa -> R.drawable.away
+                        else -> {
+                            R.drawable.offline
+                        }
+                    }
+                        ,
+                    description = when (userUiState.mode){
+                        Presence.Mode.available -> R.string.available
+                        Presence.Mode.dnd -> R.string.dnd
+                        Presence.Mode.away -> R.string.away
+                        Presence.Mode.xa -> R.string.brb
+                        else -> {
+                            R.string.offline
+                        }
+                    }
                 )
             },
             selected = false,
@@ -97,22 +120,11 @@ fun SideNavBarItems(
                 selected = false,
                 modifier = Modifier
                     .padding(start = 16.dp),
-                onClick = {},
-                shape = ShapeDefaults.ExtraSmall
-            )
-            NavigationDrawerItem(
-                label = {
-                    UserStatusItem(
-                        icon = R.drawable.busy,
-                        description = R.string.busy
-                    )
+                onClick = {
+                    onItemClick("available")
+                    expanded = false
                 },
-                selected = false,
-                modifier = Modifier
-                    .padding(start = 16.dp),
-                onClick = {},
                 shape = ShapeDefaults.ExtraSmall
-
             )
             NavigationDrawerItem(
                 label = {
@@ -126,6 +138,7 @@ fun SideNavBarItems(
                     .padding(start = 16.dp),
                 onClick = {
                     onItemClick("dnd")
+                    expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
 
@@ -142,6 +155,7 @@ fun SideNavBarItems(
                     .padding(start = 16.dp),
                 onClick = {
                     onItemClick("brb")
+                    expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
 
@@ -158,6 +172,7 @@ fun SideNavBarItems(
                     .padding(start = 16.dp),
                 onClick = {
                     onItemClick("away")
+                    expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
 
@@ -172,7 +187,10 @@ fun SideNavBarItems(
                 selected = false,
                 modifier = Modifier
                     .padding(start = 16.dp),
-                onClick = {},
+                onClick = {
+                    onItemClick("offline")
+                    expanded = false
+                },
                 shape = ShapeDefaults.ExtraSmall
 
             )
@@ -195,12 +213,14 @@ fun SideNavBarItems(
             label = {
                 SideBarNavigationItems(
                     icon = R.drawable.draft_orders_24px,
-                    topLabel = R.string.statusMessage,
+                    topLabel = userUiState.status.toString(),
                     bottomLabel = R.string.showInChat,
                 )
             },
             selected = false,
-            onClick = {},
+            onClick = {
+                navController.navigate(NavigationRoutes.STATUS)
+            },
             modifier = Modifier
                 .height(80.dp),
             shape = ShapeDefaults.ExtraSmall
@@ -209,7 +229,7 @@ fun SideNavBarItems(
             label = {
                 SideBarNavigationItems(
                     icon = R.drawable.notifications_24px,
-                    topLabel = R.string.notifications,
+                    topLabel = stringResource(R.string.notifications),
                     bottomLabel = R.string.notifications_description,
                 )
             },
@@ -221,7 +241,7 @@ fun SideNavBarItems(
             label = {
                 SideBarNavigationItems(
                     icon = R.drawable.settings_24px,
-                    topLabel = R.string.settings,
+                    topLabel = stringResource(R.string.settings),
                 )
             },
             selected = false,
@@ -232,7 +252,7 @@ fun SideNavBarItems(
             label = {
                 SideBarNavigationItems(
                     icon = R.drawable.add_24px,
-                    topLabel = R.string.addAccount,
+                    topLabel = stringResource(R.string.addAccount),
                 )
             },
             selected = false,
@@ -284,7 +304,7 @@ fun UserDetails(
 @Composable
 fun SideBarNavigationItems(
     @DrawableRes icon: Int,
-    @StringRes topLabel: Int,
+    topLabel: String,
     @StringRes bottomLabel: Int? = null,
     modifier: Modifier = Modifier
 ) {
@@ -304,7 +324,7 @@ fun SideBarNavigationItems(
                 .padding(start = 8.dp)
         ) {
             Text(
-                text = stringResource(topLabel),
+                text = topLabel,
                 fontWeight = FontWeight.Bold,
                 style = AppTypography.bodyLarge
             )
@@ -361,8 +381,8 @@ fun SideNavBarItemsPreview() {
         darkColorScheme()
     ) {
         //  UserStatusItem()
-        SideNavBarItems(
-            loggedUser = LocalLoggedAccounts.account
-        )
+//        SideNavBarItems(
+//            loggedUser = LocalLoggedAccounts.account
+//        )
     }
 }

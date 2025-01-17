@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +43,6 @@ import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
-import org.jivesoftware.smackx.chatstates.ChatState
 
 @Composable
 fun ChatList(
@@ -114,7 +111,7 @@ fun ChatCard(
                 .combinedClickable(
                     onClick = {
                         Log.i("ChatCard", "Clicked on chat with id: ${chatPreview.jid}")
-                        navController.navigate("${NavigationRoutes.ChatWithUser.substringBefore("/{chatId}")}/${chatPreview.jid}")
+                        navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${chatPreview.jid}")
                     },
                     onLongClick = {}
                 )

@@ -294,6 +294,17 @@ object XmppManager {
         }
     }
 
+    fun updateStatus(status: String, lastPresence: Presence.Mode) {
+        val presence = PresenceBuilder.buildPresence()
+        presence.setStatus(status)
+        presence.setMode(lastPresence)
+        try {
+            connection?.sendStanza(presence.build())
+        }catch (e: Exception){
+            println("Erro ao atualizar status: ${e.message}")
+        }
+    }
+
     private val _chatStateUpdates = MutableStateFlow<Pair<String, ChatState?>>(Pair("", null))
     val chatStateUpdates = _chatStateUpdates.asStateFlow()
 
