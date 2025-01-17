@@ -35,3 +35,28 @@ fun Long.toFormattedDateString(): String {
         }
     }
 }
+
+
+fun Long.toChatPreviewDateString(): String {
+    val messageDateTime = Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    val today = LocalDate.now()
+    val formatterTime = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
+    val formatterDay = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault())
+    val formatterDayMonth = DateTimeFormatter.ofPattern("dd/MM", Locale.getDefault())
+    val formatterFullDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
+
+    return when {
+        messageDateTime.toLocalDate().isEqual(today) -> {
+            messageDateTime.format(formatterTime) // Hora para mensagens de hoje
+        }
+        messageDateTime.isAfter(today.minusDays(6).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()) -> {
+            messageDateTime.format(formatterDay) // Dia da semana para mensagens dentro de uma semana
+        }
+        messageDateTime.year == today.year -> {
+            messageDateTime.format(formatterDayMonth) // Dia/Mês para mensagens deste ano
+        }
+        else -> {
+            messageDateTime.format(formatterFullDate) // Dia/Mês/Ano para mensagens de anos anteriores
+        }
+    }
+}

@@ -43,6 +43,7 @@ import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
+import com.ismael.teams.ui.utils.toChatPreviewDateString
 
 @Composable
 fun ChatList(
@@ -174,11 +175,13 @@ fun ChatCard(
                 .padding(top = 16.dp, end = 8.dp)
                 .fillMaxWidth()
         ) {
-            Text(
-                text = chatPreview.lastMessageTime.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-            )
+            chatPreview.lastMessageTime?.let {
+                Text(
+                    text = it.toChatPreviewDateString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                )
+            }
         }
     }
 }
