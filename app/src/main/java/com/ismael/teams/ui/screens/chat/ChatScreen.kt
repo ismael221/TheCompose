@@ -71,6 +71,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -92,10 +93,17 @@ import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.user.UserUiState
 import com.ismael.teams.ui.utils.TheComposeNavigationType
+import com.ismael.teams.ui.utils.toFormattedDateString
+import com.ismael.teams.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @Composable
@@ -683,6 +691,19 @@ fun ChatMessages(
             .padding(8.dp)
     ) {
         itemsIndexed(messages) { index, message ->
+
+            val showDateDivider = if (index == 0) {
+                true
+            } else {
+                val previousMessageDate = messages[index - 1].timestamp.toLocalDate()
+                val currentMessageDate = message.timestamp.toLocalDate()
+                previousMessageDate != currentMessageDate
+            }
+
+            if (showDateDivider) {
+                DateDivider(date = message.timestamp.toFormattedDateString())
+            }
+
             val isDifferentSender = if (index == 0) {
                 true
             } else {
@@ -858,6 +879,21 @@ fun ExpandedChatScreen(
 }
 
 
+
+
+@Composable
+fun DateDivider(date: String) {
+    Text(
+        text = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")),
+        style = MaterialTheme.typography.labelSmall,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        textAlign = TextAlign.Center
+    )
+}
+
+
 @Preview(showBackground = true, widthDp = 700)
 @Composable
 fun ChatScreenMediumPreview() {
@@ -866,6 +902,7 @@ fun ChatScreenMediumPreview() {
 //            MediumChatScreen(
 //                navController = rememberNavController(),
 //            )
+            DateDivider(System.currentTimeMillis().toFormattedDateString())
         }
     }
 }
