@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -621,14 +622,13 @@ fun ChatWithUser(
                 ) { innerPadding ->
 
 
-                    ChatMessages(
-                        messages = chatUiState.currentChatMessages,
-                        user = currentLoggedUser,
-                        modifier = modifier
-                            .padding(innerPadding),
-                        states = chatUiState.chatState
-                    )
-
+                ChatMessages(
+                    messages = chatUiState.currentChatMessages,
+                    user = currentLoggedUser,
+                    modifier = modifier
+                        .padding(innerPadding),
+                    states = chatUiState.chatState
+                )
 
 
             }
@@ -651,13 +651,13 @@ fun ChatWithUser(
 
             ) { innerPadding ->
 
-                ChatMessages(
-                    states = chatUiState.chatState,
-                    messages = chatUiState.currentChatMessages,
-                    user = currentLoggedUser,
-                    modifier = modifier
-                        .padding(innerPadding)
-                )
+            ChatMessages(
+                states = chatUiState.chatState,
+                messages = chatUiState.currentChatMessages,
+                user = currentLoggedUser,
+                modifier = modifier
+                    .padding(innerPadding)
+            )
 
         }
     }
@@ -682,25 +682,41 @@ fun ChatMessages(
         modifier = modifier
             .padding(8.dp)
     ) {
-        items(
-            items = messages,
-            key = { it.key }
-        ) { message ->
+        itemsIndexed(messages) { index, message ->
+            val isDifferentSender = if (index == 0) {
+                true
+            } else {
+                messages[index - 1].senderId != message.senderId
+            }
+
+            val paddingTop = if (isDifferentSender) 16.dp else 0.dp
+
             ChatBubble(
                 message = message.text,
                 isUserMessage = message.senderId == user,
                 modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp)
-
+                    .padding(
+                        start = 8.dp,
+                        end = 8.dp,
+                        top = paddingTop
+                    )
             )
         }
         item {
             if (states == ChatState.composing || states == ChatState.paused) {
+                val lastMessageDifferentSender = if (messages.isNotEmpty()) {
+                    messages.last().senderId == user
+                } else {
+                    false
+                }
+
+                val animationPaddingTop = if (lastMessageDifferentSender) 16.dp else 0.dp
+
                 ChatBubbleAnimation(
                     states = states,
                     isUserMessage = false,
                     modifier = Modifier
-                        .padding(start = 8.dp, end = 8.dp)
+                        .padding(start = 8.dp, end = 8.dp, top = animationPaddingTop)
                 )
             }
         }
