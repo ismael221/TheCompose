@@ -79,11 +79,11 @@ fun CalendarScreen(
             modifier = modifier,
             topBar = {
                 TeamsTopAppBar(
-                    currentScreen = TeamsScreen.CalendarList,
+                    currentScreen = TeamsScreen.CALENDAR,
                     onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SearchBarList.name)
+                        navController.navigate(TeamsScreen.SERARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -96,7 +96,7 @@ fun CalendarScreen(
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.CalendarList,
+                    currentScreen = TeamsScreen.CALENDAR,
                     navController = navController,
                     unReadMessages = chatUiState.unReadMessages,
                     modifier = modifier
@@ -121,7 +121,7 @@ fun MediumCalendarScreen(
     modifier: Modifier = Modifier
 ){
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.CalendarList,
+        currentScreen = TeamsScreen.CALENDAR,
         navController = navController,
         modifier = modifier
     )
@@ -132,7 +132,7 @@ fun ExpandedCalendarScreen(
     modifier: Modifier = Modifier
 ){
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.CalendarList,
+        currentScreen = TeamsScreen.CALENDAR,
         navController = navController,
         modifier = modifier
     )

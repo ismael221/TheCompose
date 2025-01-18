@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -99,11 +98,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 
 @Composable
@@ -541,7 +536,7 @@ fun UserChatTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigate(NavigationRoutes.CHATLIST)
+                    navController.navigate(NavigationRoutes.CHAT)
                 }
             ) {
                 Icon(
@@ -608,7 +603,7 @@ fun ChatWithUser(
             modifier = modifier
         ) {
             TheComposeNavigationRail(
-                currentScreen = TeamsScreen.ChatList,
+                currentScreen = TeamsScreen.CHAT,
                 navController = navController,
                 modifier = modifier
             )
@@ -779,11 +774,11 @@ fun CompactChatScreen(
         Scaffold(
             topBar = {
                 TeamsTopAppBar(
-                    currentScreen = TeamsScreen.ChatList,
+                    currentScreen = TeamsScreen.CHAT,
                     onFilterClick = { showBottomSheet = true },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SearchBarList.name)
+                        navController.navigate(TeamsScreen.SERARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -800,7 +795,7 @@ fun CompactChatScreen(
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.ChatList,
+                    currentScreen = TeamsScreen.CHAT,
                     unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
@@ -831,7 +826,7 @@ fun CompactChatScreen(
             TopBarDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = !expanded },
-                currentScreen = TeamsScreen.ChatList,
+                currentScreen = TeamsScreen.CHAT,
             )
         }
     }
@@ -849,7 +844,7 @@ fun MediumChatScreen(
         modifier = modifier
     ) {
         TheComposeNavigationRail(
-            currentScreen = TeamsScreen.ChatList,
+            currentScreen = TeamsScreen.CHAT,
             navController = navController,
             modifier = Modifier
         )
@@ -872,7 +867,7 @@ fun ExpandedChatScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.ChatList,
+        currentScreen = TeamsScreen.CHAT,
         navController = navController,
         modifier = modifier
     )

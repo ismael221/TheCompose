@@ -78,9 +78,9 @@ fun TheComposeApp(
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.CHATLIST
+        startDestination = NavigationRoutes.CHAT
     ) {
-        composable(route = NavigationRoutes.CHATLIST) {
+        composable(route = NavigationRoutes.CHAT) {
 
             when (windowSize) {
 
@@ -137,7 +137,7 @@ fun TheComposeApp(
             }
 
         }
-        composable(route = NavigationRoutes.ACTIVITYS) {
+        composable(route = NavigationRoutes.ACTIVITY) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     ActivityScreen(
@@ -200,7 +200,7 @@ fun TheComposeApp(
 
             }
         }
-        composable(route = NavigationRoutes.CALLS) {
+        composable(route = NavigationRoutes.CALL) {
 
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {

@@ -205,11 +205,11 @@ fun ActivityScreen(
                     modifier = modifier
                 ) {
                     TeamsTopAppBar(
-                        currentScreen = TeamsScreen.ActivityList,
+                        currentScreen = TeamsScreen.ACTIVITY,
                         onFilterClick = { },
                         scrollBehavior = topAppBarScrollBehavior,
                         onSearchBarClick = {
-                            navController.navigate(TeamsScreen.SearchBarList.name)
+                            navController.navigate(TeamsScreen.SERARCHBAR.name)
                         },
                         onDropdownMenuClick = {
                             expanded = !expanded
@@ -231,7 +231,7 @@ fun ActivityScreen(
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.ActivityList,
+                    currentScreen = TeamsScreen.ACTIVITY,
                     unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
@@ -244,7 +244,7 @@ fun ActivityScreen(
             TopBarDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = !expanded },
-                currentScreen = TeamsScreen.ActivityList,
+                currentScreen = TeamsScreen.ACTIVITY,
             )
 
         }
@@ -258,7 +258,7 @@ fun MediumActivityScreen(
     modifier: Modifier = Modifier
 ){
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.ActivityList,
+        currentScreen = TeamsScreen.ACTIVITY,
         navController = navController
     )
 }
@@ -269,7 +269,7 @@ fun ExpandedActivityScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.ActivityList,
+        currentScreen = TeamsScreen.ACTIVITY,
         navController = navController
     )
 }

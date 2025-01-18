@@ -78,11 +78,11 @@ fun CallScreen(
             modifier = modifier,
             topBar = {
                 TeamsTopAppBar(
-                    currentScreen = TeamsScreen.CallList,
+                    currentScreen = TeamsScreen.CALL,
                     onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SearchBarList.name)
+                        navController.navigate(TeamsScreen.SERARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -96,7 +96,7 @@ fun CallScreen(
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.CallList,
+                    currentScreen = TeamsScreen.CALL,
                     unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
@@ -120,7 +120,7 @@ fun MediumCallScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.CallList,
+        currentScreen = TeamsScreen.CALL,
         navController = navController,
         modifier = modifier
     )
@@ -132,7 +132,7 @@ fun ExpandedCallScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.CallList,
+        currentScreen = TeamsScreen.CALL,
         navController = navController,
         modifier = modifier
     )

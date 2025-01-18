@@ -33,13 +33,13 @@ import kotlinx.coroutines.launch
 enum class TeamsScreen(
     @StringRes val title: Int
 ) {
-    ChatList(title = R.string.chat),
-    ActivityList(title = R.string.activity),
-    CalendarList(title = R.string.calendar),
-    CallList(title = R.string.calls),
-    TeamsList(title = R.string.teams),
-    SearchBarList(title = R.string.search),
-    More(title = R.string.more),
+    CHAT(title = R.string.chat),
+    ACTIVITY(title = R.string.activity),
+    CALENDAR(title = R.string.calendar),
+    CALL(title = R.string.calls),
+    TEAMS(title = R.string.teams),
+    SERARCHBAR(title = R.string.search),
+    MORE(title = R.string.more),
     ChatWithUser(title = R.string.ChatWithUser)
 }
 
@@ -71,11 +71,11 @@ fun TeamsScreen(
             modifier = modifier,
             topBar = {
                 TeamsTopAppBar(
-                    currentScreen = TeamsScreen.TeamsList,
+                    currentScreen = TeamsScreen.TEAMS,
                     onFilterClick = {},
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SearchBarList.name)
+                        navController.navigate(TeamsScreen.SERARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -91,7 +91,7 @@ fun TeamsScreen(
             },
             bottomBar = {
                 TeamsBottomNavigationBar(
-                    currentScreen = TeamsScreen.TeamsList,
+                    currentScreen = TeamsScreen.TEAMS,
                     unReadMessages = chatUiState.unReadMessages,
                     navController = navController
                 )
@@ -100,7 +100,7 @@ fun TeamsScreen(
             TopBarDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = !expanded },
-                currentScreen = TeamsScreen.TeamsList,
+                currentScreen = TeamsScreen.TEAMS,
             )
         }
     }
@@ -113,7 +113,7 @@ fun MediumTeamsScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.TeamsList,
+        currentScreen = TeamsScreen.TEAMS,
         navController = navController,
         modifier = modifier
     )
@@ -125,7 +125,7 @@ fun ExpandedTeamsScreen(
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.TeamsList,
+        currentScreen = TeamsScreen.TEAMS,
         navController = navController,
         modifier = modifier
     )

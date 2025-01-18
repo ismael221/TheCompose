@@ -46,7 +46,7 @@ fun MoreScreen(
             Scaffold(
                 bottomBar = {
                     TeamsBottomNavigationBar(
-                        currentScreen = TeamsScreen.More,
+                        currentScreen = TeamsScreen.MORE,
                         unReadMessages = chatUiState.unReadMessages,
                         navController = navController
                     )
@@ -73,7 +73,7 @@ fun MediumMoreScreen(
     modifier: Modifier = Modifier
 ) {
    TheComposeNavigationRail(
-       currentScreen = TeamsScreen.More,
+       currentScreen = TeamsScreen.MORE,
        navController = navController,
        modifier = modifier
    )
@@ -85,7 +85,7 @@ fun ExpandedMoreScreen(
     modifier: Modifier = Modifier
 ){
     TheComposeNavigationRail(
-        currentScreen = TeamsScreen.More,
+        currentScreen = TeamsScreen.MORE,
         navController = navController,
         modifier = modifier
     )
