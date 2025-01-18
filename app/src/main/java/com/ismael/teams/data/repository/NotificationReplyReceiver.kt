@@ -11,7 +11,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalLoggedAccounts
+import com.ismael.teams.data.local.LocalLoggedAccounts._messages
+import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.remote.xmpp.XmppManager
+import com.ismael.teams.ui.utils.addMessageToMap
 import com.ismael.teams.ui.utils.removeAfterSlash
 import org.jxmpp.jid.impl.JidCreate
 
@@ -28,7 +31,14 @@ class NotificationReplyReceiver : BroadcastReceiver() {
 
         xmppManager.sendMessage(JidCreate.entityBareFrom(removeAfterSlash(sender.toString())), replyText)
 
+        val message = Message(
+            to = removeAfterSlash(sender.toString()),
+            text = replyText,
+            senderId = LocalLoggedAccounts.account.jid,
+            timestamp = System.currentTimeMillis()
+        )
 
+        addMessageToMap(_messages, removeAfterSlash(sender.toString()), message)
         val previousMessages = LocalLoggedAccounts.notifications.getOrPut(removeAfterSlash(sender.toString())) { mutableListOf() }
 
 

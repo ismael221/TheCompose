@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.ismael.teams.data.local.LocalAccountsDataProvider
 import com.ismael.teams.data.local.LocalChatsDataProvider
 import com.ismael.teams.data.local.LocalLoggedAccounts
+import com.ismael.teams.data.local.LocalLoggedAccounts._messages
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import com.ismael.teams.data.repository.NotificationRepository
+import com.ismael.teams.ui.utils.addMessageToMap
 import com.ismael.teams.ui.utils.removeAfterSlash
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,8 +36,6 @@ class ChatViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState = _uiState.asStateFlow()
-
-    private val _messages = mutableMapOf<String, List<Message>>()
 
     private val _presenceUpdates = MutableStateFlow<Pair<String, Presence?>>(Pair("", null))
     val presenceUpdates = _presenceUpdates.asStateFlow()
@@ -122,17 +122,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private fun addMessageToMap(
-        map: MutableMap<String, List<Message>>,
-        key: String,
-        message: Message
-    ) {
-        Log.i("Mensagem adicionada", key)
-        map.getOrPut(key) { emptyList() }
-            .let { it + message }
-            .also { map[key] = it }
-
-    }
 
     fun sendMessage(chatId: String, message: Message) {
         viewModelScope.launch {
