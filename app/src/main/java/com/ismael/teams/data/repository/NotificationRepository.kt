@@ -66,13 +66,40 @@ class NotificationRepository {
     fun showNotification(from: String?, body: String, context: Context) {
         val notificationManager = NotificationManagerCompat.from(context)
 
+        // Garantir que 'from' não é nulo ao calcular o hashCode
+        val sender = from ?: "unknown_sender"
+        val notificationId = sender.hashCode()
+
+        val newMessage = NotificationCompat.MessagingStyle.Message(
+            body,
+            System.currentTimeMillis(),
+            removeAfterSlash(sender)
+        )
+
+        // Recuperar uma notificação existente
+        val existingNotification = notificationManager.activeNotifications
+            .firstOrNull { it.id == notificationId }
+
+        val messagingStyle = if (existingNotification != null) {
+            // Se a notificação já existe, adicionar nova mensagem ao estilo existente
+            val existingStyle =
+                NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(
+                    existingNotification.notification
+                )
+            existingStyle?.addMessage(newMessage) ?: NotificationCompat.MessagingStyle("You")
+                .addMessage(newMessage)
+        } else {
+            // Criar um novo estilo de mensagem
+            NotificationCompat.MessagingStyle("You").addMessage(newMessage)
+        }
+
         val notification = NotificationCompat.Builder(context, "messages_channel")
-            .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
-            .setContentTitle("Nova mensagem de ${removeAfterSlash(from.toString())}")
-            .setContentText(body)
+            .setSmallIcon(R.drawable.notifications_24px)
+            .setStyle(messagingStyle)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        notificationManager.notify(notificationId, notification)
     }
 }
