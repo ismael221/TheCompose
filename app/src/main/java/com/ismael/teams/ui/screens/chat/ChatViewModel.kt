@@ -1,30 +1,19 @@
 package com.ismael.teams.ui.screens.chat
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalAccountsDataProvider
 import com.ismael.teams.data.local.LocalChatsDataProvider
 import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.Message
-import com.ismael.teams.data.model.User
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
+import com.ismael.teams.data.repository.NotificationRepository
+import com.ismael.teams.ui.utils.removeAfterSlash
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,11 +23,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
-import org.jivesoftware.smack.packet.PresenceBuilder
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jxmpp.jid.impl.JidCreate
-import java.time.Instant
-
 import java.util.UUID
 
 
@@ -55,6 +41,24 @@ class ChatViewModel : ViewModel() {
     val presenceUpdates = _presenceUpdates.asStateFlow()
 
     private val currentLoggedInUser = LocalLoggedAccounts.account
+
+    var messages = mutableListOf<String>()
+        private set
+
+    private val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> =
+        xmppManager.receivedMessages
+
+    private val _chatStatesFlow = MutableStateFlow<Map<String, ChatState>>(emptyMap())
+    private val chatStatesFlow: StateFlow<Map<String, ChatState>> = _chatStatesFlow
+
+    private val notificationRepository = NotificationRepository()
+
+    private var context: Context? = null
+
+    fun setContext(context: Context) {
+        this.context = context
+    }
+
 
     private fun initializeUiState() {
         val chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
@@ -130,10 +134,6 @@ class ChatViewModel : ViewModel() {
 
     }
 
-    private fun removeAfterSlash(input: String): String {
-        return input.substringBefore("/")
-    }
-
     fun sendMessage(chatId: String, message: Message) {
         viewModelScope.launch {
             try {
@@ -180,15 +180,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    // States for Compose UI
-    var messages = mutableListOf<String>()
-        private set
-
-    // Expor as mensagens recebidas para a UI
-    val incomingMessages: StateFlow<List<org.jivesoftware.smack.packet.Message>> =
-        xmppManager.receivedMessages
-
-
     fun setupMessageListener() {
         viewModelScope.launch(Dispatchers.IO) {
             XmppManager.addIncomingMessageListener()
@@ -204,12 +195,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private var context: Context? = null
-
-    fun setContext(context: Context) {
-        this.context = context
-    }
-
 
     fun observeIncomingMessages() {
         viewModelScope.launch {
@@ -218,7 +203,7 @@ class ChatViewModel : ViewModel() {
                     if (message.body != null) {
                         var key: String? = null
 
-                        println("Recebida no dispatcher: " + message)
+                        println("Recebida no dispatcher: $message")
                         println("Body: " + message.body)
                         val mensagem = Message(
                             to = removeAfterSlash(message.to.toString()),
@@ -277,7 +262,11 @@ class ChatViewModel : ViewModel() {
                                     }
                                 }
                             }
-                            notifyUser(message.from.toString(), message.body, context!!)
+                            notificationRepository.notifyUser(
+                                message.from.toString(),
+                                message.body,
+                                context!!
+                            )
                             key = message.from.toString()
                         }
 
@@ -321,68 +310,6 @@ class ChatViewModel : ViewModel() {
             _presenceUpdates.value = presenceUpdate
         }.launchIn(viewModelScope)
     }
-
-
-    private fun createNotificationChannel() {
-        val context = this.context
-        context?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val name = "Messages"
-                val descriptionText = "Notifications for new messages"
-                val importance = NotificationManager.IMPORTANCE_DEFAULT
-                val channel = NotificationChannel("messages_channel", name, importance).apply {
-                    description = descriptionText
-                }
-                val notificationManager = it.getSystemService(NotificationManager::class.java)
-                notificationManager?.createNotificationChannel(channel)
-            }
-        }
-    }
-
-
-    private val REQUEST_CODE_PERMISSION = 100
-
-    private fun notifyUser(from: String?, body: String, context: Context) {
-        createNotificationChannel()
-        // Verificar versão do Android
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13 ou superior: Verificar permissão de notificações
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                showNotification(from, body, context)
-            } else {
-                // Solicitar permissão ao usuário
-                ActivityCompat.requestPermissions(
-                    context as Activity,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    REQUEST_CODE_PERMISSION
-                )
-            }
-        } else {
-            // Android 12 ou inferior: Não é necessário verificar permissões
-            showNotification(from, body, context)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun showNotification(from: String?, body: String, context: Context) {
-        val notificationManager = NotificationManagerCompat.from(context)
-
-        val notification = NotificationCompat.Builder(context, "messages_channel")
-            .setSmallIcon(R.drawable.notifications_24px) // Ícone da notificação
-            .setContentTitle("Nova mensagem de ${removeAfterSlash(xmppManager.getUserName(from.toString()))}")
-            .setContentText(body)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
-
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-    }
-
-    private val _chatStatesFlow = MutableStateFlow<Map<String, ChatState>>(emptyMap())
-    private val chatStatesFlow: StateFlow<Map<String, ChatState>> = _chatStatesFlow
 
 
     private fun observeChatStates() {
