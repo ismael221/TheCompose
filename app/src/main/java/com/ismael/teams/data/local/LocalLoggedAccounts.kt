@@ -1,5 +1,6 @@
 package com.ismael.teams.data.local
 
+import androidx.core.app.NotificationCompat
 import com.ismael.teams.data.model.User
 
 object LocalLoggedAccounts {
@@ -12,4 +13,6 @@ object LocalLoggedAccounts {
         status = "dnd",
         lastSeen = System.currentTimeMillis()
     )
+
+    val notifications =  mutableMapOf<String, MutableList<NotificationCompat.MessagingStyle.Message>>()
 }
