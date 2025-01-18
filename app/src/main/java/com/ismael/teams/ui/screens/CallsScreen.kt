@@ -82,7 +82,7 @@ fun CallScreen(
                     onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SERARCHBAR.name)
+                        navController.navigate(TeamsScreen.SEARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {

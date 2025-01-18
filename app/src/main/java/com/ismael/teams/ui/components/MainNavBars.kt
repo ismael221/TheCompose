@@ -43,6 +43,7 @@ import com.example.ui.theme.AppTypography
 import com.ismael.teams.R
 import com.ismael.teams.ui.screens.chat.UserIcon
 import com.ismael.teams.ui.screens.TeamsScreen
+import com.ismael.teams.ui.utils.createInitialsBitmap
 
 
 @Composable
@@ -229,7 +230,7 @@ fun TeamsTopAppBar(
         navigationIcon = {
 
             UserIcon(
-                painter = painterResource(R.drawable.perfil),
+                imageBitmap = createInitialsBitmap("Debora"),
                 contentDescription = null,
                 onclick = { onUserIconClick() },
                 modifier = Modifier

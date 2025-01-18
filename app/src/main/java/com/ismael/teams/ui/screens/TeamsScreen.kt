@@ -38,7 +38,7 @@ enum class TeamsScreen(
     CALENDAR(title = R.string.calendar),
     CALL(title = R.string.calls),
     TEAMS(title = R.string.teams),
-    SERARCHBAR(title = R.string.search),
+    SEARCHBAR(title = R.string.search),
     MORE(title = R.string.more),
     ChatWithUser(title = R.string.ChatWithUser)
 }
@@ -75,7 +75,7 @@ fun TeamsScreen(
                     onFilterClick = {},
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SERARCHBAR.name)
+                        navController.navigate(TeamsScreen.SEARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {

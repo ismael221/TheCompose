@@ -209,7 +209,7 @@ fun ActivityScreen(
                         onFilterClick = { },
                         scrollBehavior = topAppBarScrollBehavior,
                         onSearchBarClick = {
-                            navController.navigate(TeamsScreen.SERARCHBAR.name)
+                            navController.navigate(TeamsScreen.SEARCHBAR.name)
                         },
                         onDropdownMenuClick = {
                             expanded = !expanded

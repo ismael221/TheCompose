@@ -29,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +74,7 @@ fun SideNavBarItems(
                     userName = loggedUser.displayName,
                     secondaryText = "NUNES EQUIPAMENTOS ELETRICOS LTDA",
                     userStatus =  userUiState.mode.toString(),
-                    userProfilePic = R.drawable.yasmin,
+                    userProfilePic = ImageBitmap.imageResource(R.drawable.yasmin),
                     modifier = Modifier
                 )
             },
@@ -268,7 +270,7 @@ fun UserDetails(
     userName: String,
     secondaryText: String? = null,
     userStatus: String,
-    userProfilePic: Int,
+    userProfilePic: ImageBitmap,
     modifier: Modifier = Modifier
 ) {
     Row(

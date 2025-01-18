@@ -2,6 +2,7 @@ package com.ismael.teams.ui.screens.chat
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -62,11 +63,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -92,6 +95,7 @@ import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.user.UserUiState
 import com.ismael.teams.ui.utils.TheComposeNavigationType
+import com.ismael.teams.ui.utils.createInitialsBitmap
 import com.ismael.teams.ui.utils.toFormattedDateString
 import com.ismael.teams.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -104,7 +108,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun UserIcon(
     modifier: Modifier = Modifier,
-    painter: Painter,
+    imageBitmap: ImageBitmap,
     contentDescription: String?,
     onclick: () -> Unit
 ) {
@@ -112,7 +116,7 @@ fun UserIcon(
         modifier = modifier
     ) {
         Image(
-            painter = painter,
+            bitmap = imageBitmap,
             contentDescription = contentDescription,
             modifier = Modifier
                 .size(40.dp)
@@ -128,7 +132,7 @@ fun UserIcon(
 @Composable
 fun UserIconWithStatus(
     status: String,
-    @DrawableRes userProfile: Int,
+    userProfile: ImageBitmap,
     modifier: Modifier = Modifier
 ) {
     BadgedBox(
@@ -144,7 +148,7 @@ fun UserIconWithStatus(
     ) {
         UserIcon(
             modifier = modifier,
-            painter = painterResource(userProfile),
+            imageBitmap = userProfile,
             contentDescription = null,
             onclick = {}
         )
@@ -515,7 +519,7 @@ fun UserChatTopBar(
                         modifier = Modifier
                             .fillMaxWidth(),
                         userStatus = chatUiState.mode.toString(),
-                        userProfilePic = R.drawable.yasmin
+                        userProfilePic = ImageBitmap.imageResource(R.drawable.yasmin)
                     )
                 }
 
@@ -526,7 +530,7 @@ fun UserChatTopBar(
                         modifier = Modifier
                             .fillMaxWidth(),
                         userStatus = "",
-                        userProfilePic = 1
+                        userProfilePic = createInitialsBitmap("Teste")
                     )
                 }
             }
@@ -778,7 +782,7 @@ fun CompactChatScreen(
                     onFilterClick = { showBottomSheet = true },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SERARCHBAR.name)
+                        navController.navigate(TeamsScreen.SEARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -892,12 +896,19 @@ fun DateDivider(date: String) {
 @Preview(showBackground = true, widthDp = 700)
 @Composable
 fun ChatScreenMediumPreview() {
+
+
+
     MaterialTheme {
         Surface {
-//            MediumChatScreen(
-//                navController = rememberNavController(),
-//            )
-            DateDivider(System.currentTimeMillis().toFormattedDateString())
+            Image(
+                bitmap = ImageBitmap.imageResource(R.drawable.yasmin),
+                contentDescription = "User Initials",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(8.dp)
+            )
         }
+
     }
 }

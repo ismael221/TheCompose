@@ -43,6 +43,7 @@ import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
+import com.ismael.teams.ui.utils.createInitialsBitmap
 import com.ismael.teams.ui.utils.toChatPreviewDateString
 
 @Composable
@@ -146,7 +147,7 @@ fun ChatCard(
                         status = "available",
                         modifier = Modifier
                             .padding(top = 2.dp),
-                        userProfile = R.drawable.yasmin
+                        userProfile =  createInitialsBitmap("Debora")
                     )
                 }
 

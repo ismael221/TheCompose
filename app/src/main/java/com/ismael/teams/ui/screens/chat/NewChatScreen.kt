@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -196,7 +198,7 @@ fun UserCard(
     ) {
         UserIconWithStatus(
             status = "available",
-            userProfile = R.drawable.yasmin,
+            userProfile = ImageBitmap.imageResource(R.drawable.yasmin),
         )
         Text(
             text = user.displayName,
