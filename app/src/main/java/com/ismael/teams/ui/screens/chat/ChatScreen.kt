@@ -818,7 +818,7 @@ fun CompactChatScreen(
             ChatList(
                 chats = chatUiState.chats,
                 navController = navController,
-                showSpacer = true
+                showSpacer = true,
             )
             if (showBottomSheet) {
                 ChatFilterBottomSheet(

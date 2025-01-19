@@ -43,6 +43,7 @@ import com.ismael.teams.data.model.Chat
 import com.ismael.teams.data.model.ChatType
 import com.ismael.teams.data.model.NavigationRoutes
 import com.ismael.teams.data.model.UserChat
+import com.ismael.teams.data.remote.xmpp.XmppManager
 import com.ismael.teams.ui.utils.createInitialsBitmap
 import com.ismael.teams.ui.utils.toChatPreviewDateString
 
@@ -77,7 +78,7 @@ fun ChatList(
             ChatCard(
                 chatPreview = chat,
                 navController = navController,
-                modifier = modifier
+                modifier = modifier,
             )
             HorizontalDivider(
                 modifier = Modifier
@@ -103,6 +104,7 @@ fun ChatCard(
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
+    val xmppManager: XmppManager = XmppManager
     Box(
         modifier = modifier
     ) {
@@ -144,10 +146,10 @@ fun ChatCard(
                 }
                 if (chatPreview.chatType == ChatType.User) {
                     UserIconWithStatus(
-                        status = "available",
+                        status = xmppManager.getUserPresence(chatPreview.jid)!!.mode.toString(),
                         modifier = Modifier
                             .padding(top = 2.dp),
-                        userProfile =  createInitialsBitmap("Debora")
+                        userProfile =  createInitialsBitmap(chatPreview.chatName)
                     )
                 }
 
@@ -308,18 +310,18 @@ fun ChatCardPreview(
     modifier: Modifier = Modifier
 ) {
     MaterialTheme {
-        ChatCard(
-            chatPreview = UserChat(
-                jid = "yasmin@ismael",
-                lastMessage = "Olá amor",
-                lastMessageTime = System.currentTimeMillis(),
-                chatName = "Yasmin Rodrigues",
-                isUnread = true,
-                lastSeen = System.currentTimeMillis(),
-                chatPhotoUrl = ""
-            ),
-            navController = NavController(LocalContext.current),
-        )
+//        ChatCard(
+//            chatPreview = UserChat(
+//                jid = "yasmin@ismael",
+//                lastMessage = "Olá amor",
+//                lastMessageTime = System.currentTimeMillis(),
+//                chatName = "Yasmin Rodrigues",
+//                isUnread = true,
+//                lastSeen = System.currentTimeMillis(),
+//                chatPhotoUrl = ""
+//            ),
+//            navController = NavController(LocalContext.current),
+//        )
 
     }
 }
@@ -331,42 +333,42 @@ fun ChatCardMediumPreview(
 ) {
     MaterialTheme {
         Column {
-            ChatCard(
-                chatPreview = UserChat(
-                    jid = "yasmin@ismael",
-                    lastMessage = "Olá amor",
-                    lastMessageTime = System.currentTimeMillis(),
-                    chatName = "Yasmin Rodrigues",
-                    isUnread = true,
-                    lastSeen = System.currentTimeMillis(),
-                    chatPhotoUrl = ""
-                ),
-                navController = NavController(LocalContext.current),
-            )
-            ChatCard(
-                chatPreview = UserChat(
-                    jid = "yasmin@ismael",
-                    lastMessage = "Olá amor",
-                    lastMessageTime = System.currentTimeMillis(),
-                    chatName = "Yasmin Rodrigues",
-                    isUnread = true,
-                    lastSeen = System.currentTimeMillis(),
-                    chatPhotoUrl = ""
-                ),
-                navController = NavController(LocalContext.current),
-            )
-            ChatCard(
-                chatPreview = UserChat(
-                    jid = "yasmin@ismael",
-                    lastMessage = "Olá amor",
-                    lastMessageTime = System.currentTimeMillis(),
-                    chatName = "Yasmin Rodrigues",
-                    isUnread = true,
-                    lastSeen = System.currentTimeMillis(),
-                    chatPhotoUrl = ""
-                ),
-                navController = NavController(LocalContext.current),
-            )
+//            ChatCard(
+//                chatPreview = UserChat(
+//                    jid = "yasmin@ismael",
+//                    lastMessage = "Olá amor",
+//                    lastMessageTime = System.currentTimeMillis(),
+//                    chatName = "Yasmin Rodrigues",
+//                    isUnread = true,
+//                    lastSeen = System.currentTimeMillis(),
+//                    chatPhotoUrl = ""
+//                ),
+//                navController = NavController(LocalContext.current),
+//            )
+//            ChatCard(
+//                chatPreview = UserChat(
+//                    jid = "yasmin@ismael",
+//                    lastMessage = "Olá amor",
+//                    lastMessageTime = System.currentTimeMillis(),
+//                    chatName = "Yasmin Rodrigues",
+//                    isUnread = true,
+//                    lastSeen = System.currentTimeMillis(),
+//                    chatPhotoUrl = ""
+//                ),
+//                navController = NavController(LocalContext.current),
+//            )
+//            ChatCard(
+//                chatPreview = UserChat(
+//                    jid = "yasmin@ismael",
+//                    lastMessage = "Olá amor",
+//                    lastMessageTime = System.currentTimeMillis(),
+//                    chatName = "Yasmin Rodrigues",
+//                    isUnread = true,
+//                    lastSeen = System.currentTimeMillis(),
+//                    chatPhotoUrl = ""
+//                ),
+//                navController = NavController(LocalContext.current),
+//            )
         }
 
     }

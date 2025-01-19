@@ -22,6 +22,7 @@ data class ChatUiState(
     val type: String? = null,
     val error: String? = null,
     val chatState: ChatState? = null,
+    val presence : Pair<String, Presence?> = Pair("", null),
     val messages: Map<String, List<Message>> = emptyMap() // Added messages map
 ) {
     val currentChatMessages: List<Message>  = currentSelectedChat?.let { messages[it.jid] } ?: emptyList()

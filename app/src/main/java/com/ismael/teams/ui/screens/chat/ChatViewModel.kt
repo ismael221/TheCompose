@@ -296,6 +296,7 @@ class ChatViewModel : ViewModel() {
 
     private fun observePresenceUpdates() {
         XmppManager.presenceUpdates.onEach { presenceUpdate ->
+
             _presenceUpdates.value = presenceUpdate
         }.launchIn(viewModelScope)
     }
@@ -333,6 +334,7 @@ class ChatViewModel : ViewModel() {
 
 
     init {
+        observePresenceUpdates()
         observeChatStates()
         initializeUiState()
     }

@@ -62,6 +62,9 @@ object XmppManager {
 
     private val _chatStates = mutableMapOf<String, ChatState>()
 
+    private val _chatStateUpdates = MutableStateFlow<Pair<String, ChatState?>>(Pair("", null))
+    val chatStateUpdates = _chatStateUpdates.asStateFlow()
+
     fun addMessageListener(listener: (Message) -> Unit) {
         messageListeners.add(listener)
     }
@@ -304,9 +307,6 @@ object XmppManager {
             println("Erro ao atualizar status: ${e.message}")
         }
     }
-
-    private val _chatStateUpdates = MutableStateFlow<Pair<String, ChatState?>>(Pair("", null))
-    val chatStateUpdates = _chatStateUpdates.asStateFlow()
 
 
 }
