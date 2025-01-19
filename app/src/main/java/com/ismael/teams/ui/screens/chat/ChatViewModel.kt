@@ -69,7 +69,7 @@ class ChatViewModel : ViewModel() {
                 chats = chats,
                 currentLoggedInUser = currentLoggedInUser,
                 unReadMessages = LocalChatsDataProvider.chats.filter { it.isUnread }.size,
-                lastSelectedChat = chats[0]
+                lastSelectedChat = if(chats.isNotEmpty()) chats[0] else null
             )
 
     }
