@@ -204,12 +204,11 @@ fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
 ) {
     var content by remember { mutableStateOf("") }
-
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var audioUri by remember { mutableStateOf<Uri?>(null) }
+    var contentType: MessageType? = null
 
-    // Solicitar permissões
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.CAMERA,
@@ -218,44 +217,40 @@ fun ChatMessageBottomAppBar(
         )
     )
 
-    // Launcher para capturar imagem
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
             Log.i("Foto tirada com sucesso", imageUri.toString())
             onImageCaptured(imageUri)
+            contentType = MessageType.Image
         }
     }
 
-    // Launcher para gravar vídeo
     val takeVideoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CaptureVideo()
     ) { success ->
         if (success) {
-            // O vídeo foi gravado com sucesso, você pode usar o `imageUri` aqui
+            contentType = MessageType.Video
         }
     }
 
-    // Launcher para gravar áudio
     val recordAudioLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // O áudio foi gravado com sucesso, você pode usar o `audioUri` aqui
             val uri = result.data?.data
             audioUri = uri
             onAudioCaptured(audioUri)
+            contentType = MessageType.Audio
         }
     }
 
-    // Verificar e solicitar permissões
     LaunchedEffect(permissionsState) {
         if (!permissionsState.allPermissionsGranted) {
             permissionsState.launchMultiplePermissionRequest()
         }
     }
-
 
     NavigationBar(
         content = {
@@ -300,6 +295,7 @@ fun ChatMessageBottomAppBar(
                                 ChatState.paused
                             )
                         }
+                        contentType = MessageType.Text
                     },
                     label = {
                         Text(
@@ -334,10 +330,11 @@ fun ChatMessageBottomAppBar(
                             )
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
-                                    text = content,
+                                    content = content,
                                     senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
-                                    to = it
+                                    to = it,
+                                    type = contentType!!
                                 )
                             }?.let {
                                 onSendClick(
@@ -392,7 +389,11 @@ fun ChatMessageBottomAppBar(
                                 recordAudioLauncher.launch(intent)
                             } else {
                                 // Nenhum aplicativo suporta a ação
-                                Toast.makeText(context, "Nenhum aplicativo de gravação de áudio encontrado", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Nenhum aplicativo de gravação de áudio encontrado",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     ) {
@@ -415,10 +416,11 @@ fun ChatMessageBottomAppBar(
                             Log.i("Botão de envio clicado", content)
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
-                                    text = content,
+                                    content = content,
                                     senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
-                                    to = it
+                                    to = it,
+                                    type = contentType!!
                                 )
                             }?.let {
                                 onSendClick(
@@ -445,15 +447,57 @@ fun ChatMessageBottomAppBar(
 
 @Composable
 fun ChatBubble(
-    message: String,
+    content: String,
+    isUserMessage: Boolean,
+    type: MessageType,
+    modifier: Modifier = Modifier
+) {
+
+    when (type) {
+        MessageType.Audio -> {
+            Text(text = "Audio")
+        }
+
+        MessageType.Video -> {
+            Text(text = "Video")
+        }
+
+        MessageType.Text -> {
+            TextMessage(
+                text = content,
+                isUserMessage = isUserMessage,
+                modifier = modifier
+            )
+        }
+
+        MessageType.Image -> {
+            ImageMessage(
+                imageUri = content,
+                isUserMessage = isUserMessage,
+                modifier = modifier
+            )
+        }
+
+        MessageType.Sticker -> {
+            Text(text = "Sticker")
+        }
+
+        else -> {
+            Text(text = "File")
+        }
+    }
+
+
+}
+
+@Composable
+fun TextMessage(
+    text: String,
     isUserMessage: Boolean,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
-
-    val type: MessageType = MessageType.Image
-
     Row(
         modifier = modifier
             .padding(
@@ -475,46 +519,56 @@ fun ChatBubble(
                     )
                     .padding(16.dp)
             ) {
-                when (type) {
-                    MessageType.Audio -> {
-                        Text(text = "Audio")
-                    }
+                Text(
+                    text = text,
+                    color = textColor,
+                    modifier = Modifier
+                        .wrapContentSize(),
+                )
+            }
+        }
+    }
 
-                    MessageType.Video -> {
-                        Text(text = "Video")
-                    }
+}
 
-                    MessageType.Text -> {
-                        Text(
-                            text = message,
-                            color = textColor,
-                            modifier = Modifier
-                                .wrapContentSize(),
-                        )
-                    }
-
-                    MessageType.Image -> {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data("content://media/external/images/media/1000204184")
-                                    .build()
-                            ),
-                            contentDescription = "Preview da imagem",
-                            modifier = Modifier
-                                .size(400.dp)
-                                .padding(8.dp)
-                        )
-                    }
-
-                    MessageType.Sticker -> {
-                        Text(text = "Sticker")
-                    }
-
-                    else -> {
-                        Text(text = "File")
-                    }
-                }
+@Composable
+fun ImageMessage(
+    imageUri: String?,
+    isUserMessage: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
+    Row(
+        modifier = modifier
+            .padding(
+                start = if (isUserMessage) 40.dp else 0.dp,
+                end = if (!isUserMessage) 40.dp else 0.dp
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp),
+            horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        backgroundColor,
+                        RoundedCornerShape(16.dp)
+                    )
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(imageUri)
+                            .build()
+                    ),
+                    contentDescription = "Preview da imagem",
+                    modifier = Modifier
+                        .size(400.dp)
+                        .padding(2.dp)
+                )
             }
         }
     }
@@ -746,7 +800,9 @@ fun ChatWithUser(
                     ChatMessageBottomAppBar(
                         onSendClick = onSendClick,
                         uiState = chatUiState,
-                        onImageCaptured = onImageCaptured,
+                        onImageCaptured = {
+                            onImageCaptured(it)
+                        },
                         onAudioCaptured = onAudioCaptured,
                     )
                 },
@@ -779,7 +835,9 @@ fun ChatWithUser(
                     onSendClick = onSendClick,
                     uiState = chatUiState,
                     onAudioCaptured = {},
-                    onImageCaptured = {},
+                    onImageCaptured = {
+                        onImageCaptured(it)
+                    },
                 )
             },
 
@@ -839,8 +897,9 @@ fun ChatMessages(
             val paddingTop = if (isDifferentSender) 16.dp else 0.dp
 
             ChatBubble(
-                message = message.text,
+                content = message.content,
                 isUserMessage = message.senderId == user,
+                type = message.type,
                 modifier = Modifier
                     .padding(
                         start = 8.dp,
@@ -1025,8 +1084,8 @@ fun ChatScreenMediumPreview() {
 
     MaterialTheme {
         Surface {
-            ChatBubble(
-                message = "Olá, tudo bem?",
+            ImageMessage(
+                imageUri = "content://media/external/images/media/1000204184",
                 isUserMessage = true
             )
         }

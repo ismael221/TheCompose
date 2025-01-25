@@ -1,6 +1,7 @@
 package com.ismael.teams.ui.screens.chat
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,7 @@ import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.model.UserChat
 import com.ismael.teams.data.remote.xmpp.XmppManager
 import com.ismael.teams.data.repository.NotificationRepository
+import com.ismael.teams.ui.utils.MessageType
 import com.ismael.teams.ui.utils.addMessageToMap
 import com.ismael.teams.ui.utils.removeAfterSlash
 import kotlinx.coroutines.Dispatchers
@@ -131,11 +133,11 @@ class ChatViewModel : ViewModel() {
                 viewModelScope.launch(Dispatchers.IO) {
                     val recipientJid = JidCreate.entityBareFrom(message.to)
                     Log.i("Mensagem", "Sending message to ${message.to}: $message")
-                    xmppManager.sendMessage(recipientJid, message.text)
+                    xmppManager.sendMessage(recipientJid, message.content)
 
                 }
                 val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chatId }
-                itemToUpdate?.lastMessage = "You: ${message.text}"
+                itemToUpdate?.lastMessage = "You: ${message.content}"
                 itemToUpdate?.lastMessageTime = System.currentTimeMillis()
                 itemToUpdate?.isUnread = false
                 val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
@@ -194,11 +196,13 @@ class ChatViewModel : ViewModel() {
 
                         println("Recebida no dispatcher: $message")
                         println("Body: " + message.body)
+                        message.type
                         val mensagem = Message(
                             to = removeAfterSlash(message.to.toString()),
                             key = UUID.randomUUID().toString(),
-                            text = message.body,
+                            content = message.body,
                             senderId = removeAfterSlash(message.from.toString()),
+                            type = MessageType.Text,
                             timestamp = System.currentTimeMillis(),
                         )
                         if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) {
@@ -299,6 +303,31 @@ class ChatViewModel : ViewModel() {
 
             _presenceUpdates.value = presenceUpdate
         }.launchIn(viewModelScope)
+    }
+
+    fun sendImageMessage(uri: String){
+
+        val message = Message(
+            to = "ismaael221@ismael",
+            content = uri.toString(),
+            senderId = "yasmin@ismael",
+            type = MessageType.Image,
+            timestamp = System.currentTimeMillis(),
+        )
+
+        addMessageToMap(
+            map = _messages,
+            key = "ismael221@ismael",
+            message =message
+        )
+
+        _uiState.update {
+            it.copy(
+                messages = it.messages
+            )
+        }
+        Log.i("Mensagens", _messages.toString())
+
     }
 
 

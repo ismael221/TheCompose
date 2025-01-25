@@ -5,8 +5,9 @@ import java.util.UUID
 
 data class Message(
     val key: String = UUID.randomUUID().toString(),
-    val text: String,
+    val content: String,
     val to: String,
+    val type: MessageType,
     val senderId: String,
     val timestamp: Long,
 )

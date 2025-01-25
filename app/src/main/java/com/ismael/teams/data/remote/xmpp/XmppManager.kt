@@ -26,6 +26,8 @@ import org.jivesoftware.smackx.chatstates.ChatState
 import org.jivesoftware.smackx.chatstates.ChatStateListener
 import org.jivesoftware.smackx.chatstates.ChatStateManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
+import org.jivesoftware.smackx.jingle.JingleManager
+import org.jivesoftware.smackx.jingle_filetransfer.JingleFileTransferManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
@@ -148,6 +150,15 @@ object XmppManager {
     fun getChatStateManager(): ChatStateManager {
         return ChatStateManager.getInstance(connection)
     }
+
+    fun getJingleFileTransferManager(): JingleFileTransferManager{
+        return JingleFileTransferManager.getInstanceFor(connection)
+    }
+
+    fun getJigleManager(): JingleManager{
+        return JingleManager.getInstanceFor(connection)
+    }
+
 
     private fun updateLatestChatState(
         map: MutableMap<String, ChatState>,
