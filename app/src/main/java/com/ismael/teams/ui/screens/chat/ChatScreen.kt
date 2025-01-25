@@ -1,8 +1,17 @@
 package com.ismael.teams.ui.screens.chat
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -18,10 +27,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,7 +45,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +63,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -68,6 +84,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 
 import androidx.compose.ui.res.imageResource
@@ -77,8 +94,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
@@ -95,8 +115,10 @@ import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.user.UserUiState
+import com.ismael.teams.ui.utils.MessageType
 import com.ismael.teams.ui.utils.TheComposeNavigationType
 import com.ismael.teams.ui.utils.createInitialsBitmap
+import com.ismael.teams.ui.utils.media.createImageUri
 import com.ismael.teams.ui.utils.toFormattedDateString
 import com.ismael.teams.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -183,6 +205,7 @@ fun UserStatusBadge(
 }
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ChatMessageBottomAppBar(
     uiState: ChatUiState,
@@ -190,6 +213,57 @@ fun ChatMessageBottomAppBar(
     modifier: Modifier = Modifier
 ) {
     var content by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var audioUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Solicitar permissões
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    )
+
+    // Launcher para capturar imagem
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            Log.i("Foto tirada com sucesso", imageUri.toString())
+            // A foto foi tirada com sucesso, você pode usar o `imageUri` aqui
+        }
+    }
+
+    // Launcher para gravar vídeo
+    val takeVideoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CaptureVideo()
+    ) { success ->
+        if (success) {
+            // O vídeo foi gravado com sucesso, você pode usar o `imageUri` aqui
+        }
+    }
+
+    // Launcher para gravar áudio
+    val recordAudioLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // O áudio foi gravado com sucesso, você pode usar o `audioUri` aqui
+            val uri = result.data?.data
+            audioUri = uri
+        }
+    }
+
+    // Verificar e solicitar permissões
+    LaunchedEffect(permissionsState) {
+        if (!permissionsState.allPermissionsGranted) {
+            permissionsState.launchMultiplePermissionRequest()
+        }
+    }
+
 
     NavigationBar(
         content = {
@@ -241,11 +315,15 @@ fun ChatMessageBottomAppBar(
                         )
                     },
                     trailingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.mood_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                        )
+                        IconButton(
+                            onClick = { /*TODO*/ }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.mood_24px),
+                                contentDescription = null,
+                                modifier = Modifier
+                            )
+                        }
                     },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Send
@@ -282,7 +360,6 @@ fun ChatMessageBottomAppBar(
                         .focusable()
                         .onKeyEvent {
 
-                            //TODO add a counter when I delete it decreases, so I compare it with the last value
                             if (it.key == Key.Backspace || it.key == Key.Delete) {
                                 sendChatState(
                                     to = uiState.currentSelectedChat?.jid.toString(),
@@ -299,7 +376,13 @@ fun ChatMessageBottomAppBar(
                 )
                 if (content == "") {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            val uri = createImageUri(context)
+                            imageUri = uri
+                            uri?.let {
+                                takePictureLauncher.launch(it)
+                            }
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.photo_camera_24px),
@@ -310,7 +393,16 @@ fun ChatMessageBottomAppBar(
                         )
                     }
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            val intent = Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                // Há um aplicativo que suporta a ação
+                                recordAudioLauncher.launch(intent)
+                            } else {
+                                // Nenhum aplicativo suporta a ação
+                                Toast.makeText(context, "Nenhum aplicativo de gravação de áudio encontrado", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.mic_24px),
@@ -368,6 +460,8 @@ fun ChatBubble(
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
 
+    val type: MessageType = MessageType.Text
+
     Row(
         modifier = modifier
             .padding(
@@ -389,12 +483,36 @@ fun ChatBubble(
                     )
                     .padding(16.dp)
             ) {
-                Text(
-                    text = message,
-                    color = textColor,
-                    modifier = Modifier
-                        .wrapContentSize(),
-                )
+                when (type) {
+                    MessageType.Audio -> {
+                        Text(text = "Audio")
+                    }
+
+                    MessageType.Video -> {
+                        Text(text = "Video")
+                    }
+
+                    MessageType.Text -> {
+                        Text(
+                            text = message,
+                            color = textColor,
+                            modifier = Modifier
+                                .wrapContentSize(),
+                        )
+                    }
+
+                    MessageType.Image -> {
+                        Text(text = "Image")
+                    }
+
+                    MessageType.Sticker -> {
+                        Text(text = "Sticker")
+                    }
+
+                    else -> {
+                        Text(text = "File")
+                    }
+                }
             }
         }
     }
@@ -879,8 +997,6 @@ fun ExpandedChatScreen(
 }
 
 
-
-
 @Composable
 fun DateDivider(date: String) {
     Text(
@@ -899,16 +1015,9 @@ fun DateDivider(date: String) {
 fun ChatScreenMediumPreview() {
 
 
-
     MaterialTheme {
         Surface {
-            Image(
-                bitmap = ImageBitmap.imageResource(R.drawable.yasmin),
-                contentDescription = "User Initials",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(8.dp)
-            )
+
         }
 
     }

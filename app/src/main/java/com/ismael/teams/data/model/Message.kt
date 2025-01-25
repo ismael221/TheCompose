@@ -1,5 +1,6 @@
 package com.ismael.teams.data.model
 
+import com.ismael.teams.ui.utils.MessageType
 import java.util.UUID
 
 data class Message(
