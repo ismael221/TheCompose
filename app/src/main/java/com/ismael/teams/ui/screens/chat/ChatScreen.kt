@@ -1,18 +1,15 @@
 package com.ismael.teams.ui.screens.chat
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -27,14 +24,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -45,9 +38,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,7 +54,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -85,8 +75,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -94,9 +82,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.teams.R
@@ -210,6 +199,8 @@ fun UserStatusBadge(
 fun ChatMessageBottomAppBar(
     uiState: ChatUiState,
     onSendClick: (Message) -> Unit,
+    onImageCaptured: (Uri?) -> Unit,
+    onAudioCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var content by remember { mutableStateOf("") }
@@ -221,9 +212,9 @@ fun ChatMessageBottomAppBar(
     // Solicitar permissões
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
-            android.Manifest.permission.CAMERA,
-            android.Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
     )
 
@@ -233,7 +224,7 @@ fun ChatMessageBottomAppBar(
     ) { success ->
         if (success) {
             Log.i("Foto tirada com sucesso", imageUri.toString())
-            // A foto foi tirada com sucesso, você pode usar o `imageUri` aqui
+            onImageCaptured(imageUri)
         }
     }
 
@@ -250,10 +241,11 @@ fun ChatMessageBottomAppBar(
     val recordAudioLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             // O áudio foi gravado com sucesso, você pode usar o `audioUri` aqui
             val uri = result.data?.data
             audioUri = uri
+            onAudioCaptured(audioUri)
         }
     }
 
@@ -460,7 +452,7 @@ fun ChatBubble(
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
 
-    val type: MessageType = MessageType.Text
+    val type: MessageType = MessageType.Image
 
     Row(
         modifier = modifier
@@ -502,7 +494,17 @@ fun ChatBubble(
                     }
 
                     MessageType.Image -> {
-                        Text(text = "Image")
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                ImageRequest.Builder(LocalContext.current)
+                                    .data("content://media/external/images/media/1000204184")
+                                    .build()
+                            ),
+                            contentDescription = "Preview da imagem",
+                            modifier = Modifier
+                                .size(400.dp)
+                                .padding(8.dp)
+                        )
                     }
 
                     MessageType.Sticker -> {
@@ -709,6 +711,8 @@ fun UserChatTopBar(
 fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
+    onAudioCaptured: (Uri?) -> Unit,
+    onImageCaptured: (Uri?) -> Unit,
     chatUiState: ChatUiState,
     currentLoggedUser: String,
     chat: Chat,
@@ -741,7 +745,9 @@ fun ChatWithUser(
                 bottomBar = {
                     ChatMessageBottomAppBar(
                         onSendClick = onSendClick,
-                        uiState = chatUiState
+                        uiState = chatUiState,
+                        onImageCaptured = onImageCaptured,
+                        onAudioCaptured = onAudioCaptured,
                     )
                 },
 
@@ -771,7 +777,9 @@ fun ChatWithUser(
             bottomBar = {
                 ChatMessageBottomAppBar(
                     onSendClick = onSendClick,
-                    uiState = chatUiState
+                    uiState = chatUiState,
+                    onAudioCaptured = {},
+                    onImageCaptured = {},
                 )
             },
 
@@ -1017,7 +1025,10 @@ fun ChatScreenMediumPreview() {
 
     MaterialTheme {
         Surface {
-
+            ChatBubble(
+                message = "Olá, tudo bem?",
+                isUserMessage = true
+            )
         }
 
     }
