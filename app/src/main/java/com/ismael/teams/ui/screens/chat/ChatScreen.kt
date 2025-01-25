@@ -68,6 +68,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
