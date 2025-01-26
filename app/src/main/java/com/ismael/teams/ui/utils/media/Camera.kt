@@ -5,7 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-
+import java.io.File
 
 
 fun createImageUri(context: Context): Uri? {
@@ -15,6 +15,20 @@ fun createImageUri(context: Context): Uri? {
         put(MediaStore.Images.Media.DISPLAY_NAME, "photo_${System.currentTimeMillis()}.jpg")
         put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
     })
+}
+
+fun getFileFromUri(context: Context, uri: Uri): File? {
+    val contentResolver = context.contentResolver
+    val projection = arrayOf(MediaStore.Images.Media.DATA)
+    val cursor = contentResolver.query(uri, projection, null, null, null)
+    cursor?.use {
+        if (it.moveToFirst()) {
+            val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            val filePath = it.getString(columnIndex)
+            return File(filePath)
+        }
+    }
+    return null
 }
 
 

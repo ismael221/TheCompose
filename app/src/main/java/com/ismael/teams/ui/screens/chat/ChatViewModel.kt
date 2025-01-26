@@ -17,6 +17,7 @@ import com.ismael.teams.data.remote.xmpp.XmppManager
 import com.ismael.teams.data.repository.NotificationRepository
 import com.ismael.teams.ui.utils.MessageType
 import com.ismael.teams.ui.utils.addMessageToMap
+import com.ismael.teams.ui.utils.media.getFileFromUri
 import com.ismael.teams.ui.utils.removeAfterSlash
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,8 +28,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
+import org.jivesoftware.smack.roster.Roster
+import org.jivesoftware.smack.roster.RosterEntry
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jxmpp.jid.impl.JidCreate
+import java.io.File
 import java.util.UUID
 
 
@@ -71,7 +75,7 @@ class ChatViewModel : ViewModel() {
                 chats = chats,
                 currentLoggedInUser = currentLoggedInUser,
                 unReadMessages = LocalChatsDataProvider.chats.filter { it.isUnread }.size,
-                lastSelectedChat = if(chats.isNotEmpty()) chats[0] else null
+                lastSelectedChat = if (chats.isNotEmpty()) chats[0] else null
             )
 
     }
@@ -305,29 +309,90 @@ class ChatViewModel : ViewModel() {
         }.launchIn(viewModelScope)
     }
 
-    fun sendImageMessage(uri: String){
+    fun sendImageMessage(image: Message, context: Context) {
 
-        val message = Message(
-            to = "ismaael221@ismael",
-            content = uri.toString(),
-            senderId = "yasmin@ismael",
-            type = MessageType.Image,
-            timestamp = System.currentTimeMillis(),
-        )
+        val fileTrasferManger = XmppManager.getFileTransferManager()
+
+        val roster = XmppManager.getRoster()
+
+
+        val entry = roster.getEntry(JidCreate.entityBareFrom(image.to))
+
+
+        val presence = roster.getPresence(entry.jid)
+        if (presence.isAvailable) {
+            val fullJid = presence.from
+            val transfer =
+                fileTrasferManger.createOutgoingFileTransfer(JidCreate.entityFullFrom(fullJid))
+            val file = getFileFromUri(context, Uri.parse(image.content))
+            println("Arquivo: $file")
+            transfer.sendFile(file, file!!.name)
+
+        }
 
         addMessageToMap(
             map = _messages,
-            key = "ismael221@ismael",
-            message =message
+            key = image.to,
+            message = image
         )
-
+        LocalChatsDataProvider.chats.find { it.jid == image.to }?.let {
+            updateCurrentSelectedChat(
+                chat = it
+            )
+        }
         _uiState.update {
             it.copy(
-                messages = it.messages
+                messages = it.messages,
+                currentSelectedChat = _uiState.value.currentSelectedChat,
             )
         }
         Log.i("Mensagens", _messages.toString())
 
+    }
+
+    private fun observeFileMessages() {
+        val fileTransferManager = XmppManager.getFileTransferManager()
+        fileTransferManager.addFileTransferListener { request ->
+            val transfer = request.accept()
+            var messageFile: Message? = null
+            val mime = removeAfterSlash(request.mimeType)
+            println("Arquivo recebido de ${request.requestor}: ${request.description } - ${request.fileName} - ${request.mimeType} - ${request.fileSize} - ")
+            println(request.mimeType)
+            val internalDir = context?.filesDir
+            val file = File(internalDir, request.fileName)
+            transfer.receiveFile(file)
+
+            if (mime == "image"){
+                messageFile = Message(
+                    to = LocalLoggedAccounts.account.jid,
+                    content = file.toString(),
+                    senderId = request.requestor.toString(),
+                    type = MessageType.Image,
+                    timestamp = System.currentTimeMillis(),
+                )
+                addMessageToMap(
+                    map = _messages,
+                    key = removeAfterSlash(request.requestor.toString()),
+                    message = messageFile
+                )
+                println("Mensagens:${_messages.toString()} ")
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages.toMutableMap().apply {
+                            val currentMessages =
+                                get(request.requestor.toString()).orEmpty()
+                            put(
+                                request.requestor.toString(),
+                                currentMessages + messageFile
+                            )
+                        },
+                        currentSelectedChat = _uiState.value.currentSelectedChat,
+                    )
+                }
+                Log.i("Arquivo", file.toString())
+            }
+
+        }
     }
 
 
@@ -366,6 +431,7 @@ class ChatViewModel : ViewModel() {
         observePresenceUpdates()
         observeChatStates()
         initializeUiState()
+        observeFileMessages()
     }
 
 

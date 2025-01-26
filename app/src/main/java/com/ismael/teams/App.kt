@@ -342,8 +342,8 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            onImageCaptured = { uri: Uri? ->
-                                    chatViewModel.sendImageMessage(uri.toString())
+                            onImageCaptured = { image: Message? ->
+                                    chatViewModel.sendImageMessage(image!!,context)
                             },
                             onAudioCaptured = {  uri: Uri? ->
 
@@ -370,8 +370,8 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            onImageCaptured = {  uri: Uri? ->
-                                chatViewModel.sendImageMessage("content://media/external/images/media/1000204196")
+                            onImageCaptured = {  image: Message? ->
+                                chatViewModel.sendImageMessage(image!!,context)
                             },
                             onAudioCaptured = {  uri: Uri? ->
 
@@ -398,8 +398,8 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            onImageCaptured = {  uri: Uri? ->
-                                chatViewModel.sendImageMessage("content://media/external/images/media/1000204196")
+                            onImageCaptured = {  image: Message? ->
+                                chatViewModel.sendImageMessage(image!!,context)
                             },
                             onAudioCaptured = {  uri: Uri? ->
 

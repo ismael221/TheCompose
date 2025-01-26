@@ -199,7 +199,7 @@ fun UserStatusBadge(
 fun ChatMessageBottomAppBar(
     uiState: ChatUiState,
     onSendClick: (Message) -> Unit,
-    onImageCaptured: (Uri?) -> Unit,
+    onImageCaptured: (Message?) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -208,6 +208,7 @@ fun ChatMessageBottomAppBar(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var audioUri by remember { mutableStateOf<Uri?>(null) }
     var contentType: MessageType? = null
+    var message: Message? = null
 
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -222,7 +223,14 @@ fun ChatMessageBottomAppBar(
     ) { success ->
         if (success) {
             Log.i("Foto tirada com sucesso", imageUri.toString())
-            onImageCaptured(imageUri)
+             message = Message(
+                content = imageUri.toString(),
+                senderId = LocalLoggedAccounts.account.jid,
+                timestamp = System.currentTimeMillis(),
+                to = uiState.currentSelectedChat?.jid.toString(),
+                type = MessageType.Image
+            )
+            onImageCaptured(message)
             contentType = MessageType.Image
         }
     }
@@ -371,6 +379,7 @@ fun ChatMessageBottomAppBar(
                             uri?.let {
                                 takePictureLauncher.launch(it)
                             }
+
                         }
                     ) {
                         Icon(
@@ -766,7 +775,7 @@ fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
-    onImageCaptured: (Uri?) -> Unit,
+    onImageCaptured: (Message?) -> Unit,
     chatUiState: ChatUiState,
     currentLoggedUser: String,
     chat: Chat,
