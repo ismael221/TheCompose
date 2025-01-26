@@ -1,11 +1,9 @@
 package com.ismael.teams.data.repository
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
@@ -14,6 +12,7 @@ import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.local.LocalLoggedAccounts._messages
 import com.ismael.teams.data.model.Message
 import com.ismael.teams.data.remote.xmpp.XmppManager
+import com.ismael.teams.ui.utils.MessageType
 import com.ismael.teams.ui.utils.addMessageToMap
 import com.ismael.teams.ui.utils.removeAfterSlash
 import org.jxmpp.jid.impl.JidCreate
@@ -33,8 +32,9 @@ class NotificationReplyReceiver : BroadcastReceiver() {
 
         val message = Message(
             to = removeAfterSlash(sender.toString()),
-            text = replyText,
+            content = replyText,
             senderId = LocalLoggedAccounts.account.jid,
+            type = MessageType.Text,
             timestamp = System.currentTimeMillis()
         )
 

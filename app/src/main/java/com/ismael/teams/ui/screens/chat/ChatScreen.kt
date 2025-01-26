@@ -1,9 +1,15 @@
 package com.ismael.teams.ui.screens.chat
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
-import android.widget.ImageView
-import androidx.annotation.DrawableRes
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -68,7 +74,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
-
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,6 +84,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.teams.R
 import com.ismael.teams.data.local.LocalLoggedAccounts
 import com.ismael.teams.data.model.Chat
@@ -94,8 +104,10 @@ import com.ismael.teams.ui.components.TopBarDropdownMenu
 import com.ismael.teams.ui.components.UserDetails
 import com.ismael.teams.ui.screens.TeamsScreen
 import com.ismael.teams.ui.screens.user.UserUiState
+import com.ismael.teams.ui.utils.MessageType
 import com.ismael.teams.ui.utils.TheComposeNavigationType
 import com.ismael.teams.ui.utils.createInitialsBitmap
+import com.ismael.teams.ui.utils.media.createImageUri
 import com.ismael.teams.ui.utils.toFormattedDateString
 import com.ismael.teams.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -182,13 +194,71 @@ fun UserStatusBadge(
 }
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ChatMessageBottomAppBar(
     uiState: ChatUiState,
     onSendClick: (Message) -> Unit,
+    onImageCaptured: (Message?) -> Unit,
+    onAudioCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var content by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var audioUri by remember { mutableStateOf<Uri?>(null) }
+    var contentType: MessageType? = null
+    var message: Message? = null
+
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    )
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            Log.i("Foto tirada com sucesso", imageUri.toString())
+             message = Message(
+                content = imageUri.toString(),
+                senderId = LocalLoggedAccounts.account.jid,
+                timestamp = System.currentTimeMillis(),
+                to = uiState.currentSelectedChat?.jid.toString(),
+                type = MessageType.Image
+            )
+            onImageCaptured(message)
+            contentType = MessageType.Image
+        }
+    }
+
+    val takeVideoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CaptureVideo()
+    ) { success ->
+        if (success) {
+            contentType = MessageType.Video
+        }
+    }
+
+    val recordAudioLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            audioUri = uri
+            onAudioCaptured(audioUri)
+            contentType = MessageType.Audio
+        }
+    }
+
+    LaunchedEffect(permissionsState) {
+        if (!permissionsState.allPermissionsGranted) {
+            permissionsState.launchMultiplePermissionRequest()
+        }
+    }
 
     NavigationBar(
         content = {
@@ -233,6 +303,7 @@ fun ChatMessageBottomAppBar(
                                 ChatState.paused
                             )
                         }
+                        contentType = MessageType.Text
                     },
                     label = {
                         Text(
@@ -240,11 +311,15 @@ fun ChatMessageBottomAppBar(
                         )
                     },
                     trailingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.mood_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                        )
+                        IconButton(
+                            onClick = { /*TODO*/ }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.mood_24px),
+                                contentDescription = null,
+                                modifier = Modifier
+                            )
+                        }
                     },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Send
@@ -263,10 +338,11 @@ fun ChatMessageBottomAppBar(
                             )
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
-                                    text = content,
+                                    content = content,
                                     senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
-                                    to = it
+                                    to = it,
+                                    type = contentType!!
                                 )
                             }?.let {
                                 onSendClick(
@@ -281,7 +357,6 @@ fun ChatMessageBottomAppBar(
                         .focusable()
                         .onKeyEvent {
 
-                            //TODO add a counter when I delete it decreases, so I compare it with the last value
                             if (it.key == Key.Backspace || it.key == Key.Delete) {
                                 sendChatState(
                                     to = uiState.currentSelectedChat?.jid.toString(),
@@ -298,7 +373,14 @@ fun ChatMessageBottomAppBar(
                 )
                 if (content == "") {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            val uri = createImageUri(context)
+                            imageUri = uri
+                            uri?.let {
+                                takePictureLauncher.launch(it)
+                            }
+
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.photo_camera_24px),
@@ -309,7 +391,20 @@ fun ChatMessageBottomAppBar(
                         )
                     }
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            val intent = Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                // Há um aplicativo que suporta a ação
+                                recordAudioLauncher.launch(intent)
+                            } else {
+                                // Nenhum aplicativo suporta a ação
+                                Toast.makeText(
+                                    context,
+                                    "Nenhum aplicativo de gravação de áudio encontrado",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.mic_24px),
@@ -330,10 +425,11 @@ fun ChatMessageBottomAppBar(
                             Log.i("Botão de envio clicado", content)
                             uiState.currentSelectedChat?.jid?.let {
                                 Message(
-                                    text = content,
+                                    content = content,
                                     senderId = LocalLoggedAccounts.account.jid,
                                     timestamp = System.currentTimeMillis(),
-                                    to = it
+                                    to = it,
+                                    type = contentType!!
                                 )
                             }?.let {
                                 onSendClick(
@@ -360,13 +456,57 @@ fun ChatMessageBottomAppBar(
 
 @Composable
 fun ChatBubble(
-    message: String,
+    content: String,
+    isUserMessage: Boolean,
+    type: MessageType,
+    modifier: Modifier = Modifier
+) {
+
+    when (type) {
+        MessageType.Audio -> {
+            Text(text = "Audio")
+        }
+
+        MessageType.Video -> {
+            Text(text = "Video")
+        }
+
+        MessageType.Text -> {
+            TextMessage(
+                text = content,
+                isUserMessage = isUserMessage,
+                modifier = modifier
+            )
+        }
+
+        MessageType.Image -> {
+            ImageMessage(
+                imageUri = content,
+                isUserMessage = isUserMessage,
+                modifier = modifier
+            )
+        }
+
+        MessageType.Sticker -> {
+            Text(text = "Sticker")
+        }
+
+        else -> {
+            Text(text = "File")
+        }
+    }
+
+
+}
+
+@Composable
+fun TextMessage(
+    text: String,
     isUserMessage: Boolean,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
-
     Row(
         modifier = modifier
             .padding(
@@ -389,10 +529,54 @@ fun ChatBubble(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = message,
+                    text = text,
                     color = textColor,
                     modifier = Modifier
                         .wrapContentSize(),
+                )
+            }
+        }
+    }
+
+}
+
+@Composable
+fun ImageMessage(
+    imageUri: String?,
+    isUserMessage: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
+    Row(
+        modifier = modifier
+            .padding(
+                start = if (isUserMessage) 40.dp else 0.dp,
+                end = if (!isUserMessage) 40.dp else 0.dp
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp),
+            horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        backgroundColor,
+                        RoundedCornerShape(16.dp)
+                    )
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(imageUri)
+                            .build()
+                    ),
+                    contentDescription = "Preview da imagem",
+                    modifier = Modifier
+                        .size(400.dp)
+                        .padding(2.dp)
                 )
             }
         }
@@ -590,6 +774,8 @@ fun UserChatTopBar(
 fun ChatWithUser(
     navController: NavController,
     onSendClick: (Message) -> Unit,
+    onAudioCaptured: (Uri?) -> Unit,
+    onImageCaptured: (Message?) -> Unit,
     chatUiState: ChatUiState,
     currentLoggedUser: String,
     chat: Chat,
@@ -622,7 +808,11 @@ fun ChatWithUser(
                 bottomBar = {
                     ChatMessageBottomAppBar(
                         onSendClick = onSendClick,
-                        uiState = chatUiState
+                        uiState = chatUiState,
+                        onImageCaptured = {
+                            onImageCaptured(it)
+                        },
+                        onAudioCaptured = onAudioCaptured,
                     )
                 },
 
@@ -652,7 +842,11 @@ fun ChatWithUser(
             bottomBar = {
                 ChatMessageBottomAppBar(
                     onSendClick = onSendClick,
-                    uiState = chatUiState
+                    uiState = chatUiState,
+                    onAudioCaptured = {},
+                    onImageCaptured = {
+                        onImageCaptured(it)
+                    },
                 )
             },
 
@@ -712,8 +906,9 @@ fun ChatMessages(
             val paddingTop = if (isDifferentSender) 16.dp else 0.dp
 
             ChatBubble(
-                message = message.text,
+                content = message.content,
                 isUserMessage = message.senderId == user,
+                type = message.type,
                 modifier = Modifier
                     .padding(
                         start = 8.dp,
@@ -878,8 +1073,6 @@ fun ExpandedChatScreen(
 }
 
 
-
-
 @Composable
 fun DateDivider(date: String) {
     Text(
@@ -898,15 +1091,11 @@ fun DateDivider(date: String) {
 fun ChatScreenMediumPreview() {
 
 
-
     MaterialTheme {
         Surface {
-            Image(
-                bitmap = ImageBitmap.imageResource(R.drawable.yasmin),
-                contentDescription = "User Initials",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(8.dp)
+            ImageMessage(
+                imageUri = "content://media/external/images/media/1000204184",
+                isUserMessage = true
             )
         }
 

@@ -68,8 +68,8 @@ class MainActivity : ComponentActivity() {
 
 private fun initializeXmpp() {
     val server = "ismael"
-    val username = "yasmin"
-    val password = "1234"
+    val username = "ismael221"
+    val password = "Ismuca18@"
 
     try {
         XmppManager.connect(server, username, password)

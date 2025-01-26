@@ -25,7 +25,11 @@ import org.jivesoftware.smackx.carbons.packet.CarbonExtension
 import org.jivesoftware.smackx.chatstates.ChatState
 import org.jivesoftware.smackx.chatstates.ChatStateListener
 import org.jivesoftware.smackx.chatstates.ChatStateManager
+import org.jivesoftware.smackx.filetransfer.FileTransferManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
+import org.jivesoftware.smackx.jingle.JingleManager
+import org.jivesoftware.smackx.jingle_filetransfer.JingleFileTransferManager
+import org.jivesoftware.smackx.ping.PingManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
@@ -44,9 +48,6 @@ object XmppManager {
 
     private val _incomingMessages = MutableStateFlow<List<String>>(emptyList())
     val incomingMessages = _incomingMessages.asStateFlow()
-
-    private val roster: Roster?
-        get() = connection?.let { Roster.getInstanceFor(it) }
 
     private var carbonManager: CarbonManager? = null
 
@@ -80,6 +81,7 @@ object XmppManager {
     fun getUserName(jid: String): String {
         return try {
             val entityJid = JidCreate.entityBareFrom(jid)
+            val roster = Roster.getInstanceFor(connection)
             val entry = roster?.getEntry(entityJid)
             entry?.name ?: jid // Use entry?.name to get the display name
         } catch (e: Exception) {
@@ -115,11 +117,9 @@ object XmppManager {
             val reconnectionManager = ReconnectionManager.getInstanceFor(connection)
             reconnectionManager.enableAutomaticReconnection()
             ReconnectionManager.setEnabledPerDefault(true)
-
             val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
 
             ping.isEnabled = true
-
 
             chatManager = ChatManager.getInstanceFor(connection)
             val presence = PresenceBuilder
@@ -148,6 +148,22 @@ object XmppManager {
     fun getChatStateManager(): ChatStateManager {
         return ChatStateManager.getInstance(connection)
     }
+
+    fun getFileTransferManager(): FileTransferManager{
+        return FileTransferManager.getInstanceFor(connection)
+    }
+
+    fun getJigleManager(): JingleManager{
+        return JingleManager.getInstanceFor(connection)
+    }
+
+    fun getJigleFileManager():JingleFileTransferManager{
+        return JingleFileTransferManager.getInstanceFor(connection)
+    }
+    fun getRoster(): Roster{
+        return Roster.getInstanceFor(connection)
+    }
+
 
     private fun updateLatestChatState(
         map: MutableMap<String, ChatState>,
@@ -193,6 +209,7 @@ object XmppManager {
 
 
     fun rosterPresenceListener() {
+        val roster = Roster.getInstanceFor(connection)
         roster?.addPresenceEventListener(presenceListener)
     }
 
@@ -230,6 +247,7 @@ object XmppManager {
     fun getUserPresence(jid: String): Presence? {
         return try {
             val entityJid = JidCreate.entityBareFrom(jid)
+            val roster = Roster.getInstanceFor(connection)
             roster?.getPresence(entityJid)
         } catch (e: Exception) {
             Log.e("XmppManager", "Error getting presence for JID: $jid", e)

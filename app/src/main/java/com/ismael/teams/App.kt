@@ -1,6 +1,7 @@
 package com.ismael.teams
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -341,6 +342,12 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.BOTTOM_NAVIGATION,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            onImageCaptured = { image: Message? ->
+                                    chatViewModel.sendImageMessage(image!!,context)
+                            },
+                            onAudioCaptured = {  uri: Uri? ->
+
+                            }
                         )
                     }
                 }
@@ -363,6 +370,12 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            onImageCaptured = {  image: Message? ->
+                                chatViewModel.sendImageMessage(image!!,context)
+                            },
+                            onAudioCaptured = {  uri: Uri? ->
+
+                            }
                         )
                     }
                 }
@@ -385,6 +398,12 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
+                            onImageCaptured = {  image: Message? ->
+                                chatViewModel.sendImageMessage(image!!,context)
+                            },
+                            onAudioCaptured = {  uri: Uri? ->
+
+                            }
                         )
                     }
                 }

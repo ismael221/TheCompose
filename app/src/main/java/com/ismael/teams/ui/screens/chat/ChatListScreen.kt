@@ -78,7 +78,9 @@ fun ChatList(
             ChatCard(
                 chatPreview = chat,
                 navController = navController,
-                modifier = modifier,
+                modifier = modifier
+                    .animateItem()
+                ,
             )
             HorizontalDivider(
                 modifier = Modifier
