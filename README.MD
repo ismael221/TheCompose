@@ -2,7 +2,7 @@
 
 TheCompose is a project inspired by Microsoft Teams, developed using Jetpack Compose, Material3, and Kotlin. The goal is to create a team communication application with features such as sending messages, updating status, and more. The implementation of the XMPP protocol has been completed, enabling real-time messaging between users, along with additional functionalities like presence updates, file sharing, and chat states. Future updates will include advanced features such as message forwarding, replying to specific messages, location sharing, and message reactions.
 
-<img alt="TheCompose Demo" height="300px" src="debug.gif"/>
+<img alt="TheCompose Demo" height="600px" src="debug.gif"/>
 
 ## Features
 
