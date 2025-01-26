@@ -29,6 +29,7 @@ import org.jivesoftware.smackx.filetransfer.FileTransferManager
 import org.jivesoftware.smackx.iqlast.LastActivityManager
 import org.jivesoftware.smackx.jingle.JingleManager
 import org.jivesoftware.smackx.jingle_filetransfer.JingleFileTransferManager
+import org.jivesoftware.smackx.ping.PingManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
@@ -116,11 +117,9 @@ object XmppManager {
             val reconnectionManager = ReconnectionManager.getInstanceFor(connection)
             reconnectionManager.enableAutomaticReconnection()
             ReconnectionManager.setEnabledPerDefault(true)
-
             val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
 
             ping.isEnabled = true
-
 
             chatManager = ChatManager.getInstanceFor(connection)
             val presence = PresenceBuilder
