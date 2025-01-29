@@ -23,11 +23,15 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,6 +60,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -528,12 +533,19 @@ fun TextMessage(
                     )
                     .padding(16.dp)
             ) {
-                Text(
-                    text = text,
-                    color = textColor,
+                Column(
                     modifier = Modifier
-                        .wrapContentSize(),
-                )
+                        .padding(8.dp)
+                ) {
+                    QuotedMessage("This is a quoted message that you are replying to")
+                    Text(
+                        text = text,
+                        color = textColor,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .wrapContentSize(),
+                    )
+                }
             }
         }
     }
@@ -1085,6 +1097,37 @@ fun DateDivider(date: String) {
     )
 }
 
+@Composable
+fun QuotedMessage(
+    quotedText: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .background(shape = RoundedCornerShape(8.dp), color = Color.DarkGray)
+            .height(IntrinsicSize.Min),
+    ) {
+        VerticalDivider(
+            color = Color.Gray,
+            thickness = 4.dp,
+            modifier = Modifier.padding(8.dp)
+        )
+        Column(
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .padding(8.dp)
+        ) {
+            Text(
+                text = quotedText,
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .weight(1f)
+            )
+        }
+    }
+}
+
 
 @Preview(showBackground = true, widthDp = 700)
 @Composable
@@ -1093,10 +1136,13 @@ fun ChatScreenMediumPreview() {
 
     MaterialTheme {
         Surface {
-            ImageMessage(
-                imageUri = "content://media/external/images/media/1000204184",
-                isUserMessage = true
-            )
+          ChatBubble(
+                content = "Teste",
+                isUserMessage = true,
+                type = MessageType.Text,
+                modifier = Modifier
+
+          )
         }
 
     }
