@@ -10,22 +10,29 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -65,6 +72,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,6 +94,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -120,6 +129,7 @@ import kotlinx.coroutines.launch
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -205,6 +215,8 @@ fun ChatMessageBottomAppBar(
     uiState: ChatUiState,
     onSendClick: (Message) -> Unit,
     onImageCaptured: (Message?) -> Unit,
+    replyMessage: Message?,
+    onReplyDismiss: () -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -214,6 +226,7 @@ fun ChatMessageBottomAppBar(
     var audioUri by remember { mutableStateOf<Uri?>(null) }
     var contentType: MessageType? = null
     var message: Message? = null
+    var visible by remember { mutableStateOf(false) }
 
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -228,7 +241,7 @@ fun ChatMessageBottomAppBar(
     ) { success ->
         if (success) {
             Log.i("Foto tirada com sucesso", imageUri.toString())
-             message = Message(
+            message = Message(
                 content = imageUri.toString(),
                 senderId = LocalLoggedAccounts.account.jid,
                 timestamp = System.currentTimeMillis(),
@@ -265,197 +278,237 @@ fun ChatMessageBottomAppBar(
         }
     }
 
-    NavigationBar(
-        content = {
-            Row(
-                modifier = modifier
-                    .padding(2.dp)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(
-                    colors = IconButtonColors(
-                        contentColor = Color.White,
-                        containerColor = Color(0xFF7D4DD2),
-                        disabledContainerColor = Color(0xFF7D4DD2),
-                        disabledContentColor = Color(0xFF7D4DD2)
-                    ),
-                    modifier = Modifier
-                        .padding(start = 8.dp, end = 8.dp)
-                        .size(25.dp),
-                    onClick = { /*TODO*/ }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
+    Column(
+        modifier = modifier
+    ) {
+
+        AnimatedVisibility(replyMessage != null) {
+            NavigationBar(
+                content = {
+                    Row(
                         modifier = Modifier
-                    )
-                }
-                OutlinedTextField(
-                    value = content,
-                    shape = MaterialTheme.shapes.large,
-                    onValueChange = {
-                        content = it
-                        if (content.isNotBlank() && content.isNotEmpty()) {
-                            sendChatState(
-                                to = uiState.currentSelectedChat?.jid.toString(),
-                                ChatState.composing
-                            )
-                        } else {
-                            sendChatState(
-                                to = uiState.currentSelectedChat?.jid.toString(),
-                                ChatState.paused
-                            )
-                        }
-                        contentType = MessageType.Text
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(R.string.type_message),
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+
+                        QuotedMessage(
+                            isUserReply = false,
+                            quotedText = replyMessage?.content ?: "",
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+
                         )
-                    },
-                    trailingIcon = {
+
                         IconButton(
-                            onClick = { /*TODO*/ }
+                            onClick = {
+                                onReplyDismiss()
+                            }
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.mood_24px),
+                                painter = painterResource(R.drawable.close_24px),
                                 contentDescription = null,
                                 modifier = Modifier
+                                    .padding(start = 2.dp)
                             )
                         }
-                    },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Send
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            sendChatState(
-                                to = uiState.currentSelectedChat?.jid.toString(),
-                                ChatState.active
-                            )
-                        },
-                        onSend = {
-                            sendChatState(
-                                to = uiState.currentSelectedChat?.jid.toString(),
-                                ChatState.gone
-                            )
-                            uiState.currentSelectedChat?.jid?.let {
-                                Message(
-                                    content = content,
-                                    senderId = LocalLoggedAccounts.account.jid,
-                                    timestamp = System.currentTimeMillis(),
-                                    to = it,
-                                    type = contentType!!
-                                )
-                            }?.let {
-                                onSendClick(
-                                    it
-                                )
-                            }
-                            content = ""
-                        }
+                    }
+                }
+            )
+        }
 
-                    ),
-                    modifier = Modifier
-                        .focusable()
-                        .onKeyEvent {
-
-                            if (it.key == Key.Backspace || it.key == Key.Delete) {
+        NavigationBar(
+            content = {
+                Row(
+                    modifier = modifier
+                        .padding(2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    IconButton(
+                        colors = IconButtonColors(
+                            contentColor = Color.White,
+                            containerColor = Color(0xFF7D4DD2),
+                            disabledContainerColor = Color(0xFF7D4DD2),
+                            disabledContentColor = Color(0xFF7D4DD2)
+                        ),
+                        modifier = Modifier
+                            .padding(start = 8.dp, end = 8.dp)
+                            .size(25.dp),
+                        onClick = { /*TODO*/ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier
+                        )
+                    }
+                    OutlinedTextField(
+                        value = content,
+                        shape = MaterialTheme.shapes.large,
+                        onValueChange = {
+                            content = it
+                            if (content.isNotBlank() && content.isNotEmpty()) {
+                                sendChatState(
+                                    to = uiState.currentSelectedChat?.jid.toString(),
+                                    ChatState.composing
+                                )
+                            } else {
                                 sendChatState(
                                     to = uiState.currentSelectedChat?.jid.toString(),
                                     ChatState.paused
                                 )
-                                true
-                            } else {
-                                false
                             }
-                        }
-                        .padding(bottom = 8.dp)
-                        .wrapContentSize()
-                        .weight(1f)
-                )
-                if (content == "") {
-                    IconButton(
-                        onClick = {
-                            val uri = createImageUri(context)
-                            imageUri = uri
-                            uri?.let {
-                                takePictureLauncher.launch(it)
-                            }
-
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.photo_camera_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(start = 2.dp)
-                                .size(30.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            val intent = Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                // Há um aplicativo que suporta a ação
-                                recordAudioLauncher.launch(intent)
-                            } else {
-                                // Nenhum aplicativo suporta a ação
-                                Toast.makeText(
-                                    context,
-                                    "Nenhum aplicativo de gravação de áudio encontrado",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.mic_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(end = 2.dp)
-                                .size(30.dp)
-                        )
-                    }
-
-                } else {
-                    IconButton(
-                        onClick = {
-                            sendChatState(
-                                to = uiState.currentSelectedChat?.jid.toString(),
-                                ChatState.gone
+                            contentType = MessageType.Text
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(R.string.type_message),
                             )
-                            Log.i("Botão de envio clicado", content)
-                            uiState.currentSelectedChat?.jid?.let {
-                                Message(
-                                    content = content,
-                                    senderId = LocalLoggedAccounts.account.jid,
-                                    timestamp = System.currentTimeMillis(),
-                                    to = it,
-                                    type = contentType!!
-                                )
-                            }?.let {
-                                onSendClick(
-                                    it
+                        },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { /*TODO*/ }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.mood_24px),
+                                    contentDescription = null,
+                                    modifier = Modifier
                                 )
                             }
-                            content = ""
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Send
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                sendChatState(
+                                    to = uiState.currentSelectedChat?.jid.toString(),
+                                    ChatState.active
+                                )
+                            },
+                            onSend = {
+                                sendChatState(
+                                    to = uiState.currentSelectedChat?.jid.toString(),
+                                    ChatState.gone
+                                )
+                                uiState.currentSelectedChat?.jid?.let {
+                                    Message(
+                                        content = content,
+                                        senderId = LocalLoggedAccounts.account.jid,
+                                        timestamp = System.currentTimeMillis(),
+                                        to = it,
+                                        type = contentType!!
+                                    )
+                                }?.let {
+                                    onSendClick(
+                                        it
+                                    )
+                                }
+                                content = ""
+                            }
+
+                        ),
+                        modifier = Modifier
+                            .focusable()
+                            .onKeyEvent {
+
+                                if (it.key == Key.Backspace || it.key == Key.Delete) {
+                                    sendChatState(
+                                        to = uiState.currentSelectedChat?.jid.toString(),
+                                        ChatState.paused
+                                    )
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .padding(bottom = 8.dp)
+                            .wrapContentSize()
+                            .weight(1f)
+                    )
+                    if (content == "") {
+                        IconButton(
+                            onClick = {
+                                val uri = createImageUri(context)
+                                imageUri = uri
+                                uri?.let {
+                                    takePictureLauncher.launch(it)
+                                }
+
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.photo_camera_24px),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(start = 2.dp)
+                                    .size(30.dp)
+                            )
                         }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.send_24px),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(end = 2.dp)
-                                .size(30.dp)
-                        )
+                        IconButton(
+                            onClick = {
+                                val intent = Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+                                if (intent.resolveActivity(context.packageManager) != null) {
+                                    // Há um aplicativo que suporta a ação
+                                    recordAudioLauncher.launch(intent)
+                                } else {
+                                    // Nenhum aplicativo suporta a ação
+                                    Toast.makeText(
+                                        context,
+                                        "Nenhum aplicativo de gravação de áudio encontrado",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.mic_24px),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(30.dp)
+                            )
+                        }
+
+                    } else {
+                        IconButton(
+                            onClick = {
+                                sendChatState(
+                                    to = uiState.currentSelectedChat?.jid.toString(),
+                                    ChatState.gone
+                                )
+                                Log.i("Botão de envio clicado", content)
+                                uiState.currentSelectedChat?.jid?.let {
+                                    Message(
+                                        content = content,
+                                        senderId = LocalLoggedAccounts.account.jid,
+                                        timestamp = System.currentTimeMillis(),
+                                        to = it,
+                                        type = contentType!!
+                                    )
+                                }?.let {
+                                    onSendClick(
+                                        it
+                                    )
+                                }
+                                content = ""
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.send_24px),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(30.dp)
+                            )
+                        }
                     }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 
@@ -507,6 +560,7 @@ fun ChatBubble(
 @Composable
 fun TextMessage(
     text: String,
+    isQuoted: Boolean = false,
     isUserMessage: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -531,18 +585,23 @@ fun TextMessage(
                         backgroundColor,
                         RoundedCornerShape(16.dp)
                     )
-                    .padding(16.dp)
+                    .padding(if (isQuoted) 16.dp else 0.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
                 ) {
-                    QuotedMessage("This is a quoted message that you are replying to")
+                    if (isQuoted) {
+                        QuotedMessage(
+                            !isUserMessage,
+                            "This is a quoted message that you are replying to"
+                        )
+                    }
                     Text(
                         text = text,
                         color = textColor,
                         modifier = Modifier
-                            .padding(top = 8.dp)
+                            //  .padding(top = 8.dp)
                             .wrapContentSize(),
                     )
                 }
@@ -796,6 +855,8 @@ fun ChatWithUser(
     navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
 ) {
+    var replyingMessage by remember { mutableStateOf<Message?>(null) }
+
     LaunchedEffect(chat.jid) {
         viewModel.loadMessagesForChat(chat.jid)
         selected(chat.jid)
@@ -825,6 +886,11 @@ fun ChatWithUser(
                             onImageCaptured(it)
                         },
                         onAudioCaptured = onAudioCaptured,
+                        replyMessage = replyingMessage,
+                        onReplyDismiss = {
+                            replyingMessage = null
+                        }
+
                     )
                 },
 
@@ -836,7 +902,11 @@ fun ChatWithUser(
                     user = currentLoggedUser,
                     modifier = modifier
                         .padding(innerPadding),
-                    states = chatUiState.chatState
+                    states = chatUiState.chatState,
+                    onSlideToReply = { message ->
+                        Log.i("Reply", message.content)
+                        replyingMessage = message
+                    }
                 )
 
 
@@ -856,9 +926,13 @@ fun ChatWithUser(
                     onSendClick = onSendClick,
                     uiState = chatUiState,
                     onAudioCaptured = {},
+                    replyMessage = replyingMessage,
                     onImageCaptured = {
                         onImageCaptured(it)
                     },
+                    onReplyDismiss = {
+                        replyingMessage = null
+                    }
                 )
             },
 
@@ -868,6 +942,10 @@ fun ChatWithUser(
                 states = chatUiState.chatState,
                 messages = chatUiState.currentChatMessages,
                 user = currentLoggedUser,
+                onSlideToReply = { message ->
+                    Log.i("Reply", message.content)
+                    replyingMessage = message
+                },
                 modifier = modifier
                     .padding(innerPadding)
             )
@@ -877,10 +955,12 @@ fun ChatWithUser(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatMessages(
     states: ChatState? = null,
     messages: List<Message>,
+    onSlideToReply: (Message) -> Unit,
     user: String,
     modifier: Modifier = Modifier
 ) {
@@ -916,16 +996,43 @@ fun ChatMessages(
             }
 
             val paddingTop = if (isDifferentSender) 16.dp else 0.dp
+            var offsetX by remember { mutableStateOf(0f) }
 
             ChatBubble(
                 content = message.content,
                 isUserMessage = message.senderId == user,
                 type = message.type,
                 modifier = Modifier
+                    .offset { IntOffset(offsetX.roundToInt(), 0) }
+                    .draggable(
+                        orientation = Orientation.Horizontal,
+                        state = rememberDraggableState { delta ->
+                            Log.i("Delta", delta.toString())
+
+                            if (delta > 0) {
+                                offsetX += delta
+                            } else {
+                                offsetX = 0F
+                            }
+
+                        },
+                        onDragStopped = {
+                            offsetX = 0F
+                            onSlideToReply(message)
+                        }
+                    )
                     .padding(
                         start = 8.dp,
                         end = 8.dp,
                         top = paddingTop
+                    )
+                    .combinedClickable(
+                        onClick = {
+                            Log.i("ChatMessages", "Message clicked: ${message.content}")
+                        },
+                        onLongClick = {
+                            Log.i("ChatMessages", "Message long clicked: ${message.content}")
+                        }
                     )
             )
         }
@@ -1099,33 +1206,37 @@ fun DateDivider(date: String) {
 
 @Composable
 fun QuotedMessage(
+    isUserReply: Boolean = false,
     quotedText: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .background(shape = RoundedCornerShape(8.dp), color = Color.DarkGray)
-            .height(IntrinsicSize.Min),
-    ) {
-        VerticalDivider(
-            color = Color.Gray,
-            thickness = 4.dp,
-            modifier = Modifier.padding(8.dp)
-        )
-        Column(
-            modifier = Modifier
-                .height(IntrinsicSize.Min)
-                .padding(8.dp)
-        ) {
-            Text(
-                text = quotedText,
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-                modifier = Modifier
-                    .wrapContentSize()
-                    .weight(1f)
-            )
-        }
-    }
+    val backgroundColor = if (isUserReply) Color(0xFF7D4DD2) else Color.DarkGray
+   if(quotedText != ""){
+       Row(
+           modifier = modifier
+               .background(shape = RoundedCornerShape(8.dp), color = backgroundColor)
+               .height(IntrinsicSize.Min),
+       ) {
+           VerticalDivider(
+               color = Color.Gray,
+               thickness = 4.dp,
+               modifier = Modifier.padding(8.dp)
+           )
+           Column(
+               modifier = Modifier
+                   .height(IntrinsicSize.Min)
+                   .padding(8.dp)
+           ) {
+               Text(
+                   text = quotedText,
+                   style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                   modifier = Modifier
+                       .wrapContentSize()
+                       .weight(1f)
+               )
+           }
+       }
+   }
 }
 
 
@@ -1136,13 +1247,7 @@ fun ChatScreenMediumPreview() {
 
     MaterialTheme {
         Surface {
-          ChatBubble(
-                content = "Teste",
-                isUserMessage = true,
-                type = MessageType.Text,
-                modifier = Modifier
 
-          )
         }
 
     }

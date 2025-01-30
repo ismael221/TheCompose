@@ -356,13 +356,13 @@ class ChatViewModel : ViewModel() {
             val transfer = request.accept()
             var messageFile: Message? = null
             val mime = removeAfterSlash(request.mimeType)
-            println("Arquivo recebido de ${request.requestor}: ${request.description } - ${request.fileName} - ${request.mimeType} - ${request.fileSize} - ")
+            println("Arquivo recebido de ${request.requestor}: ${request.description} - ${request.fileName} - ${request.mimeType} - ${request.fileSize} - ")
             println(request.mimeType)
             val internalDir = context?.filesDir
             val file = File(internalDir, request.fileName)
             transfer.receiveFile(file)
 
-            if (mime == "image"){
+            if (mime == "image") {
                 messageFile = Message(
                     to = LocalLoggedAccounts.account.jid,
                     content = file.toString(),
