@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Teams"
+rootProject.name = "TheCompose"
 include(":app")

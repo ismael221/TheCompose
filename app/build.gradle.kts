@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ismael.teams"
+    namespace = "com.ismael.thecompose"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ismael.teams"
+        applicationId = "com.ismael.thecompose"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
