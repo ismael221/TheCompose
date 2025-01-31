@@ -296,6 +296,7 @@ fun ChatMessageBottomAppBar(
                         QuotedMessage(
                             isUserReply = false,
                             quotedText = replyMessage?.content ?: "",
+                            user = replyMessage?.senderId ?: "",
                             modifier = Modifier
                                 .fillMaxWidth(0.9f)
 
@@ -562,6 +563,7 @@ fun TextMessage(
     text: String,
     isQuoted: Boolean = false,
     isUserMessage: Boolean,
+    userName: String? = null,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
@@ -594,14 +596,15 @@ fun TextMessage(
                     if (isQuoted) {
                         QuotedMessage(
                             !isUserMessage,
-                            "This is a quoted message that you are replying to"
+                            user = userName?: "",
+                            quotedText = "This is a quoted message that you are replying to"
                         )
                     }
                     Text(
                         text = text,
                         color = textColor,
                         modifier = Modifier
-                            //  .padding(top = 8.dp)
+                            .padding(8.dp)
                             .wrapContentSize(),
                     )
                 }
@@ -1208,35 +1211,40 @@ fun DateDivider(date: String) {
 fun QuotedMessage(
     isUserReply: Boolean = false,
     quotedText: String,
+    user: String ,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isUserReply) Color(0xFF7D4DD2) else Color.DarkGray
-   if(quotedText != ""){
-       Row(
-           modifier = modifier
-               .background(shape = RoundedCornerShape(8.dp), color = backgroundColor)
-               .height(IntrinsicSize.Min),
-       ) {
-           VerticalDivider(
-               color = Color.Gray,
-               thickness = 4.dp,
-               modifier = Modifier.padding(8.dp)
-           )
-           Column(
-               modifier = Modifier
-                   .height(IntrinsicSize.Min)
-                   .padding(8.dp)
-           ) {
-               Text(
-                   text = quotedText,
-                   style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
-                   modifier = Modifier
-                       .wrapContentSize()
-                       .weight(1f)
-               )
-           }
-       }
-   }
+    if (quotedText != "" && user != "") {
+        Row(
+            modifier = modifier
+                .background(shape = RoundedCornerShape(8.dp), color = backgroundColor)
+                .height(IntrinsicSize.Min),
+        ) {
+            VerticalDivider(
+                color = Color.Gray,
+                thickness = 4.dp,
+                modifier = Modifier.padding(8.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .height(IntrinsicSize.Min)
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = user,
+                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                )
+                Text(
+                    text = quotedText,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .weight(1f)
+                )
+            }
+        }
+    }
 }
 
 

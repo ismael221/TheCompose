@@ -375,6 +375,7 @@ class ChatViewModel : ViewModel() {
                     key = removeAfterSlash(request.requestor.toString()),
                     message = messageFile
                 )
+                loadMessagesForChat(removeAfterSlash(request.requestor.toString()))
                 println("Mensagens:${_messages.toString()} ")
                 _uiState.update {
                     it.copy(

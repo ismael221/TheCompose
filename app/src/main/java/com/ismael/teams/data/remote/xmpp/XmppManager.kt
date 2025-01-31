@@ -31,6 +31,8 @@ import org.jivesoftware.smackx.jingle.JingleManager
 import org.jivesoftware.smackx.jingle_filetransfer.JingleFileTransferManager
 import org.jivesoftware.smackx.ping.PingManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
+import org.jivesoftware.smackx.reference.ReferenceManager
+import org.jivesoftware.smackx.reference.element.ReferenceElement
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.FullJid
@@ -149,18 +151,19 @@ object XmppManager {
         return ChatStateManager.getInstance(connection)
     }
 
-    fun getFileTransferManager(): FileTransferManager{
+    fun getFileTransferManager(): FileTransferManager {
         return FileTransferManager.getInstanceFor(connection)
     }
 
-    fun getJigleManager(): JingleManager{
+    fun getJigleManager(): JingleManager {
         return JingleManager.getInstanceFor(connection)
     }
 
-    fun getJigleFileManager():JingleFileTransferManager{
+    fun getJigleFileManager(): JingleFileTransferManager {
         return JingleFileTransferManager.getInstanceFor(connection)
     }
-    fun getRoster(): Roster{
+
+    fun getRoster(): Roster {
         return Roster.getInstanceFor(connection)
     }
 
@@ -221,7 +224,7 @@ object XmppManager {
 
     fun sendMessage(to: EntityBareJid, message: String) {
         try {
-         //   val presence = Presence(Presence.Type.subscribe)
+            //   val presence = Presence(Presence.Type.subscribe)
             val presence = StanzaBuilder.buildPresence().ofType(Presence.Type.subscribe).build()
             presence.to = to
             println(presence)
@@ -321,7 +324,7 @@ object XmppManager {
         presence.setMode(lastPresence)
         try {
             connection?.sendStanza(presence.build())
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println("Erro ao atualizar status: ${e.message}")
         }
     }

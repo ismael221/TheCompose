@@ -344,12 +344,13 @@ fun TheComposeApp(
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
                             onImageCaptured = { image: Message? ->
                                 chatViewModel.sendImageMessage(image!!, context)
+                                chatViewModel.loadMessagesForChat(it.jid)
                             },
                             onAudioCaptured = { uri: Uri? ->
 
                             },
 
-                        )
+                            )
                     }
                 }
 
@@ -371,14 +372,15 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            onImageCaptured = {  image: Message? ->
-                                chatViewModel.sendImageMessage(image!!,context)
+                            onImageCaptured = { image: Message? ->
+                                chatViewModel.sendImageMessage(image!!, context)
+                                chatViewModel.loadMessagesForChat(it.jid)
                             },
-                            onAudioCaptured = {  uri: Uri? ->
+                            onAudioCaptured = { uri: Uri? ->
 
                             },
 
-                        )
+                            )
                     }
                 }
 
@@ -400,14 +402,15 @@ fun TheComposeApp(
                             chat = it,
                             navigationType = TheComposeNavigationType.NAVIGATION_RAIL,
                             currentLoggedUser = LocalLoggedAccounts.account.jid,
-                            onImageCaptured = {  image: Message? ->
-                                chatViewModel.sendImageMessage(image!!,context)
+                            onImageCaptured = { image: Message? ->
+                                chatViewModel.sendImageMessage(image!!, context)
+                                chatViewModel.loadMessagesForChat(it.jid)
                             },
-                            onAudioCaptured = {  uri: Uri? ->
+                            onAudioCaptured = { uri: Uri? ->
 
                             },
 
-                        )
+                            )
                     }
                 }
             }
