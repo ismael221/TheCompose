@@ -17,9 +17,11 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
@@ -31,11 +33,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -87,6 +92,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -99,7 +105,9 @@ import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.thecompose.R
+import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
+import com.ismael.thecompose.data.local.generateRandomUserChats
 import com.ismael.thecompose.data.model.Chat
 import com.ismael.thecompose.data.model.GroupChat
 import com.ismael.thecompose.data.model.Message
@@ -319,6 +327,7 @@ fun ChatMessageBottomAppBar(
             content = {
                 Row(
                     modifier = modifier
+                        .fillMaxWidth()
                         .padding(2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -421,9 +430,9 @@ fun ChatMessageBottomAppBar(
                                     false
                                 }
                             }
+                            .fillMaxWidth()
                             .padding(bottom = 8.dp)
                             .wrapContentSize()
-                            .weight(1f)
                     )
                     if (content == "") {
                         IconButton(
@@ -1181,15 +1190,159 @@ fun MediumChatScreen(
 @Composable
 fun ExpandedChatScreen(
     navController: NavController,
+    chatUiState: ChatUiState,
+    chat: Chat,
+    currentLoggedUser: String,
+    onSendClick: (Message) -> Unit,
+    onAudioCaptured: (Uri?) -> Unit,
+    onImageCaptured: (Message?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TheComposeNavigationRail(
-        currentScreen = TeamsScreen.CHAT,
-        navController = navController,
+    var replyingMessage by remember { mutableStateOf<Message?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        TheComposeNavigationRail(
+            currentScreen = TeamsScreen.CHAT,
+            navController = navController,
+            modifier = Modifier
+        )
+        Column(
+            modifier = Modifier
+                .padding(4.dp)
+                .width(350.dp)
+                .fillMaxHeight()
+        ) {
+            ExpandedChatTopBar(
+                onDropdownMenuClick = {
+                    expanded = !expanded
+                },
+                modifier = Modifier
+            )
+            ExpandedChatListAndDetailContent(
+                modifier = Modifier
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp)
+        ) {
+            Scaffold(
+                topBar = {
+                    UserChatTopBar(
+                        chatUiState = chatUiState,
+                        chat = chat,
+                        navController = navController
+                    )
+                },
+                bottomBar = {
+                    ChatMessageBottomAppBar(
+                        onSendClick = onSendClick,
+                        uiState = chatUiState,
+                        onImageCaptured = {
+                            onImageCaptured(it)
+                        },
+                        onAudioCaptured = onAudioCaptured,
+                        replyMessage = replyingMessage,
+                        onReplyDismiss = {
+                            replyingMessage = null
+                        }
+
+                    )
+                },
+
+                ) { innerPadding ->
+
+                ChatMessages(
+                    messages = chatUiState.currentChatMessages,
+                    user = currentLoggedUser,
+                    modifier = modifier
+                        .padding(innerPadding),
+                    states = chatUiState.chatState,
+                    onSlideToReply = { message ->
+                        Log.i("Reply", message.content)
+                        replyingMessage = message
+                    }
+                )
+
+                TopBarDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    currentScreen = TeamsScreen.CHAT,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpandedChatTopBar(
+    onDropdownMenuClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = "Chat",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        actions = {
+            Row(
+                modifier = Modifier
+            ) {
+                IconButton(
+                    onClick = {
+                        onDropdownMenuClick()
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.more_horiz_24px),
+                        contentDescription = null
+                    )
+                }
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.filter_list_24px),
+                        contentDescription = null
+                    )
+                }
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.edit_square_24px),
+                        contentDescription = null
+                    )
+                }
+            }
+        },
         modifier = modifier
     )
 }
 
+@Composable
+fun ExpandedChatListAndDetailContent(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+    ) {
+        ChatList(
+            chats = generateRandomUserChats(),
+            navController = NavController(LocalContext.current),
+            showSpacer = false,
+        )
+    }
+}
 
 @Composable
 fun DateDivider(date: String) {
@@ -1244,15 +1397,11 @@ fun QuotedMessage(
 }
 
 
-@Preview(showBackground = true, widthDp = 700)
+@Preview(showBackground = true, widthDp = 1000)
 @Composable
-fun ChatScreenMediumPreview() {
-
+fun ChatScreenExpandedPreview() {
 
     MaterialTheme {
-        Surface {
-
-        }
 
     }
 }

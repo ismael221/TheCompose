@@ -81,7 +81,10 @@ fun TheComposeApp(
         navController = navController,
         startDestination = NavigationRoutes.CHAT
     ) {
-        composable(route = NavigationRoutes.CHAT) {
+        composable(route = NavigationRoutes.CHAT) { backStackEntry ->
+
+            val chatId = backStackEntry.arguments?.getString("chatId")
+            val selectedChat = LocalChatsDataProvider.chats.find { it.jid == chatId }
 
             when (windowSize) {
 
@@ -112,10 +115,18 @@ fun TheComposeApp(
                 }
 
                 WindowWidthSizeClass.Expanded -> {
+
                     ExpandedChatScreen(
                         navController = navController,
-                        modifier = modifier
+                        modifier = modifier,
+                        chatUiState = chatUiState,
+                        chat = LocalChatsDataProvider.chats[0],
+                        currentLoggedUser = LocalLoggedAccounts.account.jid,
+                        onSendClick = {},
+                        onAudioCaptured = {},
+                        onImageCaptured = {},
                     )
+
                 }
 
                 else -> {

@@ -146,7 +146,8 @@ fun ChatCard(
                 }
                 if (chatPreview.chatType == ChatType.User) {
                     UserIconWithStatus(
-                        status = xmppManager.getUserPresence(chatPreview.jid)!!.mode.toString(),
+                       // status = xmppManager.getUserPresence(chatPreview.jid)!!.mode.toString(),
+                        status = "available",
                         modifier = Modifier
                             .padding(top = 2.dp),
                         userProfile =  createInitialsBitmap(chatPreview.chatName)
