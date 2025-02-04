@@ -1,7 +1,9 @@
 package com.ismael.thecompose.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -481,7 +484,8 @@ fun TheComposeNavigationRail(
 @Preview
 @Composable
 private fun TeamsHomeScreenPreview() {
-//    TheComposeNavigationRail(
-//        currentScreen = TeamsScreen.CHAT
-//    )
+    TheComposeNavigationRail(
+        currentScreen = TeamsScreen.CHAT,
+        navController = NavController(LocalContext.current)
+    )
 }
