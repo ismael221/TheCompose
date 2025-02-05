@@ -190,6 +190,7 @@ object XmppManager {
                 // Atualiza a lista de mensagens recebidas
                 _receivedMessages.update { currentMessages ->
                     println("xmpp $currentMessages")
+                    println("xmpp $actualMessage")
                     currentMessages + actualMessage // Adiciona a nova mensagem à lista existente
                 }
 

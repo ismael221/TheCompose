@@ -1,6 +1,7 @@
 package com.ismael.thecompose.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +47,7 @@ import com.ismael.thecompose.ui.theme.AppTypography
 import com.ismael.thecompose.R
 import com.ismael.thecompose.ui.screens.chat.UserIcon
 import com.ismael.thecompose.ui.screens.TeamsScreen
+import com.ismael.thecompose.ui.screens.chat.UserIconWithStatus
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 
 
@@ -367,93 +369,136 @@ fun TheComposeNavigationRail(
     modifier: Modifier = Modifier
 ) {
     NavigationRail(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = modifier
     ) {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.ACTIVITY,
+                label = {
+                    Text(
+                        text = "Activity",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { navController.navigate(TeamsScreen.ACTIVITY.name) },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.ACTIVITY) painterResource(R.drawable.notifications_filled) else painterResource(
+                            R.drawable.notifications_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.CHAT,
+                label = {
+                    Text(
+                        text = "Chat",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { navController.navigate(TeamsScreen.CHAT.name) },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.CHAT) painterResource(R.drawable.chat_filled) else painterResource(
+                            R.drawable.chat_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.CALENDAR,
+                label = {
+                    Text(
+                        text = "Calendar",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { navController.navigate(TeamsScreen.CALENDAR.name) },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.CALENDAR) painterResource(R.drawable.calendar_month_filled) else painterResource(
+                            R.drawable.calendar_month_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.TEAMS,
+                label = {
+                    Text(
+                        text = "Teams",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { navController.navigate(TeamsScreen.TEAMS.name) },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.TEAMS) painterResource(R.drawable.groups_filled) else painterResource(
+                            R.drawable.groups_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.CALL,
+                label = {
+                    Text(
+                        text = "Calls",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { navController.navigate(TeamsScreen.CALL.name) },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.CALL) painterResource(R.drawable.call_filled_24px) else painterResource(
+                            R.drawable.call_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+            NavigationRailItem(
+                selected = currentScreen == TeamsScreen.MORE,
+                label = {
+                    Text(
+                        text = "More",
+                        style = AppTypography.bodySmall
+                    )
+                },
+                onClick = { },
+                icon = {
+                    Icon(
+                        painter = if (currentScreen == TeamsScreen.MORE) painterResource(R.drawable.more_horiz_24px) else painterResource(
+                            R.drawable.more_horiz_24px
+                        ),
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+
+
         NavigationRailItem(
-            selected = currentScreen == TeamsScreen.ACTIVITY,
+            selected = currentScreen == TeamsScreen.MORE,
             label = {
                 Text(
-                    text = "Activity",
+                    text = "Settings",
                     style = AppTypography.bodySmall
                 )
             },
-            onClick = { navController.navigate(TeamsScreen.ACTIVITY.name) },
+            onClick = { },
             icon = {
                 Icon(
-                    painter = if (currentScreen == TeamsScreen.ACTIVITY) painterResource(R.drawable.notifications_filled) else painterResource(
-                        R.drawable.notifications_24px
-                    ),
-                    contentDescription = null
-                )
-            }
-        )
-        NavigationRailItem(
-            selected = currentScreen == TeamsScreen.CHAT,
-            label = {
-                Text(
-                    text = "Chat",
-                    style = AppTypography.bodySmall
-                )
-            },
-            onClick = { navController.navigate(TeamsScreen.CHAT.name) },
-            icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.CHAT) painterResource(R.drawable.chat_filled) else painterResource(
-                        R.drawable.chat_24px
-                    ),
-                    contentDescription = null
-                )
-            }
-        )
-        NavigationRailItem(
-            selected = currentScreen == TeamsScreen.CALENDAR,
-            label = {
-                Text(
-                    text = "Calendar",
-                    style = AppTypography.bodySmall
-                )
-            },
-            onClick = { navController.navigate(TeamsScreen.CALENDAR.name) },
-            icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.CALENDAR) painterResource(R.drawable.calendar_month_filled) else painterResource(
-                        R.drawable.calendar_month_24px
-                    ),
-                    contentDescription = null
-                )
-            }
-        )
-        NavigationRailItem(
-            selected = currentScreen == TeamsScreen.TEAMS,
-            label = {
-                Text(
-                    text = "Teams",
-                    style = AppTypography.bodySmall
-                )
-            },
-            onClick = { navController.navigate(TeamsScreen.TEAMS.name) },
-            icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.TEAMS) painterResource(R.drawable.groups_filled) else painterResource(
-                        R.drawable.groups_24px
-                    ),
-                    contentDescription = null
-                )
-            }
-        )
-        NavigationRailItem(
-            selected = currentScreen == TeamsScreen.CALL,
-            label = {
-                Text(
-                    text = "Calls",
-                    style = AppTypography.bodySmall
-                )
-            },
-            onClick = { navController.navigate(TeamsScreen.CALL.name) },
-            icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.CALL) painterResource(R.drawable.call_filled_24px) else painterResource(
-                        R.drawable.call_24px
+                    painter = if (currentScreen == TeamsScreen.MORE) painterResource(R.drawable.settings_24px) else painterResource(
+                        R.drawable.settings_24px
                     ),
                     contentDescription = null
                 )
@@ -461,22 +506,15 @@ fun TheComposeNavigationRail(
         )
         NavigationRailItem(
             selected = currentScreen == TeamsScreen.MORE,
-            label = {
-                Text(
-                    text = "MORE",
-                    style = AppTypography.bodySmall
-                )
-            },
             onClick = { },
             icon = {
-                Icon(
-                    painter = if (currentScreen == TeamsScreen.MORE) painterResource(R.drawable.more_horiz_24px) else painterResource(
-                        R.drawable.more_horiz_24px
-                    ),
-                    contentDescription = null
+                UserIconWithStatus(
+                    status = "available",
+                    userProfile = createInitialsBitmap("Debora"),
                 )
             }
         )
+
     }
 
 }

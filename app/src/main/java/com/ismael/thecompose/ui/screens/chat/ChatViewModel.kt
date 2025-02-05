@@ -194,108 +194,141 @@ class ChatViewModel : ViewModel() {
             incomingMessages.collect { messages ->
                 messages.lastOrNull()?.let { message ->
                     if (message.body != null) {
-                        var key: String? = null
-
-                        println("Recebida no dispatcher: $message")
-                        println("Body: " + message.body)
-                        message.type
-                        val mensagem = Message(
-                            to = removeAfterSlash(message.to.toString()),
-                            key = UUID.randomUUID().toString(),
-                            content = message.body,
-                            senderId = removeAfterSlash(message.from.toString()),
-                            type = MessageType.Text,
-                            timestamp = System.currentTimeMillis(),
-                        )
-                        if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) {
-                            key = message.to.toString()
-                        } else {
-                            val existingChat =
-                                LocalChatsDataProvider.chats.find {
-                                    it.jid == removeAfterSlash(
-                                        message.from.toString()
-                                    )
-                                }
-                            if (existingChat == null) {
-                                println("Usuário vazio")
-                                val newChat = UserChat(
-                                    jid = removeAfterSlash(message.from.toString()),
-                                    lastMessage = message.body.toString(),
-                                    lastMessageTime = System.currentTimeMillis(),
-                                    chatName = LocalAccountsDataProvider.accounts.find {
-                                        it.jid == removeAfterSlash(
-                                            message.from.toString()
-                                        )
-                                    }?.displayName.toString(),
-                                    chatPhotoUrl = "",
-                                    isUnread = true,
-                                    chatType = ChatType.User,
-                                    lastSeen = 0
-                                )
-                                LocalChatsDataProvider.chats.add(newChat)
-                                _uiState.update {
-                                    it.copy(
-                                        unReadMessages = LocalChatsDataProvider.chats.filter { chat -> chat.isUnread }.size,
-                                        chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
-                                    )
-                                }
-                                println("Chat adicionado")
-                            } else {
-                                val itemToUpdate = LocalChatsDataProvider.chats.find {
-                                    it.jid == removeAfterSlash(message.from.toString())
-                                }
-                                itemToUpdate?.lastMessage = message.body
-                                itemToUpdate?.lastMessageTime = System.currentTimeMillis()
-                                itemToUpdate?.isUnread = true
-                                val index = LocalChatsDataProvider.chats.indexOf(itemToUpdate)
-                                if (itemToUpdate != null) {
-                                    LocalChatsDataProvider.chats[index] = itemToUpdate
-                                    _uiState.update { it ->
-                                        it.copy(
-                                            chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
-                                        )
-                                    }
-                                }
-                            }
-                            notificationRepository.notifyUser(
-                                message.from.toString(),
-                                message.body,
-                                context!!
-                            )
-                            key = message.from.toString()
-                        }
-
-                        addMessageToMap(
-                            map = _messages, // Seu mapa mutável
-                            key = removeAfterSlash(key),
-                            message = mensagem
-                        )
-                        if ((_uiState.value.currentSelectedChat?.jid == removeAfterSlash(message.from.toString())) || (_uiState.value.currentSelectedChat?.jid == removeAfterSlash(
-                                message.to.toString()
-                            ))
-                        ) {
-                            _uiState.update {
-                                it.copy(
-                                    currentSelectedChat = _uiState.value.currentSelectedChat,
-                                    chatState = _chatStatesFlow.value.get(key = key),
-                                    unReadMessages = LocalChatsDataProvider.chats.filter { chat -> chat.isUnread }.size,
-                                    messages = it.messages.toMutableMap().apply {
-                                        val currentMessages =
-                                            get(_uiState.value.currentSelectedChat?.jid).orEmpty()
-                                        _uiState.value.currentSelectedChat?.jid?.let { it1 ->
-                                            put(
-                                                it1,
-                                                currentMessages + mensagem
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
+                        processIncomingMessage(message)
                     } else {
                         println("Received message with null body: $message")
                     }
                 }
+            }
+        }
+    }
+
+    private fun processIncomingMessage(message: org.jivesoftware.smack.packet.Message) {
+        println("Recebida no dispatcher: $message")
+        println("Body: " + message.body)
+        var existingChat: Chat? = null
+        val senderJid = removeAfterSlash(message.from.toString())
+        if (senderJid == currentLoggedInUser.jid) {
+            existingChat =
+                LocalChatsDataProvider.chats.find { it.jid == removeAfterSlash(message.to.toString()) }
+        } else {
+            existingChat = LocalChatsDataProvider.chats.find { it.jid == senderJid }
+        }
+
+        if (currentLoggedInUser.jid == senderJid) {
+            handleOutgoingMessage(existingChat, message)
+        } else {
+            handleIncomingMessage(existingChat, message)
+        }
+    }
+
+    private fun createMessage(
+        message: org.jivesoftware.smack.packet.Message,
+        senderJid: String,
+        receiverJid: String
+    ): Message {
+        return Message(
+            to = removeAfterSlash(receiverJid),
+            key = UUID.randomUUID().toString(),
+            content = message.body,
+            senderId = removeAfterSlash(senderJid),
+            type = MessageType.Text,
+            timestamp = System.currentTimeMillis(),
+        )
+    }
+
+    private fun handleOutgoingMessage(
+        existingChat: UserChat?,
+        mensagem: org.jivesoftware.smack.packet.Message
+    ) {
+
+        if (existingChat == null) {
+            createNewChat(mensagem, removeAfterSlash(mensagem.to.toString()))
+        }
+        updateUIState(mensagem)
+    }
+
+    private fun handleIncomingMessage(
+        existingChat: UserChat?,
+        mensagem: org.jivesoftware.smack.packet.Message
+    ) {
+        val jid =
+            if (currentLoggedInUser.jid == mensagem.from.toString()) mensagem.to.toString() else mensagem.from.toString()
+
+        if (existingChat == null) {
+            createNewChat(mensagem, jid)
+        } else {
+            updateExistingChat(existingChat, mensagem)
+        }
+        notificationRepository.notifyUser(mensagem.from.toString(), mensagem.body, context!!)
+        updateUIState(mensagem)
+    }
+
+    private fun createNewChat(message: org.jivesoftware.smack.packet.Message, senderJid: String) {
+        val newChat = UserChat(
+            jid = removeAfterSlash(senderJid),
+            lastMessage = message.body.toString(),
+            lastMessageTime = System.currentTimeMillis(),
+            chatName = LocalAccountsDataProvider.accounts.find {
+                it.jid == removeAfterSlash(
+                    senderJid
+                )
+            }?.displayName.toString(),
+            chatPhotoUrl = "",
+            isUnread = true,
+            chatType = ChatType.User,
+            lastSeen = 0
+        )
+        LocalChatsDataProvider.chats.add(newChat)
+        updateChatList()
+        println("Chat adicionado")
+    }
+
+    private fun updateExistingChat(
+        existingChat: UserChat,
+        mensagem: org.jivesoftware.smack.packet.Message
+    ) {
+        existingChat.lastMessage = mensagem.body.toString()
+        existingChat.lastMessageTime = System.currentTimeMillis()
+        existingChat.isUnread = true
+        updateChatList()
+    }
+
+    private fun updateChatList() {
+        _uiState.update {
+            it.copy(
+                unReadMessages = LocalChatsDataProvider.chats.count { chat -> chat.isUnread },
+                chats = LocalChatsDataProvider.chats.sortedByDescending { it.lastMessageTime }
+            )
+        }
+    }
+
+    private fun updateUIState(message: org.jivesoftware.smack.packet.Message) {
+
+        val key =
+            if (currentLoggedInUser.jid == removeAfterSlash(message.from.toString())) removeAfterSlash(
+                message.to.toString()
+            ) else removeAfterSlash(message.from.toString())
+        val mensagem = createMessage(message, message.from.toString(), message.to.toString())
+        addMessageToMap(_messages, key, mensagem)
+
+        if (_uiState.value.currentSelectedChat?.jid == key || _uiState.value.currentSelectedChat?.jid == removeAfterSlash(
+                message.to.toString()
+            )
+        ) {
+            _uiState.update {
+                it.copy(
+                    currentSelectedChat = _uiState.value.currentSelectedChat,
+                    chatState = _chatStatesFlow.value.get(key),
+                    lastMessage = mensagem,
+                    unReadMessages = LocalChatsDataProvider.chats.count { chat -> chat.isUnread },
+                    messages = it.messages.toMutableMap().apply {
+                        val currentMessages = get(_uiState.value.currentSelectedChat?.jid).orEmpty()
+                        _uiState.value.currentSelectedChat?.jid?.let { it1 ->
+                            put(it1, currentMessages + mensagem)
+                        }
+                    }
+                )
             }
         }
     }
