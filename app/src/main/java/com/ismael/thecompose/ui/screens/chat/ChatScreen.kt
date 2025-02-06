@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -102,6 +103,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.Navigator
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -758,7 +760,6 @@ fun ChatBubbleAnimation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserChatTopBar(
-    navController: NavController,
     chatUiState: ChatUiState,
     modifier: Modifier = Modifier,
     chat: Chat
@@ -804,7 +805,7 @@ fun UserChatTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigate(NavigationRoutes.CHAT)
+                    //navController.navigate(NavigationRoutes.CHAT)
                 }
             ) {
                 Icon(
@@ -852,7 +853,6 @@ fun UserChatTopBar(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ChatWithUser(
-    navController: NavController,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -876,7 +876,6 @@ fun ChatWithUser(
         ) {
             TheComposeNavigationRail(
                 currentScreen = TeamsScreen.CHAT,
-                navController = navController,
                 modifier = modifier
             )
             Scaffold(
@@ -884,7 +883,6 @@ fun ChatWithUser(
                     UserChatTopBar(
                         chatUiState = chatUiState,
                         chat = chat,
-                        navController = navController
                     )
                 },
                 bottomBar = {
@@ -927,7 +925,6 @@ fun ChatWithUser(
                 UserChatTopBar(
                     chatUiState = chatUiState,
                     chat = chat,
-                    navController = navController
                 )
             },
             bottomBar = {
@@ -1072,10 +1069,10 @@ fun ChatMessages(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CompactChatScreen(
-    navController: NavController,
     chatUiState: ChatUiState,
     onStatusClick: (String) -> Unit,
     userUiState: UserUiState,
+    onNavigate: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     modifier: Modifier = Modifier
@@ -1089,10 +1086,10 @@ fun CompactChatScreen(
         drawerState = drawerState,
         drawerContent = {
             SideNavBarItems(
-                onItemClick = { onStatusClick(it) },
+                onSelectPresence = { onStatusClick(it) },
                 loggedUser = LocalLoggedAccounts.account,
+                onNavigate = {onNavigate(it)},
                 userUiState = userUiState,
-                navController = navController
             )
         }
     ) {
@@ -1105,7 +1102,7 @@ fun CompactChatScreen(
                     onFilterClick = { showBottomSheet = true },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SEARCHBAR.name)
+                        onNavigate(NavigationRoutes.SEARCHBAR)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -1124,12 +1121,16 @@ fun CompactChatScreen(
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.CHAT,
                     unReadMessages = chatUiState.unReadMessages,
-                    navController = navController
+                    onNavigationSelected = { route ->
+                        onNavigate(route)
+                    }
                 )
             },
             floatingActionButton = {
                 NewChatFloatingActionButton(
-                    onclick = { navController.navigate(NavigationRoutes.NEWCHAT) },
+                    onclick = {
+                        onNavigate(NavigationRoutes.NEWCHAT)
+                    },
                     containerColor = MaterialTheme.colorScheme.primary,
                     elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                 )
@@ -1140,7 +1141,6 @@ fun CompactChatScreen(
         ) {
             ChatList(
                 chats = chatUiState.chats,
-                navController = navController,
                 showSpacer = true,
             )
             if (showBottomSheet) {
@@ -1163,7 +1163,6 @@ fun CompactChatScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MediumChatScreen(
-    navController: NavController,
     chatUiState: ChatUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -1172,17 +1171,12 @@ fun MediumChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
-            navController = navController,
             modifier = Modifier
         )
-
         ChatList(
             chats = chatUiState.chats,
-            navController = navController,
             showSpacer = false,
         )
-
-
     }
 
 }
@@ -1190,9 +1184,8 @@ fun MediumChatScreen(
 
 @Composable
 fun ExpandedChatScreen(
-    navController: NavController,
     chatUiState: ChatUiState,
-    chat: Chat,
+    chat: Chat? = null,
     currentLoggedUser: String,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
@@ -1208,7 +1201,6 @@ fun ExpandedChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
-            navController = navController,
             modifier = Modifier
         )
         Column(
@@ -1234,12 +1226,13 @@ fun ExpandedChatScreen(
         ) {
             Scaffold(
                 topBar = {
-                    UserChatTopBar(
-                        chatUiState = chatUiState,
-                        chat = chat,
-                        navController = navController,
-                        modifier =  Modifier
-                    )
+                    if (chat != null) {
+                        UserChatTopBar(
+                            chatUiState = chatUiState,
+                            chat = chat,
+                            modifier = Modifier
+                        )
+                    }
                 },
                 bottomBar = {
                     ExpandedBottomChatBar()
@@ -1328,7 +1321,6 @@ fun ExpandedChatListAndDetailContent(
     ) {
         ChatList(
             chats = generateRandomUserChats(),
-            navController = NavController(LocalContext.current),
             showSpacer = false,
         )
     }
@@ -1451,11 +1443,43 @@ fun ExpandedBottomChatBar(
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun ChatScreenCompactPreview() {
+    MaterialTheme {
+        CompactChatScreen(
+            chatUiState = ChatUiState(),
+            onStatusClick = {},
+            userUiState = UserUiState(),
+            onNavigate = {},
+            modifier = Modifier
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatScreenMediumPreview() {
+    MaterialTheme {
+        MediumChatScreen(
+            chatUiState = ChatUiState(),
+            modifier = Modifier
+        )
+    }
+}
+
 @Preview(showBackground = true, widthDp = 1000)
 @Composable
 fun ChatScreenExpandedPreview() {
 
     MaterialTheme {
-        ExpandedBottomChatBar()
+        ExpandedChatScreen(
+            chatUiState = ChatUiState(),
+            currentLoggedUser = LocalLoggedAccounts.account.jid,
+            onSendClick = {},
+            onAudioCaptured = {},
+            onImageCaptured = {},
+        )
     }
 }

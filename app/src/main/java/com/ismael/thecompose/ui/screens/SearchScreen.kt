@@ -47,7 +47,7 @@ fun SearchInputArea(
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = Color.DarkGray, focusedContainerColor = Color.DarkGray
         ),
-        modifier = Modifier
+        modifier = modifier
             .focusRequester(focusRequester)
             .fillMaxWidth()
     )
@@ -61,7 +61,7 @@ fun SearchInputArea(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTopAppbar(
-    navController: NavController,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -69,7 +69,11 @@ fun SearchTopAppbar(
             SearchInputArea()
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigateUp() }) {
+            IconButton(
+                onClick = {
+                    onBackClick()
+                }
+            ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Localized description"
@@ -91,18 +95,21 @@ fun SearchTopAppbar(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(
-    navController: NavController,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             SearchTopAppbar(
-                navController = navController
+                onBackClick = {
+                    onBackClick()
+                }
             )
         },
         content = {
 
-        }
+        },
+        modifier = modifier
 
     )
 
@@ -113,5 +120,7 @@ fun SearchScreen(
 @Composable
 @Preview(showBackground = true)
 fun SearchTopAppbarPreview() {
-   // SearchTopAppbar()
+    SearchScreen(
+        onBackClick = {}
+    )
 }

@@ -31,7 +31,7 @@ import com.ismael.thecompose.R
 fun StatusScreen(
     status: String,
     onStatusChange: (String) -> Unit,
-    navController: NavController,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var statusMessage by remember { mutableStateOf(status) }
@@ -42,7 +42,9 @@ fun StatusScreen(
                 onStatusChange = {
                     onStatusChange(statusMessage)
                 },
-                navController = navController
+                onBackClick = {
+                    onBackClick()
+                }
             )
         },
         modifier = modifier
@@ -69,8 +71,8 @@ fun StatusScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusTopAppBar(
-    navController: NavController,
     onStatusChange: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -85,7 +87,7 @@ fun StatusTopAppBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigateUp()
+                    onBackClick()
                 }
             ) {
                 Icon(
@@ -98,7 +100,7 @@ fun StatusTopAppBar(
             IconButton(
                 onClick = {
                     onStatusChange()
-                    navController.navigateUp()
+                    onBackClick()
                 }
             ) {
                 Icon(
@@ -115,5 +117,9 @@ fun StatusTopAppBar(
 @Composable
 @Preview(showBackground = true)
 fun StatusScreenPreview() {
-
+    StatusScreen(
+        status = "Available",
+        onBackClick = {},
+        onStatusChange = {}
+    )
 }

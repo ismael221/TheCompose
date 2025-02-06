@@ -43,13 +43,12 @@ import com.ismael.thecompose.ui.screens.chat.UserIconWithStatus
 import com.ismael.thecompose.ui.screens.user.UserUiState
 import org.jivesoftware.smack.packet.Presence
 
-//TODO pass the uistate in order to get the user activity
 @Composable
 fun SideNavBarItems(
     loggedUser: User,
     userUiState: UserUiState,
-    onItemClick: (String) -> Unit = {},
-    navController: NavController,
+    onSelectPresence: (String) -> Unit,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -116,7 +115,7 @@ fun SideNavBarItems(
                 modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {
-                    onItemClick("available")
+                    onSelectPresence("available")
                     expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
@@ -132,7 +131,7 @@ fun SideNavBarItems(
                 modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {
-                    onItemClick("dnd")
+                    onSelectPresence("dnd")
                     expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
@@ -149,7 +148,7 @@ fun SideNavBarItems(
                 modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {
-                    onItemClick("brb")
+                    onSelectPresence("brb")
                     expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
@@ -166,7 +165,7 @@ fun SideNavBarItems(
                 modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {
-                    onItemClick("away")
+                    onSelectPresence("away")
                     expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
@@ -183,7 +182,7 @@ fun SideNavBarItems(
                 modifier = Modifier
                     .padding(start = 16.dp),
                 onClick = {
-                    onItemClick("offline")
+                    onSelectPresence("offline")
                     expanded = false
                 },
                 shape = ShapeDefaults.ExtraSmall
@@ -214,7 +213,7 @@ fun SideNavBarItems(
             },
             selected = false,
             onClick = {
-                navController.navigate(NavigationRoutes.STATUS)
+                onNavigate(NavigationRoutes.STATUS)
             },
             modifier = Modifier
                 .height(80.dp),

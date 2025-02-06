@@ -1,6 +1,7 @@
 package com.ismael.thecompose.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
+import com.ismael.thecompose.data.model.NavigationRoutes
 import com.ismael.thecompose.ui.components.FilterSwitch
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
@@ -52,7 +54,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ActivityList(
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
 
@@ -172,10 +173,11 @@ fun TopActivityTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityScreen(
-    navController: NavController,
+    onNavigate: (String) -> Unit,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     chatUiState: ChatUiState,
     userUiState: UserUiState,
+    onPresenceClick: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -189,9 +191,14 @@ fun ActivityScreen(
         drawerState = drawerState,
         drawerContent = {
             SideNavBarItems(
-                navController = navController,
                 userUiState = userUiState,
                 loggedUser = LocalLoggedAccounts.account,
+                onSelectPresence = { presence ->
+                    onPresenceClick(presence)
+                },
+                onNavigate = { route ->
+                    onNavigate(route)
+                }
             )
         }
     ) {
@@ -208,7 +215,7 @@ fun ActivityScreen(
                         onFilterClick = { },
                         scrollBehavior = topAppBarScrollBehavior,
                         onSearchBarClick = {
-                            navController.navigate(TeamsScreen.SEARCHBAR.name)
+                            onNavigate(NavigationRoutes.SEARCHBAR)
                         },
                         onDropdownMenuClick = {
                             expanded = !expanded
@@ -231,14 +238,14 @@ fun ActivityScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.ACTIVITY,
-                    unReadMessages = chatUiState.unReadMessages,
-                    navController = navController
+                    onNavigationSelected = { route ->
+                        onNavigate(route)
+                    },
+                    unReadMessages = chatUiState.unReadMessages
                 )
             }
         ) {
-            ActivityList(
-                navController = navController
-            )
+            ActivityList()
 
             TopBarDropdownMenu(
                 expanded = expanded,
@@ -250,27 +257,28 @@ fun ActivityScreen(
     }
 }
 
-
 @Composable
-fun MediumActivityScreen(
-    navController: NavController,
+@Preview(showBackground = true)
+fun ActivityFilterPreview(
     modifier: Modifier = Modifier
-){
-    TheComposeNavigationRail(
-        currentScreen = TeamsScreen.ACTIVITY,
-        navController = navController
-    )
+) {
+    TopActivityFilter()
 }
 
 @Composable
-fun ExpandedActivityScreen(
-    navController: NavController,
+@Preview(showBackground = true)
+fun MediumActivityScreen(
     modifier: Modifier = Modifier
 ) {
-    TheComposeNavigationRail(
-        currentScreen = TeamsScreen.ACTIVITY,
-        navController = navController
-    )
+
+}
+
+@Composable
+@Preview(showBackground = true)
+fun ExpandedActivityScreen(
+    modifier: Modifier = Modifier
+) {
+
 }
 
 @Composable
@@ -278,5 +286,5 @@ fun ExpandedActivityScreen(
 fun ActivityScreenPreview(
     modifier: Modifier = Modifier
 ) {
-    TopActivityFilter()
+
 }

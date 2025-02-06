@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
+import com.ismael.thecompose.data.model.NavigationRoutes
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar
@@ -82,10 +83,11 @@ fun NewCalendarEventActionButton(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CalendarScreen(
-    navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     chatUiState: ChatUiState,
+    onNavigate: (String) -> Unit,
     userUiState: UserUiState,
+    onPresenceClick: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -97,7 +99,10 @@ fun CalendarScreen(
             SideNavBarItems(
                 loggedUser = LocalLoggedAccounts.account,
                 userUiState = userUiState,
-                navController = navController
+                onNavigate = onNavigate,
+                onSelectPresence = { presence ->
+                    onPresenceClick(presence)
+                },
             )
         }
     ) {
@@ -109,7 +114,7 @@ fun CalendarScreen(
                     onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SEARCHBAR.name)
+                        onNavigate(NavigationRoutes.SEARCHBAR)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -123,8 +128,10 @@ fun CalendarScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.CALENDAR,
-                    navController = navController,
                     unReadMessages = chatUiState.unReadMessages,
+                    onNavigationSelected = { route ->
+                        onNavigate(route)
+                    },
                     modifier = modifier
                 )
             },
@@ -148,26 +155,24 @@ fun CalendarScreen(
 
 @Composable
 fun MediumCalendarScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
-){
+) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALENDAR,
-        navController = navController,
         modifier = modifier
     )
 }
+
 @Composable
 fun ExpandedCalendarScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
-){
+) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALENDAR,
-        navController = navController,
         modifier = modifier
     )
 }
+
 @Composable
 fun CalendarHeader(month: YearMonth, onPreviousMonth: () -> Unit, onNextMonth: () -> Unit) {
     Row(
@@ -187,7 +192,8 @@ fun CalendarHeader(month: YearMonth, onPreviousMonth: () -> Unit, onNextMonth: (
 
 @Composable
 fun DaysOfWeekHeader(locale: Locale) {
-    val daysOfWeek = DayOfWeek.values().map { it.getDisplayName(java.time.format.TextStyle.NARROW, locale) }
+    val daysOfWeek =
+        DayOfWeek.values().map { it.getDisplayName(java.time.format.TextStyle.NARROW, locale) }
     Row(horizontalArrangement = Arrangement.SpaceBetween) {
         for (day in daysOfWeek) {
             Text(text = day, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
@@ -238,7 +244,10 @@ fun Calendar(
 ) {
     Column(modifier = modifier) {
         // Cabeçalho com navegação
-        CalendarHeader(month = month, onPreviousMonth = { /* Implementar */ }, onNextMonth = { /* Implementar */ })
+        CalendarHeader(
+            month = month,
+            onPreviousMonth = { /* Implementar */ },
+            onNextMonth = { /* Implementar */ })
 
         // Dias da semana
         DaysOfWeekHeader(locale = locale)
@@ -254,11 +263,33 @@ fun Calendar(
 
 @Composable
 @Preview(showBackground = true)
-fun CalendarPreview(){
-   MaterialTheme {
-       Calendar(
-           selectedDate = LocalDate.now(),
-           onDateSelected = {}
-       )
-   }
+fun CalendarCompactPreview() {
+    MaterialTheme {
+        Calendar(
+            selectedDate = LocalDate.now(),
+            onDateSelected = {}
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true, widthDp = 700)
+fun CalendarMediumPreview() {
+    MaterialTheme {
+        Calendar(
+            selectedDate = LocalDate.now(),
+            onDateSelected = {}
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true, widthDp = 1000)
+fun CalendarExpandedPreview() {
+    MaterialTheme {
+        Calendar(
+            selectedDate = LocalDate.now(),
+            onDateSelected = {}
+        )
+    }
 }

@@ -458,12 +458,23 @@ class ChatViewModel : ViewModel() {
 
     }
 
+    private fun isInPreview(): Boolean {
+        return try {
+            Class.forName("androidx.compose.ui.tooling.preview.Preview")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
+    }
+
 
     init {
-        observePresenceUpdates()
-        observeChatStates()
-        initializeUiState()
-        observeFileMessages()
+        if(!isInPreview()){
+            observePresenceUpdates()
+            observeChatStates()
+            initializeUiState()
+            observeFileMessages()
+        }
     }
 
 

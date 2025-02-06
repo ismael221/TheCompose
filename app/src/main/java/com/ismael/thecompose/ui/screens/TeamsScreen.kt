@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
@@ -47,10 +48,11 @@ enum class TeamsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamsScreen(
-    navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     chatUiState: ChatUiState,
     userUiState: UserUiState,
+    onNavigate: (String) -> Unit,
+    onPresenceClick: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -63,7 +65,10 @@ fun TeamsScreen(
             SideNavBarItems(
                 loggedUser = LocalLoggedAccounts.account,
                 userUiState = userUiState,
-                navController = navController
+                onNavigate = onNavigate,
+                onSelectPresence = { presence ->
+                    onPresenceClick(presence)
+                },
             )
         }
     ) {
@@ -75,7 +80,7 @@ fun TeamsScreen(
                     onFilterClick = {},
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SEARCHBAR.name)
+                        onNavigate(TeamsScreen.SEARCHBAR.name)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -92,8 +97,10 @@ fun TeamsScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.TEAMS,
+                    onNavigationSelected = { route ->
+                        onNavigate(route)
+                    },
                     unReadMessages = chatUiState.unReadMessages,
-                    navController = navController
                 )
             }
         ) {
@@ -109,24 +116,53 @@ fun TeamsScreen(
 
 @Composable
 fun MediumTeamsScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.TEAMS,
-        navController = navController,
         modifier = modifier
     )
 }
 
 @Composable
 fun ExpandedTeamsScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.TEAMS,
-        navController = navController,
         modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TeamsScreenCompactPreview() {
+    TeamsScreen(
+        onNavigate = {},
+        chatUiState = ChatUiState(),
+        userUiState = UserUiState(),
+        onPresenceClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 700)
+@Composable
+fun TeamsScreenMediumPreview() {
+    TeamsScreen(
+        onNavigate = {},
+        chatUiState = ChatUiState(),
+        userUiState = UserUiState(),
+        onPresenceClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 1000)
+@Composable
+fun TeamsScreenExpandedPreview() {
+    TeamsScreen(
+        onNavigate = {},
+        chatUiState = ChatUiState(),
+        userUiState = UserUiState(),
+        onPresenceClick = {}
     )
 }

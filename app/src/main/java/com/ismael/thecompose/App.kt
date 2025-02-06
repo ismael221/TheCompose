@@ -40,9 +40,9 @@ import com.ismael.thecompose.ui.screens.MediumCalendarScreen
 import com.ismael.thecompose.ui.screens.MediumCallScreen
 import com.ismael.thecompose.ui.screens.MediumMoreScreen
 import com.ismael.thecompose.ui.screens.MediumTeamsScreen
+import com.ismael.thecompose.ui.screens.MoreCompactScreen
 import com.ismael.thecompose.ui.screens.chat.CompactChatScreen
 import com.ismael.thecompose.ui.screens.chat.ChatWithUser
-import com.ismael.thecompose.ui.screens.MoreScreen
 import com.ismael.thecompose.ui.screens.SearchScreen
 import com.ismael.thecompose.ui.screens.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatViewModel
@@ -91,7 +91,6 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Compact -> {
                     Log.i("WindowSize", windowSize.toString())
                     CompactChatScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         scope = scope,
                         chatUiState = chatUiState,
@@ -102,13 +101,15 @@ fun TheComposeApp(
                             )
                         },
                         userUiState = userUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         modifier = modifier
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumChatScreen(
-                        navController = navController,
                         chatUiState = chatUiState,
                         modifier = modifier
                     )
@@ -117,10 +118,9 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Expanded -> {
 
                     ExpandedChatScreen(
-                        navController = navController,
                         modifier = modifier,
                         chatUiState = chatUiState,
-                        chat = LocalChatsDataProvider.chats[0],
+                        chat = if (LocalChatsDataProvider.chats.size > 0) LocalChatsDataProvider.chats[0] else null,
                         currentLoggedUser = LocalLoggedAccounts.account.jid,
                         onSendClick = {},
                         onAudioCaptured = {},
@@ -131,12 +131,14 @@ fun TheComposeApp(
 
                 else -> {
                     CompactChatScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         scope = scope,
                         chatUiState = chatUiState,
                         userUiState = userUiState,
                         modifier = modifier,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         onStatusClick = { presence: String ->
                             userViewModel.updatePresence(
                                 presence,
@@ -153,32 +155,46 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     ActivityScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
                         userUiState = userUiState,
-                        scope = scope
+                        scope = scope,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
+                        onPresenceClick = { presence ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumActivityScreen(
-                        navController = navController
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedActivityScreen(
-                        navController = navController,
                     )
                 }
 
                 else -> {
                     ActivityScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
                         userUiState = userUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
+                        onPresenceClick = { presence ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        },
                         scope = scope
                     )
                 }
@@ -190,23 +206,29 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     CalendarScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
                         scope = scope,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         userUiState = userUiState,
+                        onPresenceClick = { presence ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCalendarScreen(
-                        navController = navController
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCalendarScreen(
-                        navController = navController
                     )
                 }
 
@@ -217,23 +239,29 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     CallScreen(
-                        navController = navController,
                         drawerState = drawerState,
                         chatUiState = chatUiState,
                         userUiState = userUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
+                        onPresenceClick = { presence ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        },
                         scope = scope
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCallScreen(
-                        navController = navController
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCallScreen(
-                        navController = navController
                     )
                 }
 
@@ -243,23 +271,29 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     TeamsScreen(
-                        navController = navController,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         drawerState = drawerState,
                         chatUiState = chatUiState,
                         userUiState = userUiState,
+                        onPresenceClick = { presence ->
+                            userViewModel.updatePresence(
+                                presence,
+                                userUiState.status.toString()
+                            )
+                        },
                         scope = scope
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumTeamsScreen(
-                        navController = navController,
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedTeamsScreen(
-                        navController = navController
                     )
                 }
 
@@ -268,23 +302,23 @@ fun TheComposeApp(
         composable(route = NavigationRoutes.MORE) {
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
-                    MoreScreen(
+                    MoreCompactScreen(
                         isVisible = true,
                         onDismiss = { },
-                        navController = navController,
-                        chatUiState = chatUiState
+                        chatUiState = chatUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     MediumMoreScreen(
-                        navController = navController
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedMoreScreen(
-                        navController = navController
                     )
                 }
 
@@ -294,7 +328,9 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     SearchScreen(
-                        navController = navController,
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
                     )
                 }
 
@@ -310,13 +346,14 @@ fun TheComposeApp(
         }
         composable(route = NavigationRoutes.NEWCHAT) {
             NewChatScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
                 suggestions = LocalAccountsDataProvider.accounts,
-                navController = navController
             )
         }
         composable(route = NavigationRoutes.STATUS) {
             StatusScreen(
-                navController = navController,
                 status = userUiState.status.toString(),
                 onStatusChange = { status ->
                     userViewModel.updateStatus(
@@ -324,6 +361,9 @@ fun TheComposeApp(
                         Presence.Mode.fromString(userUiState.mode.toString())
                     )
                 },
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(
@@ -338,7 +378,6 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Compact -> {
                     selectedChat?.let {
                         ChatWithUser(
-                            navController = navController,
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -368,7 +407,6 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Medium -> {
                     selectedChat?.let {
                         ChatWithUser(
-                            navController = navController,
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -398,7 +436,6 @@ fun TheComposeApp(
                 else -> {
                     selectedChat?.let {
                         ChatWithUser(
-                            navController = navController,
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,

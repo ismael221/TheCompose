@@ -19,9 +19,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
+import com.ismael.thecompose.data.model.NavigationRoutes
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar
@@ -55,10 +57,11 @@ fun NewCallActionButton(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CallScreen(
-    navController: NavController,
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     chatUiState: ChatUiState,
     userUiState: UserUiState,
+    onNavigate: (String) -> Unit,
+    onPresenceClick: (String) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +73,12 @@ fun CallScreen(
             SideNavBarItems(
                 loggedUser = LocalLoggedAccounts.account,
                 userUiState = userUiState,
-                navController = navController
+                onSelectPresence = { presence ->
+                    onPresenceClick(presence)
+                },
+                onNavigate = { route ->
+                    onNavigate(route)
+                },
             )
         }
     ) {
@@ -82,7 +90,7 @@ fun CallScreen(
                     onFilterClick = { },
                     scrollBehavior = topAppBarScrollBehavior,
                     onSearchBarClick = {
-                        navController.navigate(TeamsScreen.SEARCHBAR.name)
+                        onNavigate(NavigationRoutes.SEARCHBAR)
                     },
                     onUserIconClick = {
                         scope.launch {
@@ -97,8 +105,10 @@ fun CallScreen(
             bottomBar = {
                 TeamsBottomNavigationBar(
                     currentScreen = TeamsScreen.CALL,
+                    onNavigationSelected = { route ->
+                        onNavigate(route)
+                    },
                     unReadMessages = chatUiState.unReadMessages,
-                    navController = navController
                 )
             },
             floatingActionButton = {
@@ -116,25 +126,60 @@ fun CallScreen(
 
 @Composable
 fun MediumCallScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALL,
-        navController = navController,
         modifier = modifier
     )
 }
 
 @Composable
 fun ExpandedCallScreen(
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALL,
-        navController = navController,
         modifier = modifier
     )
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CallScreenCompactPreview() {
+    MaterialTheme {
+        CallScreen(
+            chatUiState = ChatUiState(),
+            userUiState = UserUiState(),
+            onNavigate = {},
+            onPresenceClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 700)
+@Composable
+fun CallScreenMediumPreview() {
+    MaterialTheme {
+        CallScreen(
+            chatUiState = ChatUiState(),
+            userUiState = UserUiState(),
+            onNavigate = {},
+            onPresenceClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 1000)
+@Composable
+fun CallScreenExpandedPreview() {
+    MaterialTheme {
+        CallScreen(
+            chatUiState = ChatUiState(),
+            userUiState = UserUiState(),
+            onNavigate = {},
+            onPresenceClick = {}
+        )
+    }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ismael.thecompose.R
+import com.ismael.thecompose.data.local.LocalAccountsDataProvider
 import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.model.ChatType
 import com.ismael.thecompose.data.model.NavigationRoutes
@@ -46,7 +47,7 @@ import com.ismael.thecompose.data.model.UserChat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewChatTopAppBar(
-    navController: NavController,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -59,7 +60,11 @@ fun NewChatTopAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigateUp() }) {
+            IconButton(
+                onClick = {
+                    onBackClick()
+                }
+            ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     tint = Color.White,
@@ -108,7 +113,6 @@ fun SearchInputArea(
 
 @Composable
 fun SuggestionsList(
-    navController: NavController,
     suggestions: List<User>,
     modifier: Modifier = Modifier
 ) {
@@ -126,7 +130,6 @@ fun SuggestionsList(
         ) { suggestion ->
             UserCard(
                 user = suggestion,
-                navController = navController,
                 addChatIfNotExists = { addChatIfNotExists(suggestion) },
             )
             HorizontalDivider(
@@ -142,14 +145,14 @@ fun SuggestionsList(
 
 @Composable
 fun NewChatScreen(
-    navController: NavController,
     suggestions: List<User>,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             NewChatTopAppBar(
-                navController = navController
+                onBackClick = onBackClick
             )
         },
         modifier = modifier
@@ -168,7 +171,6 @@ fun NewChatScreen(
                     .padding(8.dp)
             )
             SuggestionsList(
-                navController = navController,
                 suggestions = suggestions,
                 modifier = Modifier
             )
@@ -180,7 +182,6 @@ fun NewChatScreen(
 @Composable
 fun UserCard(
     user: User,
-    navController: NavController,
     addChatIfNotExists: (User) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -190,7 +191,7 @@ fun UserCard(
             .combinedClickable(
                 onClick = {
                     addChatIfNotExists(user)
-                    navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${user.jid}")
+                    //  navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${user.jid}")
                 }
             )
             .padding(8.dp)
@@ -230,10 +231,13 @@ fun addChatIfNotExists(user: User) {
 
 @Composable
 @Preview(showBackground = true)
-fun NewChatTopAppBarPreview() {
+fun NewChatPreview() {
     MaterialTheme(
         darkColorScheme()
     ) {
-
+        NewChatScreen(
+            onBackClick = {},
+            suggestions = LocalAccountsDataProvider.accounts
+        )
     }
 }

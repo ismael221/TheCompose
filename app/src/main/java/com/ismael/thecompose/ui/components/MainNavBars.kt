@@ -55,8 +55,8 @@ import com.ismael.thecompose.ui.utils.createInitialsBitmap
 fun TeamsBottomNavigationBar(
     modifier: Modifier = Modifier,
     unReadMessages: Int,
+    onNavigationSelected: (String) -> Unit,
     currentScreen: TeamsScreen,
-    navController: NavController,
 ) {
     NavigationBar(
         modifier = modifier
@@ -66,7 +66,9 @@ fun TeamsBottomNavigationBar(
 
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.ACTIVITY,
-            onClick = { navController.navigate(TeamsScreen.ACTIVITY.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.ACTIVITY.name)
+            },
             icon = {
                 BadgedBox(
                     badge = {
@@ -99,7 +101,9 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.CHAT,
-            onClick = { navController.navigate(TeamsScreen.CHAT.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.CHAT.name)
+            },
             icon = {
                 BadgedBox(
                     badge = {
@@ -132,7 +136,9 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.CALENDAR,
-            onClick = { navController.navigate(TeamsScreen.CALENDAR.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.CALENDAR.name)
+            },
             icon = {
                 Icon(
                     painter = if (currentScreen == TeamsScreen.CALENDAR) painterResource(R.drawable.calendar_month_filled) else painterResource(
@@ -150,7 +156,9 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.TEAMS,
-            onClick = { navController.navigate(TeamsScreen.TEAMS.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.TEAMS.name)
+            },
             icon = {
                 Icon(
                     painter = if (currentScreen == TeamsScreen.TEAMS) painterResource(R.drawable.groups_filled) else painterResource(
@@ -168,7 +176,9 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.CALL,
-            onClick = { navController.navigate(TeamsScreen.CALL.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.CALL.name)
+            },
             icon = {
                 Icon(
                     painter = if (currentScreen == TeamsScreen.CALL) painterResource(R.drawable.call_filled_24px) else painterResource(
@@ -186,7 +196,9 @@ fun TeamsBottomNavigationBar(
         )
         NavigationBarItem(
             selected = currentScreen == TeamsScreen.MORE,
-            onClick = { navController.navigate(TeamsScreen.MORE.name) },
+            onClick = {
+                onNavigationSelected(TeamsScreen.MORE.name)
+            },
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.more_horiz_24px),
@@ -195,7 +207,7 @@ fun TeamsBottomNavigationBar(
             },
             label = {
                 Text(
-                    text = "MORE",
+                    text = "More",
                     style = AppTypography.bodySmall
                 )
             }
@@ -365,7 +377,6 @@ fun TopBarDropdownMenu(
 @Composable
 fun TheComposeNavigationRail(
     currentScreen: TeamsScreen,
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     NavigationRail(
@@ -383,7 +394,9 @@ fun TheComposeNavigationRail(
                         style = AppTypography.bodySmall
                     )
                 },
-                onClick = { navController.navigate(TeamsScreen.ACTIVITY.name) },
+                onClick = {
+                    // navController.navigate(TeamsScreen.ACTIVITY.name)
+                },
                 icon = {
                     Icon(
                         painter = if (currentScreen == TeamsScreen.ACTIVITY) painterResource(R.drawable.notifications_filled) else painterResource(
@@ -401,7 +414,9 @@ fun TheComposeNavigationRail(
                         style = AppTypography.bodySmall
                     )
                 },
-                onClick = { navController.navigate(TeamsScreen.CHAT.name) },
+                onClick = {
+                    //  navController.navigate(TeamsScreen.CHAT.name)
+                },
                 icon = {
                     Icon(
                         painter = if (currentScreen == TeamsScreen.CHAT) painterResource(R.drawable.chat_filled) else painterResource(
@@ -419,7 +434,9 @@ fun TheComposeNavigationRail(
                         style = AppTypography.bodySmall
                     )
                 },
-                onClick = { navController.navigate(TeamsScreen.CALENDAR.name) },
+                onClick = {
+                    //navController.navigate(TeamsScreen.CALENDAR.name)
+                },
                 icon = {
                     Icon(
                         painter = if (currentScreen == TeamsScreen.CALENDAR) painterResource(R.drawable.calendar_month_filled) else painterResource(
@@ -437,7 +454,9 @@ fun TheComposeNavigationRail(
                         style = AppTypography.bodySmall
                     )
                 },
-                onClick = { navController.navigate(TeamsScreen.TEAMS.name) },
+                onClick = {
+                    //navController.navigate(TeamsScreen.TEAMS.name)
+                },
                 icon = {
                     Icon(
                         painter = if (currentScreen == TeamsScreen.TEAMS) painterResource(R.drawable.groups_filled) else painterResource(
@@ -455,7 +474,9 @@ fun TheComposeNavigationRail(
                         style = AppTypography.bodySmall
                     )
                 },
-                onClick = { navController.navigate(TeamsScreen.CALL.name) },
+                onClick = {
+                    //navController.navigate(TeamsScreen.CALL.name)
+                },
                 icon = {
                     Icon(
                         painter = if (currentScreen == TeamsScreen.CALL) painterResource(R.drawable.call_filled_24px) else painterResource(
@@ -524,6 +545,5 @@ fun TheComposeNavigationRail(
 private fun TeamsHomeScreenPreview() {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CHAT,
-        navController = NavController(LocalContext.current)
     )
 }
