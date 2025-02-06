@@ -427,7 +427,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-
     private fun observeChatStates() {
         val chatStateManager = XmppManager.getChatStateManager()
 
@@ -469,12 +468,12 @@ class ChatViewModel : ViewModel() {
 
 
     init {
-        if(!isInPreview()){
-            observePresenceUpdates()
-            observeChatStates()
-            initializeUiState()
-            observeFileMessages()
-        }
+
+        observePresenceUpdates()
+        observeChatStates()
+        initializeUiState()
+        observeFileMessages()
+
     }
 
 

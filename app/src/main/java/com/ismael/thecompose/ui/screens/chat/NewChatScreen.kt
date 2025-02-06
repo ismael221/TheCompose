@@ -114,6 +114,7 @@ fun SearchInputArea(
 @Composable
 fun SuggestionsList(
     suggestions: List<User>,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val suggestionsListState = rememberLazyListState()
@@ -130,7 +131,12 @@ fun SuggestionsList(
         ) { suggestion ->
             UserCard(
                 user = suggestion,
-                addChatIfNotExists = { addChatIfNotExists(suggestion) },
+                addChatIfNotExists = {
+                    addChatIfNotExists(suggestion)
+                },
+                onNavigate = { route ->
+                    onNavigate(route)
+                }
             )
             HorizontalDivider(
                 modifier = Modifier
@@ -147,6 +153,7 @@ fun SuggestionsList(
 fun NewChatScreen(
     suggestions: List<User>,
     onBackClick: () -> Unit,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -172,6 +179,9 @@ fun NewChatScreen(
             )
             SuggestionsList(
                 suggestions = suggestions,
+                onNavigate = { route ->
+                    onNavigate(route)
+                },
                 modifier = Modifier
             )
         }
@@ -183,6 +193,7 @@ fun NewChatScreen(
 fun UserCard(
     user: User,
     addChatIfNotExists: (User) -> Unit,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -191,7 +202,7 @@ fun UserCard(
             .combinedClickable(
                 onClick = {
                     addChatIfNotExists(user)
-                    //  navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${user.jid}")
+                    onNavigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${user.jid}");
                 }
             )
             .padding(8.dp)
@@ -237,6 +248,7 @@ fun NewChatPreview() {
     ) {
         NewChatScreen(
             onBackClick = {},
+            onNavigate = {},
             suggestions = LocalAccountsDataProvider.accounts
         )
     }

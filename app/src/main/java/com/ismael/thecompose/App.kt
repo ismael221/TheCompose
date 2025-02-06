@@ -350,6 +350,9 @@ fun TheComposeApp(
                     navController.popBackStack()
                 },
                 suggestions = LocalAccountsDataProvider.accounts,
+                onNavigate = { route ->
+                    navController.navigate(route)
+                }
             )
         }
         composable(route = NavigationRoutes.STATUS) {
@@ -399,6 +402,9 @@ fun TheComposeApp(
                             onAudioCaptured = { uri: Uri? ->
 
                             },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
 
                             )
                     }
@@ -428,6 +434,9 @@ fun TheComposeApp(
                             onAudioCaptured = { uri: Uri? ->
 
                             },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
 
                             )
                     }
@@ -457,6 +466,9 @@ fun TheComposeApp(
                             onAudioCaptured = { uri: Uri? ->
 
                             },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
 
                             )
                     }

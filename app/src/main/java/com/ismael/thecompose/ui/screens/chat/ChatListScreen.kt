@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.model.Chat
 import com.ismael.thecompose.data.model.ChatType
+import com.ismael.thecompose.data.model.NavigationRoutes
 import com.ismael.thecompose.data.model.UserChat
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.toChatPreviewDateString
@@ -48,6 +49,7 @@ import com.ismael.thecompose.ui.utils.toChatPreviewDateString
 fun ChatList(
     chats: List<Chat>,
     showSpacer: Boolean,
+    onChatSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val chatListState = rememberLazyListState()
@@ -73,6 +75,9 @@ fun ChatList(
 
             ChatCard(
                 chatPreview = chat,
+                onChatSelected = { route ->
+                    onChatSelected(route)
+                },
                 modifier = modifier
                     .animateItem()
                 ,
@@ -98,6 +103,7 @@ fun ChatList(
 @Composable
 fun ChatCard(
     chatPreview: Chat,
+    onChatSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -110,7 +116,7 @@ fun ChatCard(
                 .combinedClickable(
                     onClick = {
                         Log.i("ChatCard", "Clicked on chat with id: ${chatPreview.jid}")
-                      //  navController.navigate("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${chatPreview.jid}")
+                        onChatSelected("${NavigationRoutes.CHATWITHUSER.substringBefore("/{chatId}")}/${chatPreview.jid}")
                     },
                     onLongClick = {}
                 )
@@ -316,8 +322,10 @@ fun ChatCardPreview(
                 chatName = "Yasmin Rodrigues",
                 isUnread = true,
                 lastSeen = System.currentTimeMillis(),
+
                 chatPhotoUrl = ""
             ),
+            onChatSelected = {},
         )
 
     }
@@ -339,7 +347,8 @@ fun ChatCardMediumPreview(
                     isUnread = false,
                     lastSeen = System.currentTimeMillis(),
                     chatPhotoUrl = ""
-                )
+                ),
+                onChatSelected = {}
             )
             ChatCard(
                 chatPreview = UserChat(
@@ -350,7 +359,8 @@ fun ChatCardMediumPreview(
                     isUnread = true,
                     lastSeen = System.currentTimeMillis(),
                     chatPhotoUrl = ""
-                )
+                ),
+                onChatSelected = {}
             )
             ChatCard(
                 chatPreview = UserChat(
@@ -361,7 +371,8 @@ fun ChatCardMediumPreview(
                     isUnread = true,
                     lastSeen = System.currentTimeMillis(),
                     chatPhotoUrl = ""
-                )
+                ),
+                onChatSelected = {}
             )
         }
 

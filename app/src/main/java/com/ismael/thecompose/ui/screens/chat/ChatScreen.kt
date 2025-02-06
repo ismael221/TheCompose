@@ -761,6 +761,7 @@ fun ChatBubbleAnimation(
 @Composable
 fun UserChatTopBar(
     chatUiState: ChatUiState,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
@@ -805,7 +806,7 @@ fun UserChatTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    //navController.navigate(NavigationRoutes.CHAT)
+                    onBackClick()
                 }
             ) {
                 Icon(
@@ -861,6 +862,7 @@ fun ChatWithUser(
     chat: Chat,
     viewModel: ChatViewModel = viewModel(),
     selected: (String) -> Unit,
+    onBackClick: () -> Unit,
     navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
 ) {
@@ -883,6 +885,9 @@ fun ChatWithUser(
                     UserChatTopBar(
                         chatUiState = chatUiState,
                         chat = chat,
+                        onBackClick = {
+                            onBackClick()
+                        }
                     )
                 },
                 bottomBar = {
@@ -924,6 +929,7 @@ fun ChatWithUser(
             topBar = {
                 UserChatTopBar(
                     chatUiState = chatUiState,
+                    onBackClick = onBackClick,
                     chat = chat,
                 )
             },
@@ -1040,6 +1046,7 @@ fun ChatMessages(
                             Log.i("ChatMessages", "Message long clicked: ${message.content}")
                         }
                     )
+                   // .animateItem()
             )
         }
         item {
@@ -1057,6 +1064,7 @@ fun ChatMessages(
                     isUserMessage = false,
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp, top = animationPaddingTop)
+                        .animateItem(fadeInSpec = tween(1000), fadeOutSpec = tween(1000))
                 )
             }
         }
@@ -1141,6 +1149,9 @@ fun CompactChatScreen(
         ) {
             ChatList(
                 chats = chatUiState.chats,
+                onChatSelected = { route ->
+                    onNavigate(route)
+                },
                 showSpacer = true,
             )
             if (showBottomSheet) {
@@ -1176,6 +1187,7 @@ fun MediumChatScreen(
         ChatList(
             chats = chatUiState.chats,
             showSpacer = false,
+            onChatSelected = {}
         )
     }
 
@@ -1230,6 +1242,7 @@ fun ExpandedChatScreen(
                         UserChatTopBar(
                             chatUiState = chatUiState,
                             chat = chat,
+                            onBackClick = {},
                             modifier = Modifier
                         )
                     }
@@ -1322,6 +1335,7 @@ fun ExpandedChatListAndDetailContent(
         ChatList(
             chats = generateRandomUserChats(),
             showSpacer = false,
+            onChatSelected = {}
         )
     }
 }
