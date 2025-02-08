@@ -103,7 +103,7 @@ fun TheComposeApp(
                         userUiState = userUiState,
                         onNavigate = { route ->
                             navController.navigate(route)
-                        },
+                            },
                         modifier = modifier
                     )
                 }
@@ -402,6 +402,9 @@ fun TheComposeApp(
                             onAudioCaptured = { uri: Uri? ->
 
                             },
+                            loadMessages = {
+                                chatViewModel.loadMessagesForChat(it)
+                            },
                             onBackClick = {
                                 navController.popBackStack()
                             }
@@ -436,7 +439,10 @@ fun TheComposeApp(
                             },
                             onBackClick = {
                                 navController.popBackStack()
-                            }
+                            },
+                            loadMessages = {
+                                chatViewModel.loadMessagesForChat(it)
+                            },
 
                             )
                     }
@@ -468,7 +474,10 @@ fun TheComposeApp(
                             },
                             onBackClick = {
                                 navController.popBackStack()
-                            }
+                            },
+                            loadMessages = {
+                                chatViewModel.loadMessagesForChat(it)
+                            },
 
                             )
                     }

@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.res.Configuration
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -18,11 +17,14 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
@@ -53,11 +55,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -67,7 +70,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -84,7 +86,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.key.Key
@@ -101,6 +102,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.Navigator
@@ -521,63 +526,44 @@ fun ChatMessageBottomAppBar(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatBubble(
-    content: String,
+    content: Any,
     isUserMessage: Boolean,
+    isQuoted: Boolean,
+    userName: String? = null,
     type: MessageType,
     modifier: Modifier = Modifier
 ) {
-
-    when (type) {
-        MessageType.Audio -> {
-            Text(text = "Audio")
-        }
-
-        MessageType.Video -> {
-            Text(text = "Video")
-        }
-
-        MessageType.Text -> {
-            TextMessage(
-                text = content,
-                isUserMessage = isUserMessage,
-                modifier = modifier
-            )
-        }
-
-        MessageType.Image -> {
-            ImageMessage(
-                imageUri = content,
-                isUserMessage = isUserMessage,
-                modifier = modifier
-            )
-        }
-
-        MessageType.Sticker -> {
-            Text(text = "Sticker")
-        }
-
-        else -> {
-            Text(text = "File")
-        }
-    }
-
-
-}
-
-@Composable
-fun TextMessage(
-    text: String,
-    isQuoted: Boolean = false,
-    isUserMessage: Boolean,
-    userName: String? = null,
-    modifier: Modifier = Modifier
-) {
+    var visible by remember { mutableStateOf(false) }
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally() + fadeIn(),
+        exit = slideOutHorizontally() + fadeOut()
+    ) {
+        ReactionDialog(
+            onDismiss = {
+                visible = false
+            },
+            modifier = modifier
+            .padding(start = 16.dp, top = 24.dp)
+        )
+    }
     Row(
         modifier = modifier
+            .combinedClickable(
+                onClick = {
+                    Log.i("ChatMessages", "Message clicked: ${content}")
+                },
+                onLongClick = {
+                    Log.i("ChatMessages", "Message long clicked: ${content}")
+                    visible = true
+                }
+            )
             .padding(
                 start = if (isUserMessage) 40.dp else 0.dp,
                 end = if (!isUserMessage) 40.dp else 0.dp
@@ -586,9 +572,10 @@ fun TextMessage(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(2.dp),
+                .padding(top = 2.dp, bottom = 2.dp, start = 8.dp, end = 8.dp),
             horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
         ) {
+
             Box(
                 modifier = Modifier
                     .background(
@@ -597,6 +584,7 @@ fun TextMessage(
                     )
                     .padding(if (isQuoted) 16.dp else 0.dp)
             ) {
+
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
@@ -608,13 +596,47 @@ fun TextMessage(
                             quotedText = "This is a quoted message that you are replying to"
                         )
                     }
-                    Text(
-                        text = text,
-                        color = textColor,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .wrapContentSize(),
-                    )
+                    when (type) {
+                        MessageType.Audio -> {
+
+                        }
+
+                        MessageType.Video -> {
+
+                        }
+
+                        MessageType.Text -> {
+                            Text(
+                                text = content.toString(),
+                                color = textColor,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .wrapContentSize(),
+                            )
+                        }
+
+                        MessageType.Sticker -> {
+
+                        }
+
+                        MessageType.Image -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    ImageRequest.Builder(LocalContext.current)
+                                        .data(content)
+                                        .build()
+                                ),
+                                contentDescription = "Preview da imagem",
+                                modifier = Modifier
+                                    .size(400.dp)
+                                    .padding(2.dp)
+                            )
+                        }
+
+                        MessageType.File -> {
+
+                        }
+                    }
                 }
             }
         }
@@ -623,45 +645,19 @@ fun TextMessage(
 }
 
 @Composable
-fun ImageMessage(
-    imageUri: String?,
-    isUserMessage: Boolean,
+fun ReactionDialog(
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
-    Row(
-        modifier = modifier
-            .padding(
-                start = if (isUserMessage) 40.dp else 0.dp,
-                end = if (!isUserMessage) 40.dp else 0.dp
-            )
+    Popup(
+        onDismissRequest = {
+            onDismiss()
+        },
+        properties = PopupProperties(focusable = true),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(2.dp),
-            horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(
-                        backgroundColor,
-                        RoundedCornerShape(16.dp)
-                    )
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(imageUri)
-                            .build()
-                    ),
-                    contentDescription = "Preview da imagem",
-                    modifier = Modifier
-                        .size(400.dp)
-                        .padding(2.dp)
-                )
-            }
-        }
+        ReactionsCard(
+            modifier = modifier
+        )
     }
 }
 
@@ -860,16 +856,16 @@ fun ChatWithUser(
     chatUiState: ChatUiState,
     currentLoggedUser: String,
     chat: Chat,
-    viewModel: ChatViewModel = viewModel(),
     selected: (String) -> Unit,
     onBackClick: () -> Unit,
+    loadMessages: (String) -> Unit,
     navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
 ) {
     var replyingMessage by remember { mutableStateOf<Message?>(null) }
 
     LaunchedEffect(chat.jid) {
-        viewModel.loadMessagesForChat(chat.jid)
+        loadMessages(chat.jid)
         selected(chat.jid)
     }
     if (navigationType == TheComposeNavigationType.NAVIGATION_RAIL) {
@@ -907,7 +903,6 @@ fun ChatWithUser(
                 },
 
                 ) { innerPadding ->
-
 
                 ChatMessages(
                     messages = chatUiState.currentChatMessages,
@@ -967,7 +962,6 @@ fun ChatWithUser(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatMessages(
     states: ChatState? = null,
@@ -982,10 +976,10 @@ fun ChatMessages(
         chatListState.scrollToItem(chatListState.layoutInfo.totalItemsCount)
     }
     Log.i("ChatMessages", "Messages received: ${messages.size}")
+
     LazyColumn(
         state = chatListState,
         modifier = modifier
-            .padding(8.dp)
     ) {
         itemsIndexed(messages) { index, message ->
 
@@ -1034,19 +1028,10 @@ fun ChatMessages(
                         }
                     )
                     .padding(
-                        start = 8.dp,
-                        end = 8.dp,
                         top = paddingTop
-                    )
-                    .combinedClickable(
-                        onClick = {
-                            Log.i("ChatMessages", "Message clicked: ${message.content}")
-                        },
-                        onLongClick = {
-                            Log.i("ChatMessages", "Message long clicked: ${message.content}")
-                        }
-                    )
-                   // .animateItem()
+                    ),
+                isQuoted = false,
+                userName = ""
             )
         }
         item {
@@ -1096,7 +1081,7 @@ fun CompactChatScreen(
             SideNavBarItems(
                 onSelectPresence = { onStatusClick(it) },
                 loggedUser = LocalLoggedAccounts.account,
-                onNavigate = {onNavigate(it)},
+                onNavigate = { onNavigate(it) },
                 userUiState = userUiState,
             )
         }
@@ -1457,18 +1442,73 @@ fun ExpandedBottomChatBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ReactionsCard(
+    modifier: Modifier = Modifier
+) {
+    val reactions = listOf(
+        "👍",
+        "😂",
+        "\uD83D\uDE2F",
+        "😍",
+        "🥲",
+        "🙏",
+        "🤣"
+    )
+    Box(
+        modifier = modifier
+            .padding(8.dp)
+    ) {
+        Card(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF5C5A5A)
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
+                reactions.forEach {
+                    Text(
+                        text = it,
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .combinedClickable(
+                                onClick = { /*TODO*/ },
+                                onLongClick = { /*TODO*/ }
+                            )
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun ChatScreenCompactPreview() {
     MaterialTheme {
-        CompactChatScreen(
-            chatUiState = ChatUiState(),
-            onStatusClick = {},
-            userUiState = UserUiState(),
-            onNavigate = {},
+//        CompactChatScreen(
+//            chatUiState = ChatUiState(),
+//            onStatusClick = {},
+//            userUiState = UserUiState(),
+//            onNavigate = {},
+//            modifier = Modifier
+//        )
+//        ReactionsCard()
+        Column(
             modifier = Modifier
-        )
+                .fillMaxSize()
+        ) {
+            ReactionDialog(
+                onDismiss = {},
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 16.dp)
+            )
+        }
     }
 }
 

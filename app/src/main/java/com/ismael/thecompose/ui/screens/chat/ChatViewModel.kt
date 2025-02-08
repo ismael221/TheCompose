@@ -86,6 +86,7 @@ class ChatViewModel : ViewModel() {
                 val messages = _messages[chatId]
                 _uiState.update {
                     it.copy(
+                        currentSelectedChat = LocalChatsDataProvider.chats.find { chat -> chat.jid == chatId },
                         messages = it.messages.toMutableMap().apply {
                             if (messages != null) {
                                 put(chatId, messages)
