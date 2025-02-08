@@ -21,10 +21,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
@@ -48,6 +48,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -351,7 +352,7 @@ fun ChatMessageBottomAppBar(
                         modifier = Modifier
                             .padding(start = 8.dp, end = 8.dp)
                             .size(25.dp),
-                        onClick = { /*TODO*/ }
+                        onClick = { /*TODO OPEN THE OPTIONS TO UPLOAD FILES OR WHATEVER*/ }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -384,7 +385,7 @@ fun ChatMessageBottomAppBar(
                         },
                         trailingIcon = {
                             IconButton(
-                                onClick = { /*TODO*/ }
+                                onClick = { /*TODO ADD A EMOJI LIBRARY*/ }
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.mood_24px),
@@ -534,11 +535,14 @@ fun ChatBubble(
     isQuoted: Boolean,
     userName: String? = null,
     type: MessageType,
+    reaction: String,
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
     val backgroundColor = if (isUserMessage) Color(0xFF7D4DD2) else Color.DarkGray
     val textColor = Color.White
+
+    var reaction by remember { mutableStateOf(reaction) }
 
     AnimatedVisibility(
         visible = visible,
@@ -549,10 +553,14 @@ fun ChatBubble(
             onDismiss = {
                 visible = false
             },
+            onReactionSelected = {
+                reaction = it
+            },
             modifier = modifier
-            .padding(start = 16.dp, top = 24.dp)
+                .padding(start = 16.dp, top = 24.dp)
         )
     }
+
     Row(
         modifier = modifier
             .combinedClickable(
@@ -572,7 +580,12 @@ fun ChatBubble(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 2.dp, bottom = 2.dp, start = 8.dp, end = 8.dp),
+                .padding(
+                    top = 2.dp,
+                    bottom = if (reaction != "") 16.dp else 2.dp,
+                    start = 8.dp,
+                    end = 8.dp
+                ),
             horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
         ) {
 
@@ -637,16 +650,69 @@ fun ChatBubble(
 
                         }
                     }
+
                 }
+                if (reaction != "") {
+                    Box(
+                        modifier = Modifier
+                            .align(if (isUserMessage) Alignment.BottomEnd else Alignment.BottomStart)
+                            .offset(y = 22.dp, x = (0).dp)
+                    ) {
+                        ReactionBadge(
+                            reaction = reaction,
+                            onBadgeClick = {
+                                reaction = ""
+                            },
+                            modifier = modifier
+                                .align(Alignment.BottomEnd)
+                        )
+                    }
+                }
+
             }
         }
     }
 
+
+}
+
+@Composable
+fun ReactionBadge(
+    reaction: String,
+    onBadgeClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF5E5C5C),
+                contentColor = Color.White
+            ),
+            onClick = {
+                onBadgeClick()
+            },
+            shape = CircleShape,
+            modifier = Modifier
+
+                .align(Alignment.BottomEnd)
+
+        ) {
+            Text(
+                text = reaction,
+                modifier = Modifier
+                    .border(1.dp, Color.White, CircleShape)
+                    .padding(4.dp)
+            )
+        }
+    }
 }
 
 @Composable
 fun ReactionDialog(
     onDismiss: () -> Unit,
+    onReactionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Popup(
@@ -656,6 +722,10 @@ fun ReactionDialog(
         properties = PopupProperties(focusable = true),
     ) {
         ReactionsCard(
+            onReactionClick = {
+                onReactionSelected(it)
+                onDismiss()
+            },
             modifier = modifier
         )
     }
@@ -1008,6 +1078,9 @@ fun ChatMessages(
                 content = message.content,
                 isUserMessage = message.senderId == user,
                 type = message.type,
+                isQuoted = false,
+                userName = "",
+                reaction = "",
                 modifier = Modifier
                     .offset { IntOffset(offsetX.roundToInt(), 0) }
                     .draggable(
@@ -1030,8 +1103,6 @@ fun ChatMessages(
                     .padding(
                         top = paddingTop
                     ),
-                isQuoted = false,
-                userName = ""
             )
         }
         item {
@@ -1445,13 +1516,14 @@ fun ExpandedBottomChatBar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReactionsCard(
+    onReactionClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val reactions = listOf(
         "👍",
         "😂",
         "\uD83D\uDE2F",
-        "😍",
+        "❤\uFE0F",
         "🥲",
         "🙏",
         "🤣"
@@ -1477,8 +1549,9 @@ fun ReactionsCard(
                         modifier = Modifier
                             .padding(4.dp)
                             .combinedClickable(
-                                onClick = { /*TODO*/ },
-                                onLongClick = { /*TODO*/ }
+                                onClick = {
+                                    onReactionClick(it)
+                                },
                             )
                     )
                 }
@@ -1486,6 +1559,7 @@ fun ReactionsCard(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -1503,12 +1577,85 @@ fun ChatScreenCompactPreview() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            ReactionDialog(
-                onDismiss = {},
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp)
+//            ReactionDialog(
+//                onDismiss = {},
+//                modifier = Modifier
+//                    .padding(start = 16.dp, top = 16.dp)
+//            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = true,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = "👍"
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = false,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = "\uD83D\uDE0D"
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = true,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = false,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = true,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
+            )
+            ChatBubble(
+                content = "Olá, tudo bem? açldfçaksdflçkasfl~çkasdfl~çkasdfl~çkasdfl~çkasdf~çlkasd",
+                isUserMessage = false,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
+            )
+            ChatBubble(
+                content = "Olá, tudo bem? açldfçaksdflçkasfl~çkasdfl~çkasdfl~çkasdfl~çkasdf~çlkasd",
+                isUserMessage = false,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = "❤\uFE0F"
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = true,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
+            )
+            ChatBubble(
+                content = "Olá, tudo bem?",
+                isUserMessage = false,
+                type = MessageType.Text,
+                modifier = Modifier,
+                isQuoted = false,
+                reaction = ""
             )
         }
+
     }
 }
 

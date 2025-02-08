@@ -42,6 +42,7 @@ import com.ismael.thecompose.data.model.Chat
 import com.ismael.thecompose.data.model.ChatType
 import com.ismael.thecompose.data.model.NavigationRoutes
 import com.ismael.thecompose.data.model.UserChat
+import com.ismael.thecompose.data.remote.xmpp.XmppManager
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.toChatPreviewDateString
 
@@ -79,8 +80,7 @@ fun ChatList(
                     onChatSelected(route)
                 },
                 modifier = modifier
-                    .animateItem()
-                ,
+                    .animateItem(),
             )
             HorizontalDivider(
                 modifier = Modifier
@@ -106,6 +106,7 @@ fun ChatCard(
     onChatSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val xmppManager = XmppManager
     Box(
         modifier = modifier
     ) {
@@ -147,11 +148,11 @@ fun ChatCard(
                 }
                 if (chatPreview.chatType == ChatType.User) {
                     UserIconWithStatus(
-                       // status = xmppManager.getUserPresence(chatPreview.jid)!!.mode.toString(),
-                        status = "available",
+                        status = xmppManager.getUserPresence(chatPreview.jid)!!.mode.toString(),
+//                        status = "available" you should remove the line above and add the this line if you wish to see the previews
                         modifier = Modifier
                             .padding(top = 2.dp),
-                        userProfile =  createInitialsBitmap(chatPreview.chatName)
+                        userProfile = createInitialsBitmap(chatPreview.chatName)
                     )
                 }
 
