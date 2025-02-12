@@ -180,6 +180,7 @@ object XmppManager {
             if (stanza is Message) {
                 val carbonCopy =
                     stanza.getExtension("urn:xmpp:carbons:2") as? CarbonExtension
+
                 val actualMessage =
                     carbonCopy?.forwarded?.forwardedStanza as? Message
                         ?: stanza
