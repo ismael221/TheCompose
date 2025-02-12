@@ -944,6 +944,9 @@ fun ChatWithUser(
         ) {
             TheComposeNavigationRail(
                 currentScreen = TeamsScreen.CHAT,
+                onNavigationSelected = {
+
+                },
                 modifier = modifier
             )
             Scaffold(
@@ -1231,6 +1234,7 @@ fun CompactChatScreen(
 @Composable
 fun MediumChatScreen(
     chatUiState: ChatUiState,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -1238,6 +1242,9 @@ fun MediumChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
+            onNavigationSelected = { route ->
+                onNavigate(route)
+            },
             modifier = Modifier
         )
         ChatList(
@@ -1255,6 +1262,7 @@ fun ExpandedChatScreen(
     chatUiState: ChatUiState,
     chat: Chat? = null,
     currentLoggedUser: String,
+    onNavigate: (String) -> Unit,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -1269,6 +1277,9 @@ fun ExpandedChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
+            onNavigationSelected = {
+                onNavigate(it)
+            },
             modifier = Modifier
         )
         Column(
@@ -1304,7 +1315,9 @@ fun ExpandedChatScreen(
                     }
                 },
                 bottomBar = {
-                    ExpandedBottomChatBar()
+                    if (chat != null) {
+                        ExpandedBottomChatBar()
+                    }
                 },
 
                 ) { innerPadding ->
@@ -1665,6 +1678,7 @@ fun ChatScreenMediumPreview() {
     MaterialTheme {
         MediumChatScreen(
             chatUiState = ChatUiState(),
+            onNavigate = {},
             modifier = Modifier
         )
     }
@@ -1681,6 +1695,7 @@ fun ChatScreenExpandedPreview() {
             onSendClick = {},
             onAudioCaptured = {},
             onImageCaptured = {},
+            onNavigate = {}
         )
     }
 }

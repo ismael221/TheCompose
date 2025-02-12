@@ -27,6 +27,8 @@ import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.model.Message
 import com.ismael.thecompose.data.model.NavigationRoutes
+import com.ismael.thecompose.ui.screens.ActivityExpandedScreen
+import com.ismael.thecompose.ui.screens.ActivityMediumScreen
 import com.ismael.thecompose.ui.screens.ActivityScreen
 import com.ismael.thecompose.ui.screens.CalendarScreen
 import com.ismael.thecompose.ui.screens.CallScreen
@@ -103,7 +105,7 @@ fun TheComposeApp(
                         userUiState = userUiState,
                         onNavigate = { route ->
                             navController.navigate(route)
-                            },
+                        },
                         modifier = modifier
                     )
                 }
@@ -111,6 +113,9 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Medium -> {
                     MediumChatScreen(
                         chatUiState = chatUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         modifier = modifier
                     )
                 }
@@ -125,6 +130,9 @@ fun TheComposeApp(
                         onSendClick = {},
                         onAudioCaptured = {},
                         onImageCaptured = {},
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
 
                 }
@@ -172,12 +180,18 @@ fun TheComposeApp(
                 }
 
                 WindowWidthSizeClass.Medium -> {
-                    MediumActivityScreen(
+                    ActivityMediumScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
-                    ExpandedActivityScreen(
+                    ActivityExpandedScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -224,11 +238,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCalendarScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCalendarScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -257,11 +277,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCallScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCallScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -289,11 +315,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumTeamsScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedTeamsScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -314,11 +346,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumMoreScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedMoreScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -409,7 +447,7 @@ fun TheComposeApp(
                                 navController.popBackStack()
                             }
 
-                            )
+                        )
                     }
                 }
 

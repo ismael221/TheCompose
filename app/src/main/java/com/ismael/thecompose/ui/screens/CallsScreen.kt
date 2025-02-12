@@ -126,20 +126,28 @@ fun CallScreen(
 
 @Composable
 fun MediumCallScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALL,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 }
 
 @Composable
 fun ExpandedCallScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALL,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 

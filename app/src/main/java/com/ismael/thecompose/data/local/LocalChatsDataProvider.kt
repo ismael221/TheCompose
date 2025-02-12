@@ -6,15 +6,15 @@ import kotlin.random.Random
 object LocalChatsDataProvider {
 
     var chats = mutableListOf<UserChat>(
-        UserChat(
-            jid = "yasmin@ismael",
-            lastMessage = "Olá amor",
-            lastMessageTime = System.currentTimeMillis(),
-            chatName = "Yasmin Rodrigues",
-            isUnread = true,
-            lastSeen = System.currentTimeMillis(),
-            chatPhotoUrl = ""
-        ),
+//        UserChat(
+//            jid = "yasmin@ismael",
+//            lastMessage = "Olá amor",
+//            lastMessageTime = System.currentTimeMillis(),
+//            chatName = "Yasmin Rodrigues",
+//            isUnread = true,
+//            lastSeen = System.currentTimeMillis(),
+//            chatPhotoUrl = ""
+//        ),
 //        UserChat(
 //            jid = "debora@ismael",
 //            lastMessage = "Olá",

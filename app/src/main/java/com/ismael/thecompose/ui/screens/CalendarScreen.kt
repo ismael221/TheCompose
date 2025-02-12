@@ -155,20 +155,28 @@ fun CalendarScreen(
 
 @Composable
 fun MediumCalendarScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALENDAR,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 }
 
 @Composable
 fun ExpandedCalendarScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.CALENDAR,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 }
