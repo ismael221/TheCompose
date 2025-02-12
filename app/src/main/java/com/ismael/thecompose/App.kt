@@ -32,19 +32,17 @@ import com.ismael.thecompose.ui.screens.ActivityMediumScreen
 import com.ismael.thecompose.ui.screens.ActivityScreen
 import com.ismael.thecompose.ui.screens.CalendarScreen
 import com.ismael.thecompose.ui.screens.CallScreen
-import com.ismael.thecompose.ui.screens.ExpandedActivityScreen
 import com.ismael.thecompose.ui.screens.ExpandedCalendarScreen
 import com.ismael.thecompose.ui.screens.ExpandedCallScreen
 import com.ismael.thecompose.ui.screens.ExpandedMoreScreen
 import com.ismael.thecompose.ui.screens.ExpandedTeamsScreen
-import com.ismael.thecompose.ui.screens.MediumActivityScreen
 import com.ismael.thecompose.ui.screens.MediumCalendarScreen
 import com.ismael.thecompose.ui.screens.MediumCallScreen
 import com.ismael.thecompose.ui.screens.MediumMoreScreen
 import com.ismael.thecompose.ui.screens.MediumTeamsScreen
 import com.ismael.thecompose.ui.screens.MoreCompactScreen
 import com.ismael.thecompose.ui.screens.chat.CompactChatScreen
-import com.ismael.thecompose.ui.screens.chat.ChatWithUser
+import com.ismael.thecompose.ui.screens.chat.ChatWith
 import com.ismael.thecompose.ui.screens.SearchScreen
 import com.ismael.thecompose.ui.screens.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatViewModel
@@ -424,7 +422,7 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -459,7 +457,7 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -487,14 +485,17 @@ fun TheComposeApp(
                             loadMessages = {
                                 chatViewModel.loadMessagesForChat(it)
                             },
+                            onNavigate = {
+                                navController.navigate(it)
+                            }
 
-                            )
+                        )
                     }
                 }
 
                 else -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -522,8 +523,11 @@ fun TheComposeApp(
                             loadMessages = {
                                 chatViewModel.loadMessagesForChat(it)
                             },
+                            onNavigate = {
+                                navController.navigate(it)
+                            }
 
-                            )
+                        )
                     }
                 }
             }

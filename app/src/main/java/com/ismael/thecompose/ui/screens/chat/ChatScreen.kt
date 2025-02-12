@@ -104,20 +104,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.Navigator
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.thecompose.R
-import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.data.local.generateRandomUserChats
 import com.ismael.thecompose.data.model.Chat
 import com.ismael.thecompose.data.model.GroupChat
 import com.ismael.thecompose.data.model.Message
@@ -136,7 +130,6 @@ import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.media.createImageUri
-import com.ismael.thecompose.ui.utils.removeAfterSlash
 import com.ismael.thecompose.ui.utils.removeBeforeSlash
 import com.ismael.thecompose.ui.utils.toFormattedDateString
 import com.ismael.thecompose.ui.utils.toLocalDate
@@ -921,7 +914,7 @@ fun UserChatTopBar(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ChatWithUser(
+fun ChatWith(
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -930,6 +923,7 @@ fun ChatWithUser(
     chat: Chat,
     selected: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNavigate: (String) -> Unit = {},
     loadMessages: (String) -> Unit,
     navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
@@ -947,7 +941,7 @@ fun ChatWithUser(
             TheComposeNavigationRail(
                 currentScreen = TeamsScreen.CHAT,
                 onNavigationSelected = {
-
+                    onNavigate(it)
                 },
                 modifier = modifier
             )
@@ -1249,11 +1243,21 @@ fun MediumChatScreen(
             },
             modifier = Modifier
         )
-        ChatList(
-            chats = chatUiState.chats,
-            showSpacer = false,
-            onChatSelected = {}
-        )
+        Column {
+            DetailsChatTopBar(
+                onDropdownMenuClick = {
+
+                }
+            )
+            ChatList(
+                chats = chatUiState.chats,
+                showSpacer = false,
+                onChatSelected = {
+                    onNavigate(it)
+                }
+            )
+        }
+
     }
 
 }
@@ -1290,7 +1294,7 @@ fun ExpandedChatScreen(
                 .width(400.dp)
                 .fillMaxHeight()
         ) {
-            ExpandedChatTopBar(
+            DetailsChatTopBar(
                 onDropdownMenuClick = {
                     expanded = !expanded
                 },
@@ -1354,7 +1358,7 @@ fun ExpandedChatScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpandedChatTopBar(
+fun DetailsChatTopBar(
     onDropdownMenuClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
