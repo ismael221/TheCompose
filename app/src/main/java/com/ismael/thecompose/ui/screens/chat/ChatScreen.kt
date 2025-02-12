@@ -136,6 +136,8 @@ import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.media.createImageUri
+import com.ismael.thecompose.ui.utils.removeAfterSlash
+import com.ismael.thecompose.ui.utils.removeBeforeSlash
 import com.ismael.thecompose.ui.utils.toFormattedDateString
 import com.ismael.thecompose.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -1260,9 +1262,9 @@ fun MediumChatScreen(
 @Composable
 fun ExpandedChatScreen(
     chatUiState: ChatUiState,
-    chat: Chat? = null,
     currentLoggedUser: String,
     onNavigate: (String) -> Unit,
+    onChatSelected: (String) -> Unit,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -1295,6 +1297,10 @@ fun ExpandedChatScreen(
                 modifier = Modifier
             )
             ExpandedChatListAndDetailContent(
+                onChatSelected = {
+                    onChatSelected(it)
+                },
+                chatUiState = chatUiState,
                 modifier = Modifier
             )
         }
@@ -1305,17 +1311,19 @@ fun ExpandedChatScreen(
         ) {
             Scaffold(
                 topBar = {
-                    if (chat != null) {
+
+                    chatUiState.currentSelectedChat?.let {
                         UserChatTopBar(
                             chatUiState = chatUiState,
-                            chat = chat,
+                            chat = it,
                             onBackClick = {},
                             modifier = Modifier
                         )
                     }
+
                 },
                 bottomBar = {
-                    if (chat != null) {
+                    if (chatUiState.currentSelectedChat != null) {
                         ExpandedBottomChatBar()
                     }
                 },
@@ -1396,15 +1404,20 @@ fun ExpandedChatTopBar(
 
 @Composable
 fun ExpandedChatListAndDetailContent(
+    onChatSelected: (String) -> Unit,
+    chatUiState: ChatUiState,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
     ) {
         ChatList(
-            chats = generateRandomUserChats(),
+            chats = chatUiState.chats,
             showSpacer = false,
-            onChatSelected = {}
+            onChatSelected = {
+                onChatSelected(removeBeforeSlash(it))
+                Log.i("Chat", removeBeforeSlash(it))
+            }
         )
     }
 }
@@ -1695,6 +1708,7 @@ fun ChatScreenExpandedPreview() {
             onSendClick = {},
             onAudioCaptured = {},
             onImageCaptured = {},
+            onChatSelected = {},
             onNavigate = {}
         )
     }

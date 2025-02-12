@@ -86,7 +86,6 @@ fun TheComposeApp(
         composable(route = NavigationRoutes.CHAT) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId")
-            val selectedChat = LocalChatsDataProvider.chats.find { it.jid == chatId }
 
             when (windowSize) {
 
@@ -125,13 +124,20 @@ fun TheComposeApp(
                     ExpandedChatScreen(
                         modifier = modifier,
                         chatUiState = chatUiState,
-                        chat = if (LocalChatsDataProvider.chats.size > 0) LocalChatsDataProvider.chats[0] else null,
                         currentLoggedUser = LocalLoggedAccounts.account.jid,
                         onSendClick = {},
                         onAudioCaptured = {},
                         onImageCaptured = {},
                         onNavigate = { route ->
                             navController.navigate(route)
+                        },
+                        onChatSelected = { chatId: String ->
+                            LocalChatsDataProvider.chats.find { it.jid == chatId }?.let {
+                                chatViewModel.updateCurrentSelectedChat(
+                                    chat = it
+                                )
+                                chatViewModel.loadMessagesForChat(chatId)
+                            }
                         }
                     )
 
