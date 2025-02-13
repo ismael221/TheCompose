@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -584,86 +585,102 @@ fun ChatBubble(
             horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
         ) {
 
-            Box(
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .background(
-                        backgroundColor,
-                        RoundedCornerShape(16.dp)
-                    )
-                    .padding(if (isQuoted) 16.dp else 0.dp)
+
             ) {
-
-                Column(
+//                if (!isUserMessage) {
+//                    UserIconWithStatus(
+//                        status = "available",
+//                        userProfile = createInitialsBitmap(userName ?: ""),
+//                    )
+//                    Spacer(
+//                        modifier = Modifier
+//                            .width(8.dp)
+//                    )
+//                }
+                Box(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .background(
+                            backgroundColor,
+                            RoundedCornerShape(16.dp)
+                        )
+                        .padding(if (isQuoted) 16.dp else 0.dp)
                 ) {
-                    if (isQuoted) {
-                        QuotedMessage(
-                            !isUserMessage,
-                            user = userName ?: "",
-                            quotedText = "This is a quoted message that you are replying to"
-                        )
-                    }
-                    when (type) {
-                        MessageType.Audio -> {
 
-                        }
-
-                        MessageType.Video -> {
-
-                        }
-
-                        MessageType.Text -> {
-                            Text(
-                                text = content.toString(),
-                                color = textColor,
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .wrapContentSize(),
-                            )
-                        }
-
-                        MessageType.Sticker -> {
-
-                        }
-
-                        MessageType.Image -> {
-                            Image(
-                                painter = rememberAsyncImagePainter(
-                                    ImageRequest.Builder(LocalContext.current)
-                                        .data(content)
-                                        .build()
-                                ),
-                                contentDescription = "Preview da imagem",
-                                modifier = Modifier
-                                    .size(400.dp)
-                                    .padding(2.dp)
-                            )
-                        }
-
-                        MessageType.File -> {
-
-                        }
-                    }
-
-                }
-                if (reaction != "") {
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .align(if (isUserMessage) Alignment.BottomEnd else Alignment.BottomStart)
-                            .offset(y = 22.dp, x = (0).dp)
+                            .padding(8.dp)
                     ) {
-                        ReactionBadge(
-                            reaction = reaction,
-                            onBadgeClick = {
-                                reaction = ""
-                            },
-                            modifier = modifier
-                                .align(Alignment.BottomEnd)
-                        )
-                    }
-                }
+                        if (isQuoted) {
+                            QuotedMessage(
+                                !isUserMessage,
+                                user = userName ?: "",
+                                quotedText = "This is a quoted message that you are replying to"
+                            )
+                        }
+                        when (type) {
+                            MessageType.Audio -> {
 
+                            }
+
+                            MessageType.Video -> {
+
+                            }
+
+                            MessageType.Text -> {
+                                Text(
+                                    text = content.toString(),
+                                    color = textColor,
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .wrapContentSize(),
+                                )
+                            }
+
+                            MessageType.Sticker -> {
+
+                            }
+
+                            MessageType.Image -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        ImageRequest.Builder(LocalContext.current)
+                                            .data(content)
+                                            .build()
+                                    ),
+                                    contentDescription = "Preview da imagem",
+                                    modifier = Modifier
+                                        .size(400.dp)
+                                        .padding(2.dp)
+                                )
+                            }
+
+                            MessageType.File -> {
+
+                            }
+                        }
+
+                    }
+                    if (reaction != "") {
+                        Box(
+                            modifier = Modifier
+                                .align(if (isUserMessage) Alignment.BottomEnd else Alignment.BottomStart)
+                                .offset(y = 22.dp, x = (0).dp)
+                        ) {
+                            ReactionBadge(
+                                reaction = reaction,
+                                onBadgeClick = {
+                                    reaction = ""
+                                },
+                                modifier = modifier
+                                    .align(Alignment.BottomEnd)
+                            )
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -1716,4 +1733,19 @@ fun ChatScreenExpandedPreview() {
             onNavigate = {}
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatBubbleWithIconPreview() {
+
+    ChatBubble(
+        content = "Olá, tudo bem?",
+        isUserMessage = false,
+        type = MessageType.Text,
+        modifier = Modifier,
+        isQuoted = false,
+        userName = "Ismael Nunes Campos",
+        reaction = "",
+    )
 }
