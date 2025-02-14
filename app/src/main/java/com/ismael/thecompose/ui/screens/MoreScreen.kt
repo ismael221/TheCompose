@@ -73,6 +73,7 @@ fun MoreCompactScreen(
 
 @Composable
 fun MediumMoreScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -80,6 +81,9 @@ fun MediumMoreScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.MORE,
+            onNavigationSelected = {
+              onNavigate(it)
+            },
             modifier = Modifier
         )
     }
@@ -87,6 +91,7 @@ fun MediumMoreScreen(
 
 @Composable
 fun ExpandedMoreScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -94,6 +99,9 @@ fun ExpandedMoreScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.MORE,
+            onNavigationSelected = {
+                onNavigate(it)
+            },
             modifier = Modifier
         )
     }
@@ -116,7 +124,9 @@ fun MoreScreenCompactPreview() {
 @Composable
 fun MoreScreenMediumPreview() {
     MaterialTheme {
-        MediumMoreScreen()
+        MediumMoreScreen(
+            onNavigate = {}
+        )
     }
 }
 
@@ -124,6 +134,8 @@ fun MoreScreenMediumPreview() {
 @Composable
 fun MoreScreenExpandedPreview() {
     MaterialTheme {
-        ExpandedMoreScreen()
+        ExpandedMoreScreen(
+            onNavigate = {}
+        )
     }
 }

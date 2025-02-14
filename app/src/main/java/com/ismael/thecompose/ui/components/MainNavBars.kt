@@ -377,6 +377,7 @@ fun TopBarDropdownMenu(
 @Composable
 fun TheComposeNavigationRail(
     currentScreen: TeamsScreen,
+    onNavigationSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationRail(
@@ -395,7 +396,7 @@ fun TheComposeNavigationRail(
                     )
                 },
                 onClick = {
-                    // navController.navigate(TeamsScreen.ACTIVITY.name)
+                    onNavigationSelected(TeamsScreen.ACTIVITY.name)
                 },
                 icon = {
                     Icon(
@@ -415,7 +416,7 @@ fun TheComposeNavigationRail(
                     )
                 },
                 onClick = {
-                    //  navController.navigate(TeamsScreen.CHAT.name)
+                    onNavigationSelected(TeamsScreen.CHAT.name)
                 },
                 icon = {
                     Icon(
@@ -435,7 +436,7 @@ fun TheComposeNavigationRail(
                     )
                 },
                 onClick = {
-                    //navController.navigate(TeamsScreen.CALENDAR.name)
+                    onNavigationSelected(TeamsScreen.CALENDAR.name)
                 },
                 icon = {
                     Icon(
@@ -455,7 +456,7 @@ fun TheComposeNavigationRail(
                     )
                 },
                 onClick = {
-                    //navController.navigate(TeamsScreen.TEAMS.name)
+                    onNavigationSelected(TeamsScreen.TEAMS.name)
                 },
                 icon = {
                     Icon(
@@ -475,7 +476,7 @@ fun TheComposeNavigationRail(
                     )
                 },
                 onClick = {
-                    //navController.navigate(TeamsScreen.CALL.name)
+                    onNavigationSelected(TeamsScreen.CALL.name)
                 },
                 icon = {
                     Icon(
@@ -544,6 +545,7 @@ fun TheComposeNavigationRail(
 @Composable
 private fun TeamsHomeScreenPreview() {
     TheComposeNavigationRail(
+        onNavigationSelected = {},
         currentScreen = TeamsScreen.CHAT,
     )
 }

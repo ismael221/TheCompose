@@ -17,6 +17,12 @@ fun removeAfterSlash(input: String): String {
     return input.substringBefore("/")
 }
 
+fun removeBeforeSlash(input: String): String {
+    return input.substringAfter("/")
+}
+
+
+
 fun addMessageToMap(
     map: MutableMap<String, List<Message>>,
     key: String,

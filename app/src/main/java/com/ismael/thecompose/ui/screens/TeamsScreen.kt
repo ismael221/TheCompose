@@ -116,20 +116,28 @@ fun TeamsScreen(
 
 @Composable
 fun MediumTeamsScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.TEAMS,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 }
 
 @Composable
 fun ExpandedTeamsScreen(
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TheComposeNavigationRail(
         currentScreen = TeamsScreen.TEAMS,
+        onNavigationSelected = {
+            onNavigate(it)
+        },
         modifier = modifier
     )
 }

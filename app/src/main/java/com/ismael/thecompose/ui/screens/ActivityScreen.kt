@@ -257,6 +257,41 @@ fun ActivityScreen(
     }
 }
 
+
+@Composable
+fun ActivityExpandedScreen(
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+    ) {
+        TheComposeNavigationRail(
+            currentScreen = TeamsScreen.ACTIVITY,
+            onNavigationSelected = { route ->
+                onNavigate(route)
+            },
+        )
+    }
+}
+
+@Composable
+fun ActivityMediumScreen(
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+    ) {
+        TheComposeNavigationRail(
+            currentScreen = TeamsScreen.ACTIVITY,
+            onNavigationSelected = { route ->
+                onNavigate(route)
+            },
+        )
+    }
+}
+
 @Composable
 @Preview(showBackground = true)
 fun ActivityFilterPreview(
@@ -270,7 +305,9 @@ fun ActivityFilterPreview(
 fun MediumActivityScreen(
     modifier: Modifier = Modifier
 ) {
-
+    ActivityMediumScreen(
+        onNavigate = {}
+    )
 }
 
 @Composable
@@ -278,7 +315,9 @@ fun MediumActivityScreen(
 fun ExpandedActivityScreen(
     modifier: Modifier = Modifier
 ) {
-
+    ActivityExpandedScreen(
+        onNavigate = {}
+    )
 }
 
 @Composable

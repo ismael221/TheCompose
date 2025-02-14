@@ -104,20 +104,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.Navigator
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.thecompose.R
-import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.data.local.generateRandomUserChats
 import com.ismael.thecompose.data.model.Chat
 import com.ismael.thecompose.data.model.GroupChat
 import com.ismael.thecompose.data.model.Message
@@ -136,6 +130,7 @@ import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.media.createImageUri
+import com.ismael.thecompose.ui.utils.removeBeforeSlash
 import com.ismael.thecompose.ui.utils.toFormattedDateString
 import com.ismael.thecompose.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -919,7 +914,7 @@ fun UserChatTopBar(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ChatWithUser(
+fun ChatWith(
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -928,6 +923,7 @@ fun ChatWithUser(
     chat: Chat,
     selected: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNavigate: (String) -> Unit = {},
     loadMessages: (String) -> Unit,
     navigationType: TheComposeNavigationType,
     modifier: Modifier = Modifier,
@@ -944,6 +940,9 @@ fun ChatWithUser(
         ) {
             TheComposeNavigationRail(
                 currentScreen = TeamsScreen.CHAT,
+                onNavigationSelected = {
+                    onNavigate(it)
+                },
                 modifier = modifier
             )
             Scaffold(
@@ -1231,6 +1230,7 @@ fun CompactChatScreen(
 @Composable
 fun MediumChatScreen(
     chatUiState: ChatUiState,
+    onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -1238,13 +1238,26 @@ fun MediumChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
+            onNavigationSelected = { route ->
+                onNavigate(route)
+            },
             modifier = Modifier
         )
-        ChatList(
-            chats = chatUiState.chats,
-            showSpacer = false,
-            onChatSelected = {}
-        )
+        Column {
+            DetailsChatTopBar(
+                onDropdownMenuClick = {
+
+                }
+            )
+            ChatList(
+                chats = chatUiState.chats,
+                showSpacer = false,
+                onChatSelected = {
+                    onNavigate(it)
+                }
+            )
+        }
+
     }
 
 }
@@ -1253,8 +1266,9 @@ fun MediumChatScreen(
 @Composable
 fun ExpandedChatScreen(
     chatUiState: ChatUiState,
-    chat: Chat? = null,
     currentLoggedUser: String,
+    onNavigate: (String) -> Unit,
+    onChatSelected: (String) -> Unit,
     onSendClick: (Message) -> Unit,
     onAudioCaptured: (Uri?) -> Unit,
     onImageCaptured: (Message?) -> Unit,
@@ -1269,6 +1283,9 @@ fun ExpandedChatScreen(
     ) {
         TheComposeNavigationRail(
             currentScreen = TeamsScreen.CHAT,
+            onNavigationSelected = {
+                onNavigate(it)
+            },
             modifier = Modifier
         )
         Column(
@@ -1277,13 +1294,17 @@ fun ExpandedChatScreen(
                 .width(400.dp)
                 .fillMaxHeight()
         ) {
-            ExpandedChatTopBar(
+            DetailsChatTopBar(
                 onDropdownMenuClick = {
                     expanded = !expanded
                 },
                 modifier = Modifier
             )
             ExpandedChatListAndDetailContent(
+                onChatSelected = {
+                    onChatSelected(it)
+                },
+                chatUiState = chatUiState,
                 modifier = Modifier
             )
         }
@@ -1294,17 +1315,21 @@ fun ExpandedChatScreen(
         ) {
             Scaffold(
                 topBar = {
-                    if (chat != null) {
+
+                    chatUiState.currentSelectedChat?.let {
                         UserChatTopBar(
                             chatUiState = chatUiState,
-                            chat = chat,
+                            chat = it,
                             onBackClick = {},
                             modifier = Modifier
                         )
                     }
+
                 },
                 bottomBar = {
-                    ExpandedBottomChatBar()
+                    if (chatUiState.currentSelectedChat != null) {
+                        ExpandedBottomChatBar()
+                    }
                 },
 
                 ) { innerPadding ->
@@ -1333,7 +1358,7 @@ fun ExpandedChatScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpandedChatTopBar(
+fun DetailsChatTopBar(
     onDropdownMenuClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -1383,15 +1408,20 @@ fun ExpandedChatTopBar(
 
 @Composable
 fun ExpandedChatListAndDetailContent(
+    onChatSelected: (String) -> Unit,
+    chatUiState: ChatUiState,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
     ) {
         ChatList(
-            chats = generateRandomUserChats(),
+            chats = chatUiState.chats,
             showSpacer = false,
-            onChatSelected = {}
+            onChatSelected = {
+                onChatSelected(removeBeforeSlash(it))
+                Log.i("Chat", removeBeforeSlash(it))
+            }
         )
     }
 }
@@ -1665,6 +1695,7 @@ fun ChatScreenMediumPreview() {
     MaterialTheme {
         MediumChatScreen(
             chatUiState = ChatUiState(),
+            onNavigate = {},
             modifier = Modifier
         )
     }
@@ -1681,6 +1712,8 @@ fun ChatScreenExpandedPreview() {
             onSendClick = {},
             onAudioCaptured = {},
             onImageCaptured = {},
+            onChatSelected = {},
+            onNavigate = {}
         )
     }
 }

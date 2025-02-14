@@ -27,22 +27,22 @@ import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.model.Message
 import com.ismael.thecompose.data.model.NavigationRoutes
+import com.ismael.thecompose.ui.screens.ActivityExpandedScreen
+import com.ismael.thecompose.ui.screens.ActivityMediumScreen
 import com.ismael.thecompose.ui.screens.ActivityScreen
 import com.ismael.thecompose.ui.screens.CalendarScreen
 import com.ismael.thecompose.ui.screens.CallScreen
-import com.ismael.thecompose.ui.screens.ExpandedActivityScreen
 import com.ismael.thecompose.ui.screens.ExpandedCalendarScreen
 import com.ismael.thecompose.ui.screens.ExpandedCallScreen
 import com.ismael.thecompose.ui.screens.ExpandedMoreScreen
 import com.ismael.thecompose.ui.screens.ExpandedTeamsScreen
-import com.ismael.thecompose.ui.screens.MediumActivityScreen
 import com.ismael.thecompose.ui.screens.MediumCalendarScreen
 import com.ismael.thecompose.ui.screens.MediumCallScreen
 import com.ismael.thecompose.ui.screens.MediumMoreScreen
 import com.ismael.thecompose.ui.screens.MediumTeamsScreen
 import com.ismael.thecompose.ui.screens.MoreCompactScreen
 import com.ismael.thecompose.ui.screens.chat.CompactChatScreen
-import com.ismael.thecompose.ui.screens.chat.ChatWithUser
+import com.ismael.thecompose.ui.screens.chat.ChatWith
 import com.ismael.thecompose.ui.screens.SearchScreen
 import com.ismael.thecompose.ui.screens.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatViewModel
@@ -88,7 +88,6 @@ fun TheComposeApp(
         composable(route = NavigationRoutes.CHAT) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId")
-            val selectedChat = LocalChatsDataProvider.chats.find { it.jid == chatId }
 
             when (windowSize) {
 
@@ -107,7 +106,7 @@ fun TheComposeApp(
                         userUiState = userUiState,
                         onNavigate = { route ->
                             navController.navigate(route)
-                            },
+                        },
                         modifier = modifier
                     )
                 }
@@ -115,6 +114,9 @@ fun TheComposeApp(
                 WindowWidthSizeClass.Medium -> {
                     MediumChatScreen(
                         chatUiState = chatUiState,
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
                         modifier = modifier
                     )
                 }
@@ -124,11 +126,21 @@ fun TheComposeApp(
                     ExpandedChatScreen(
                         modifier = modifier,
                         chatUiState = chatUiState,
-                        chat = if (LocalChatsDataProvider.chats.size > 0) LocalChatsDataProvider.chats[0] else null,
                         currentLoggedUser = LocalLoggedAccounts.account.jid,
                         onSendClick = {},
                         onAudioCaptured = {},
                         onImageCaptured = {},
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        },
+                        onChatSelected = { chatId: String ->
+                            LocalChatsDataProvider.chats.find { it.jid == chatId }?.let {
+                                chatViewModel.updateCurrentSelectedChat(
+                                    chat = it
+                                )
+                                chatViewModel.loadMessagesForChat(chatId)
+                            }
+                        }
                     )
 
                 }
@@ -176,12 +188,18 @@ fun TheComposeApp(
                 }
 
                 WindowWidthSizeClass.Medium -> {
-                    MediumActivityScreen(
+                    ActivityMediumScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
-                    ExpandedActivityScreen(
+                    ActivityExpandedScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -228,11 +246,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCalendarScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCalendarScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -261,11 +285,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumCallScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedCallScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -293,11 +323,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumTeamsScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedTeamsScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -318,11 +354,17 @@ fun TheComposeApp(
 
                 WindowWidthSizeClass.Medium -> {
                     MediumMoreScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
                 WindowWidthSizeClass.Expanded -> {
                     ExpandedMoreScreen(
+                        onNavigate = { route ->
+                            navController.navigate(route)
+                        }
                     )
                 }
 
@@ -384,7 +426,7 @@ fun TheComposeApp(
             when (windowSize) {
                 WindowWidthSizeClass.Compact -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -413,13 +455,13 @@ fun TheComposeApp(
                                 navController.popBackStack()
                             }
 
-                            )
+                        )
                     }
                 }
 
                 WindowWidthSizeClass.Medium -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -447,14 +489,17 @@ fun TheComposeApp(
                             loadMessages = {
                                 chatViewModel.loadMessagesForChat(it)
                             },
+                            onNavigate = {
+                                navController.navigate(it)
+                            }
 
-                            )
+                        )
                     }
                 }
 
                 else -> {
                     selectedChat?.let {
-                        ChatWithUser(
+                        ChatWith(
                             onSendClick = { message: Message ->
                                 chatViewModel.sendMessage(
                                     chatId = message.to,
@@ -482,8 +527,11 @@ fun TheComposeApp(
                             loadMessages = {
                                 chatViewModel.loadMessagesForChat(it)
                             },
+                            onNavigate = {
+                                navController.navigate(it)
+                            }
 
-                            )
+                        )
                     }
                 }
             }
