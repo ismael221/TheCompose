@@ -151,7 +151,7 @@ fun SuggestionsList(
 
 @Composable
 fun NewChatScreen(
-    suggestions: List<User>,
+    searchUiState: UserSearchUiState,
     onBackClick: () -> Unit,
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -178,7 +178,7 @@ fun NewChatScreen(
                     .padding(8.dp)
             )
             SuggestionsList(
-                suggestions = suggestions,
+                suggestions = searchUiState.suggestions,
                 onNavigate = { route ->
                     onNavigate(route)
                 },
@@ -249,7 +249,7 @@ fun NewChatPreview() {
         NewChatScreen(
             onBackClick = {},
             onNavigate = {},
-            suggestions = LocalAccountsDataProvider.accounts
+            searchUiState = UserSearchUiState(),
         )
     }
 }

@@ -36,6 +36,7 @@ TheCompose supports various XMPP Extension Protocols (XEPs) to enhance functiona
 - **XEP-0333:** Message Reactions (Planned feature)  
 - **XEP-0352:** Client State Indication (Power-efficient background operation)  
 - **XEP-0384:** OMEMO Encryption (Planned feature for end-to-end encryption)  
+- **XEP-0055:** Jabber Search
 
 ## Technologies
 

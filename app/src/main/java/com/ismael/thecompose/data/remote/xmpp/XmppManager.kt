@@ -28,6 +28,7 @@ import org.jivesoftware.smackx.iqlast.LastActivityManager
 import org.jivesoftware.smackx.jingle.JingleManager
 import org.jivesoftware.smackx.jingle_filetransfer.JingleFileTransferManager
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager
+import org.jivesoftware.smackx.search.UserSearchManager
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.FullJid
@@ -262,6 +263,9 @@ object XmppManager {
         return lastActivity.lastActivity.toString()
     }
 
+    fun getSearchManager(): UserSearchManager {
+        return UserSearchManager(connection)
+    }
 
     private val presenceListener = object : PresenceEventListener {
 

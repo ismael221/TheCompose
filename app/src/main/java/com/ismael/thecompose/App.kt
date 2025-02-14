@@ -49,6 +49,7 @@ import com.ismael.thecompose.ui.screens.chat.ChatViewModel
 import com.ismael.thecompose.ui.screens.chat.ExpandedChatScreen
 import com.ismael.thecompose.ui.screens.chat.MediumChatScreen
 import com.ismael.thecompose.ui.screens.chat.NewChatScreen
+import com.ismael.thecompose.ui.screens.chat.UserSearchViewModel
 import com.ismael.thecompose.ui.screens.status.StatusScreen
 import com.ismael.thecompose.ui.screens.user.UserViewModel
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType
@@ -63,6 +64,7 @@ fun TheComposeApp(
 ) {
     val chatViewModel: ChatViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
+    val searchViewModel: UserSearchViewModel = viewModel()
 
     val context = LocalContext.current
 
@@ -73,6 +75,8 @@ fun TheComposeApp(
 
     val chatUiState = chatViewModel.uiState.collectAsState().value
     val userUiState = userViewModel.uiState.collectAsState().value
+    val searchUiState = searchViewModel.uiState.collectAsState().value
+
     val navController: NavHostController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -349,7 +353,7 @@ fun TheComposeApp(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                suggestions = LocalAccountsDataProvider.accounts,
+                searchUiState = searchUiState,
                 onNavigate = { route ->
                     navController.navigate(route)
                 }
