@@ -88,23 +88,24 @@ object XmppManager {
         }
     }
 
-    fun connect(server: String, username: String, password: String) {
-        try {
-            val config = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword(username, password)
-                .setXmppDomain(server)
-                .setHost("192.168.100.12")
-                .setPort(5222)
-                .addEnabledSaslMechanism("PLAIN")
-                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                .build()
+    fun createXmppConfig(server: String, username: String, password: String): XMPPTCPConnectionConfiguration {
+        return XMPPTCPConnectionConfiguration.builder()
+            .setUsernameAndPassword(username, password)
+            .setXmppDomain("ismael")
+            .setHost("192.168.100.12")
+            .setPort(5222)
+            .addEnabledSaslMechanism("PLAIN")
+            .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+            .build()
+    }
 
+    fun connect(config: XMPPTCPConnectionConfiguration) {
+        try {
             connection = XMPPTCPConnection(config)
             connection?.connect()
             connection?.login()
 
             carbonManager = CarbonManager.getInstanceFor(connection)
-            carbonManager?.isSupportedByServer
             if (carbonManager?.isSupportedByServer == true) {
                 carbonManager?.enableCarbons()
                 Log.i("CarbonManager", "Message Carbons enabled")
@@ -115,16 +116,15 @@ object XmppManager {
             val reconnectionManager = ReconnectionManager.getInstanceFor(connection)
             reconnectionManager.enableAutomaticReconnection()
             ReconnectionManager.setEnabledPerDefault(true)
-            val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
 
+            val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
             ping.isEnabled = true
 
             chatManager = ChatManager.getInstanceFor(connection)
-            val presence = PresenceBuilder
-                .buildPresence()
-            presence.setStatus("Teste")
-            presence.setMode(Presence.Mode.dnd)
-
+            val presence = PresenceBuilder.buildPresence().apply {
+                setStatus("Teste")
+                setMode(Presence.Mode.dnd)
+            }
             setPresence(presence.build())
 
             setupMessageListener()
@@ -132,7 +132,6 @@ object XmppManager {
 
             println("Conectado ao servidor XMPP!")
         } catch (e: SmackException) {
-
             println("Erro de Smack: ${e.message}")
         } catch (e: IOException) {
             println("Erro de IO: ${e.message}")
@@ -142,6 +141,7 @@ object XmppManager {
             println("Erro de Interrupção: ${e.message}")
         }
     }
+
 
     fun getChatStateManager(): ChatStateManager {
         return ChatStateManager.getInstance(connection)

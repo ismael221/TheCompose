@@ -17,12 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.example.compose.TheComposeTheme
 import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import org.jivesoftware.smack.android.AndroidSmackInitializer
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidSmackInitializer.initialize(this)
         initializeXmpp()
         // enableEdgeToEdge()
         setContent {
@@ -59,7 +61,8 @@ private fun initializeXmpp() {
     val password = "1234"
 
     try {
-        XmppManager.connect(server, username, password)
+      val config =  XmppManager.createXmppConfig(server, username, password)
+        XmppManager.connect(config)
     } catch (e: Exception) {
         println("Erro ao conectar no XMPP: ${e.message}")
     }
