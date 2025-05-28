@@ -136,12 +136,18 @@ import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.media.createImageUri
+import com.ismael.thecompose.ui.utils.startCall
+import com.ismael.thecompose.ui.utils.startMeeting
 import com.ismael.thecompose.ui.utils.toFormattedDateString
 import com.ismael.thecompose.ui.utils.toLocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jitsi.meet.sdk.JitsiMeetActivity
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
+import org.jitsi.meet.sdk.JitsiMeetUserInfo
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smackx.chatstates.ChatState
+import java.net.URL
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
@@ -831,6 +837,9 @@ fun UserChatTopBar(
     modifier: Modifier = Modifier,
     chat: Chat
 ) {
+
+    val context = LocalContext.current
+
     TopAppBar(
         modifier = modifier,
         title = {
@@ -887,7 +896,9 @@ fun UserChatTopBar(
         actions = {
 
             IconButton(
-                onClick = {}
+                onClick = {
+                    startMeeting(context)
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.videocam_24px),
@@ -896,7 +907,9 @@ fun UserChatTopBar(
             }
 
             IconButton(
-                onClick = {}
+                onClick = {
+                    startCall(context)
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.call_filled_24px),

@@ -1,6 +1,7 @@
 package com.ismael.thecompose.ui.utils
 
 
+import android.content.Context
 import android.util.Log
 import com.ismael.thecompose.data.model.Message
 import androidx.compose.ui.graphics.asImageBitmap
@@ -10,6 +11,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import org.jitsi.meet.sdk.JitsiMeetActivity
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
+import org.jitsi.meet.sdk.JitsiMeetUserInfo
+import java.net.URL
 import kotlin.random.Random
 
 
@@ -63,3 +68,44 @@ fun createInitialsBitmap(userName: String): ImageBitmap {
 
     return bitmap.asImageBitmap()
 }
+
+
+fun startCall(context: Context) {
+    val serverURL = URL("https://meet.jit.si")
+
+    val options = JitsiMeetConferenceOptions.Builder()
+        .setServerURL(serverURL)
+        .setRoom("OpenAIComposeTestRoom")
+        .setAudioMuted(false)
+        .setUserInfo(JitsiMeetUserInfo().apply {
+            displayName = "Yasmin"
+            email = "yasmin@ismael"
+            avatar =
+                URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoocigdf8WpKI5tUJteYSVVEL1kJJiLTPuOg&s")
+        })
+        .setAudioOnly(true)
+        .build()
+
+    JitsiMeetActivity.launch(context, options)
+}
+
+
+fun startMeeting(context: Context) {
+    val serverURL = URL("https://meet.jit.si")
+
+    val options = JitsiMeetConferenceOptions.Builder()
+        .setServerURL(serverURL)
+        .setRoom("OpenAIComposeTestRoom")
+        .setAudioMuted(false)
+        .setVideoMuted(false)
+        .setUserInfo(JitsiMeetUserInfo().apply {
+            displayName = "Yasmin"
+            email = "yasmin@ismael"
+            avatar =
+                URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoocigdf8WpKI5tUJteYSVVEL1kJJiLTPuOg&s")
+        })
+        .build()
+
+    JitsiMeetActivity.launch(context, options)
+}
+

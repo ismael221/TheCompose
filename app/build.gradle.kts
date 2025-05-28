@@ -72,7 +72,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.28.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
-
+    implementation ("org.jitsi.react:jitsi-meet-sdk:11.1.4")
 
 }
 
