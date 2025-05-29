@@ -2,10 +2,12 @@ package com.ismael.thecompose.ui.screens.chat
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ismael.thecompose.data.model.User
 import com.ismael.thecompose.data.remote.xmpp.XmppManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.jivesoftware.smackx.search.ReportedData
 import org.jivesoftware.smackx.xdata.form.FillableForm
 import org.jivesoftware.smackx.xdata.form.Form
@@ -77,6 +79,12 @@ class UserSearchViewModel : ViewModel() {
     }
 
     init {
-        initializeUiState()
+        viewModelScope.launch {
+            xmppManager.connectedState.collect { connected ->
+                if (connected) {
+                    initializeUiState()
+                }
+            }
+        }
     }
 }

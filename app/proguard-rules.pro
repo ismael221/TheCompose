@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+-dontwarn com.facebook.imagepipeline.nativecode.WebpTranscoder
+-dontwarn kotlinx.parcelize.Parcelize
+
+# Keep Smack configuration
+-keep class org.jivesoftware.smack.** { *; }
+-keepclassmembers class org.jivesoftware.smack.** { *; }
+-dontwarn org.jivesoftware.smack.**
+-dontnote org.jivesoftware.smack.**
+-dontnote org.jivesoftware.smackx.**
+# Preserve the Smack initializer (which uses reflection)
+-keep class org.jivesoftware.smack.initializer.** { *; }
+-keep class org.jivesoftware.smackx.** {*;}
+-keep class * extends org.jivesoftware.smack.initializer.SmackInitializer
+

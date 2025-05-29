@@ -469,11 +469,16 @@ class ChatViewModel : ViewModel() {
 
 
     init {
-
-        observePresenceUpdates()
-        observeChatStates()
-        initializeUiState()
-        observeFileMessages()
+        viewModelScope.launch {
+            xmppManager.connectedState.collect { connected ->
+                if (connected) {
+                    observePresenceUpdates()
+                    observeChatStates()
+                    initializeUiState()
+                    observeFileMessages()
+                }
+            }
+        }
 
     }
 

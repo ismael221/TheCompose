@@ -2,6 +2,7 @@ package com.ismael.thecompose.data.remote.xmpp
 
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.jivesoftware.smack.AbstractXMPPConnection
@@ -39,6 +40,8 @@ import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
 object XmppManager {
+    private val _connectedState = MutableStateFlow(false)
+    val connectedState: StateFlow<Boolean> = _connectedState.asStateFlow()
 
     private val _receivedMessages =
         MutableStateFlow<List<Message>>(emptyList())
@@ -89,77 +92,95 @@ object XmppManager {
     }
 
     fun connect(server: String, username: String, password: String) {
-        try {
-            val config = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword(username, password)
-                .setXmppDomain(server)
-                .setHost("192.168.100.12")
-                .setPort(5222)
-                .addEnabledSaslMechanism("PLAIN")
-                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                .build()
+        Thread {
+            try {
+                val config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword(username, password)
+                    .setXmppDomain(server)
+                    .setHost("192.168.100.12")
+                    .setPort(5222)
+                    .addEnabledSaslMechanism("PLAIN")
+                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build()
 
-            connection = XMPPTCPConnection(config)
-            connection?.connect()
-            connection?.login()
+                connection = XMPPTCPConnection(config)
 
-            carbonManager = CarbonManager.getInstanceFor(connection)
-            carbonManager?.isSupportedByServer
-            if (carbonManager?.isSupportedByServer == true) {
-                carbonManager?.enableCarbons()
-                Log.i("CarbonManager", "Message Carbons enabled")
-            } else {
-                Log.i("CarbonManager", "Message Carbons not supported by the server")
+                // Conectar
+                connection?.connect()
+                Log.i("XMPP", "Conectado ao servidor!")
+
+                // Login
+                connection?.login()
+                Log.i("XMPP", "Login realizado com sucesso!")
+                _connectedState.value = true
+
+                // Managers
+                connection?.let { conn ->
+                    carbonManager = CarbonManager.getInstanceFor(conn)
+                    if (carbonManager?.isSupportedByServer == true) {
+                        carbonManager?.enableCarbons()
+                        Log.i("CarbonManager", "Message Carbons enabled")
+                    } else {
+                        Log.i("CarbonManager", "Message Carbons NOT supported by server")
+                    }
+
+                    val reconnectionManager = ReconnectionManager.getInstanceFor(conn)
+                    reconnectionManager.enableAutomaticReconnection()
+                    ReconnectionManager.setEnabledPerDefault(true)
+
+                    val pingManager = ServerPingWithAlarmManager.getInstanceFor(conn)
+                    pingManager.isEnabled = true
+
+                    chatManager = ChatManager.getInstanceFor(conn)
+
+                    val presence = PresenceBuilder.buildPresence().apply {
+                        setStatus("Disponível")
+                        setMode(Presence.Mode.available)
+                    }
+                    setPresence(presence.build())
+
+                    setupMessageListener()
+                    rosterPresenceListener()
+                }
+            } catch (e: Exception) {
+                Log.e("XMPP", "Erro na conexão XMPP: ${e.localizedMessage}")
+                e.printStackTrace()
             }
+        }.start()
+    }
 
-            val reconnectionManager = ReconnectionManager.getInstanceFor(connection)
-            reconnectionManager.enableAutomaticReconnection()
-            ReconnectionManager.setEnabledPerDefault(true)
-            val ping = ServerPingWithAlarmManager.getInstanceFor(connection)
+    fun isConnected(): Boolean {
+        return connection?.isConnected == true && connection?.isAuthenticated == true
+    }
 
-            ping.isEnabled = true
-
-            chatManager = ChatManager.getInstanceFor(connection)
-            val presence = PresenceBuilder
-                .buildPresence()
-            presence.setStatus("Teste")
-            presence.setMode(Presence.Mode.dnd)
-
-            setPresence(presence.build())
-
-            setupMessageListener()
-            rosterPresenceListener()
-
-            println("Conectado ao servidor XMPP!")
-        } catch (e: SmackException) {
-
-            println("Erro de Smack: ${e.message}")
-        } catch (e: IOException) {
-            println("Erro de IO: ${e.message}")
-        } catch (e: XMPPException) {
-            println("Erro de XMPP: ${e.message}")
-        } catch (e: InterruptedException) {
-            println("Erro de Interrupção: ${e.message}")
-        }
+    private fun checkConnection() {
+        requireNotNull(connection) { "❌ Conexão XMPP não inicializada." }
+        require(connection!!.isConnected) { "❌ Conexão não está conectada." }
+        require(connection!!.isAuthenticated) { "❌ Usuário não está autenticado." }
     }
 
     fun getChatStateManager(): ChatStateManager {
+        checkConnection()
         return ChatStateManager.getInstance(connection)
     }
 
     fun getFileTransferManager(): FileTransferManager {
+        checkConnection()
         return FileTransferManager.getInstanceFor(connection)
     }
 
     fun getJigleManager(): JingleManager {
+        checkConnection()
         return JingleManager.getInstanceFor(connection)
     }
 
     fun getJigleFileManager(): JingleFileTransferManager {
+        checkConnection()
         return JingleFileTransferManager.getInstanceFor(connection)
     }
 
     fun getRoster(): Roster {
+        checkConnection()
         return Roster.getInstanceFor(connection)
     }
 
@@ -264,6 +285,7 @@ object XmppManager {
     }
 
     fun getSearchManager(): UserSearchManager {
+        checkConnection()
         return UserSearchManager(connection)
     }
 

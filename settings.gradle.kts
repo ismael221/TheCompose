@@ -27,3 +27,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TheCompose"
 include(":app")
+include(":baselineprofile")

@@ -894,6 +894,7 @@ fun UserChatTopBar(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         ),
         actions = {
+            val roomName = "call-${chat.jid}-${chat.chatName}-${System.currentTimeMillis()}"
 
             IconButton(
                 onClick = {

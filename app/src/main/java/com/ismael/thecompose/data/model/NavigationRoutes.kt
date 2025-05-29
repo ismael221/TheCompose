@@ -11,4 +11,5 @@ object NavigationRoutes {
     const val MORE = "MORE"
     const val CHATWITHUSER = "CHATWITHUSER/{chatId}"
     const val STATUS = "STATUS"
+    const val LOADING = "LOADING"
 }

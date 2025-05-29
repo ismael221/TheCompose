@@ -11,6 +11,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,8 @@ import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.model.Message
 import com.ismael.thecompose.data.model.NavigationRoutes
+import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import com.ismael.thecompose.ui.components.LoadingScreen
 import com.ismael.thecompose.ui.screens.ActivityScreen
 import com.ismael.thecompose.ui.screens.CalendarScreen
 import com.ismael.thecompose.ui.screens.CallScreen
@@ -62,15 +65,21 @@ fun TheComposeApp(
     windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
+    val isConnected by XmppManager.connectedState.collectAsState()
+
     val chatViewModel: ChatViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val searchViewModel: UserSearchViewModel = viewModel()
 
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        chatViewModel.setContext(context)
-        chatViewModel.observeIncomingMessages()
+    LaunchedEffect(isConnected) {
+        if (isConnected) {
+            chatViewModel.setContext(context)
+            chatViewModel.observeIncomingMessages()
+        } else {
+            println("⚠️ XMPP não conectado ainda")
+        }
     }
 
     val chatUiState = chatViewModel.uiState.collectAsState().value
@@ -83,8 +92,20 @@ fun TheComposeApp(
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.CHAT
+        startDestination = NavigationRoutes.LOADING
     ) {
+        composable(route = NavigationRoutes.LOADING) {
+            LoadingScreen()
+            LaunchedEffect(Unit) {
+                XmppManager.connectedState.collect { connected ->
+                    if (connected) {
+                        navController.navigate(NavigationRoutes.CHAT) {
+                            popUpTo(NavigationRoutes.LOADING) { inclusive = true }
+                        }
+                    }
+                }
+            }
+        }
         composable(route = NavigationRoutes.CHAT) { backStackEntry ->
 
             val chatId = backStackEntry.arguments?.getString("chatId")
@@ -107,7 +128,7 @@ fun TheComposeApp(
                         userUiState = userUiState,
                         onNavigate = { route ->
                             navController.navigate(route)
-                            },
+                        },
                         modifier = modifier
                     )
                 }
@@ -413,7 +434,7 @@ fun TheComposeApp(
                                 navController.popBackStack()
                             }
 
-                            )
+                        )
                     }
                 }
 

@@ -104,6 +104,14 @@ fun startMeeting(context: Context) {
             avatar =
                 URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoocigdf8WpKI5tUJteYSVVEL1kJJiLTPuOg&s")
         })
+        .setFeatureFlag("lobby-mode.enabled",false)
+        .setFeatureFlag("add-people.enabled",false)
+        .setFeatureFlag("invite.enabled",false)
+        .setFeatureFlag("chat.enabled",false)
+        .setFeatureFlag("kick-out.enabled",false)
+        .setFeatureFlag("meeting-name.enabled",false)
+        .setFeatureFlag("prejoinpage.enabled",false)
+        .setFeatureFlag("prejoinpage.hideDisplayName",true)
         .build()
 
     JitsiMeetActivity.launch(context, options)
