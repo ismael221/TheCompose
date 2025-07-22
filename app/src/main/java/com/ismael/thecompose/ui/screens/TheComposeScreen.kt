@@ -1,4 +1,4 @@
-package com.ismael.thecompose
+package com.ismael.thecompose.ui.screens
 
 import android.annotation.SuppressLint
 

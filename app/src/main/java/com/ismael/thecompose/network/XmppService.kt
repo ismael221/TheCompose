@@ -38,7 +38,7 @@ import java.io.IOException
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
-object XmppManager {
+object XmppService {
 
     private val _receivedMessages =
         MutableStateFlow<List<Message>>(emptyList())
@@ -83,7 +83,7 @@ object XmppManager {
             val entry = roster?.getEntry(entityJid)
             entry?.name ?: jid // Use entry?.name to get the display name
         } catch (e: Exception) {
-            Log.e("XmppManager", "Error getting user name for JID: $jid", e)
+            Log.e("XmppService", "Error getting user name for JID: $jid", e)
             jid
         }
     }
@@ -251,7 +251,7 @@ object XmppManager {
             val roster = Roster.getInstanceFor(connection)
             roster?.getPresence(entityJid)
         } catch (e: Exception) {
-            Log.e("XmppManager", "Error getting presence for JID: $jid", e)
+            Log.e("XmppService", "Error getting presence for JID: $jid", e)
             null
         }
     }
@@ -272,7 +272,7 @@ object XmppManager {
 
         override fun presenceAvailable(address: FullJid?, availablePresence: Presence?) {
             Log.i(
-                "XmppManager",
+                "XmppService",
                 "Presence available for $address: ${availablePresence?.type} - ${availablePresence?.status}"
             )
             _presenceUpdates.value = Pair(address.toString(), availablePresence)
@@ -280,13 +280,13 @@ object XmppManager {
         }
 
         override fun presenceUnavailable(address: FullJid?, unavailablePresence: Presence?) {
-            Log.i("XmppManager", "Presence unavailable for $address: ${unavailablePresence?.type}")
+            Log.i("XmppService", "Presence unavailable for $address: ${unavailablePresence?.type}")
             _presenceUpdates.value = Pair(address.toString(), unavailablePresence)
             updateLastActivity(address.toString())
         }
 
         override fun presenceError(address: Jid?, errorPresence: Presence?) {
-            Log.e("XmppManager", "Presence error for $address: ${errorPresence?.type}")
+            Log.e("XmppService", "Presence error for $address: ${errorPresence?.type}")
             _presenceUpdates.value = Pair(address.toString(), errorPresence)
             updateLastActivity(address.toString())
         }

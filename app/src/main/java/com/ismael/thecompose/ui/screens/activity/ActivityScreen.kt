@@ -1,4 +1,4 @@
-package com.ismael.thecompose.ui.screens
+package com.ismael.thecompose.ui.screens.activity
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +44,7 @@ import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar
 import com.ismael.thecompose.ui.components.TheComposeNavigationRail
 import com.ismael.thecompose.ui.components.TopBarDropdownMenu
+import com.ismael.thecompose.ui.screens.teams.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatUiState
 import com.ismael.thecompose.ui.screens.user.UserUiState
 import kotlinx.coroutines.CoroutineScope

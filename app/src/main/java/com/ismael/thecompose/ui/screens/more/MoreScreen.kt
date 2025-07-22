@@ -1,4 +1,4 @@
-package com.ismael.thecompose.ui.screens
+package com.ismael.thecompose.ui.screens.more
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -19,9 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TheComposeNavigationRail
+import com.ismael.thecompose.ui.screens.teams.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatUiState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -13,7 +13,7 @@ import com.ismael.thecompose.model.Chat
 import com.ismael.thecompose.model.ChatType
 import com.ismael.thecompose.model.Message
 import com.ismael.thecompose.model.UserChat
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
 import com.ismael.thecompose.data.repository.NotificationRepository
 import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.addMessageToMap
@@ -36,7 +36,7 @@ import java.util.UUID
 
 class ChatViewModel : ViewModel() {
 
-    private val xmppManager = XmppManager
+    private val xmppManager = XmppService
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState = _uiState.asStateFlow()
@@ -176,8 +176,8 @@ class ChatViewModel : ViewModel() {
 
     fun setupMessageListener() {
         viewModelScope.launch(Dispatchers.IO) {
-            XmppManager.addIncomingMessageListener()
-            XmppManager.addMessageListener {
+            XmppService.addIncomingMessageListener()
+            XmppService.addMessageListener {
                 observeIncomingMessages()
             }
         }
@@ -335,7 +335,7 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun observePresenceUpdates() {
-        XmppManager.presenceUpdates.onEach { presenceUpdate ->
+        XmppService.presenceUpdates.onEach { presenceUpdate ->
 
             _presenceUpdates.value = presenceUpdate
         }.launchIn(viewModelScope)
@@ -343,9 +343,9 @@ class ChatViewModel : ViewModel() {
 
     fun sendImageMessage(image: Message, context: Context) {
 
-        val fileTrasferManger = XmppManager.getFileTransferManager()
+        val fileTrasferManger = XmppService.getFileTransferManager()
 
-        val roster = XmppManager.getRoster()
+        val roster = XmppService.getRoster()
 
 
         val entry = roster.getEntry(JidCreate.entityBareFrom(image.to))
@@ -383,7 +383,7 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun observeFileMessages() {
-        val fileTransferManager = XmppManager.getFileTransferManager()
+        val fileTransferManager = XmppService.getFileTransferManager()
         fileTransferManager.addFileTransferListener { request ->
             val transfer = request.accept()
             var messageFile: Message? = null
@@ -429,7 +429,7 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun observeChatStates() {
-        val chatStateManager = XmppManager.getChatStateManager()
+        val chatStateManager = XmppService.getChatStateManager()
 
         chatStateManager.addChatStateListener { chat, state, message ->
             updateChatState(

@@ -117,14 +117,14 @@ import com.ismael.thecompose.model.GroupChat
 import com.ismael.thecompose.model.Message
 import com.ismael.thecompose.model.NavigationRoutes
 import com.ismael.thecompose.model.UserChat
-import com.ismael.thecompose.network.XmppManager.sendChatState
+import com.ismael.thecompose.network.XmppService.sendChatState
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar
 import com.ismael.thecompose.ui.components.TheComposeNavigationRail
 import com.ismael.thecompose.ui.components.TopBarDropdownMenu
 import com.ismael.thecompose.ui.components.UserDetails
-import com.ismael.thecompose.ui.screens.TeamsScreen
+import com.ismael.thecompose.ui.screens.teams.TeamsScreen
 import com.ismael.thecompose.ui.screens.user.UserUiState
 import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.TheComposeNavigationType

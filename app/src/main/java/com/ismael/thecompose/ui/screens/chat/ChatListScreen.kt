@@ -42,7 +42,7 @@ import com.ismael.thecompose.model.Chat
 import com.ismael.thecompose.model.ChatType
 import com.ismael.thecompose.model.NavigationRoutes
 import com.ismael.thecompose.model.UserChat
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.toChatPreviewDateString
 
@@ -106,7 +106,7 @@ fun ChatCard(
     onChatSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val xmppManager = XmppManager
+    val xmppManager = XmppService
     Box(
         modifier = modifier
     ) {

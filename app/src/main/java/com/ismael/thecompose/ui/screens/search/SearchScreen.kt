@@ -1,4 +1,4 @@
-package com.ismael.thecompose.ui.screens
+package com.ismael.thecompose.ui.screens.search
 
 
 import android.annotation.SuppressLint
@@ -30,7 +30,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
 
 @Composable

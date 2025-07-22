@@ -11,7 +11,7 @@ import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.local.LocalLoggedAccounts._messages
 import com.ismael.thecompose.model.Message
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
 import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.addMessageToMap
 import com.ismael.thecompose.ui.utils.removeAfterSlash
@@ -19,7 +19,7 @@ import org.jxmpp.jid.impl.JidCreate
 
 class NotificationReplyReceiver : BroadcastReceiver() {
 
-    private val xmppManager: XmppManager = XmppManager
+    private val xmppManager: XmppService = XmppService
 
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {

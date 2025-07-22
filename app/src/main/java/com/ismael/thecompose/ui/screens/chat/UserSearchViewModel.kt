@@ -3,7 +3,7 @@ package com.ismael.thecompose.ui.screens.chat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.ismael.thecompose.model.User
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.jivesoftware.smackx.search.ReportedData
@@ -18,7 +18,7 @@ class UserSearchViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(UserSearchUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val xmppManager = XmppManager
+    private val xmppManager = XmppService
 
     private fun initializeUiState() {
         val search = xmppManager.getSearchManager()

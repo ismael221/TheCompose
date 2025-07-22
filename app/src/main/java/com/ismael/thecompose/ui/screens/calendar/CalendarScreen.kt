@@ -1,4 +1,4 @@
-package com.ismael.thecompose.ui.screens
+package com.ismael.thecompose.ui.screens.calendar
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -47,6 +47,7 @@ import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar
 import com.ismael.thecompose.ui.components.TheComposeNavigationRail
+import com.ismael.thecompose.ui.screens.teams.TeamsScreen
 import com.ismael.thecompose.ui.screens.chat.ChatUiState
 import com.ismael.thecompose.ui.screens.user.UserUiState
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +56,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
@@ -200,7 +202,7 @@ fun CalendarHeader(month: YearMonth, onPreviousMonth: () -> Unit, onNextMonth: (
 @Composable
 fun DaysOfWeekHeader(locale: Locale) {
     val daysOfWeek =
-        DayOfWeek.values().map { it.getDisplayName(java.time.format.TextStyle.NARROW, locale) }
+        DayOfWeek.values().map { it.getDisplayName(TextStyle.NARROW, locale) }
     Row(horizontalArrangement = Arrangement.SpaceBetween) {
         for (day in daysOfWeek) {
             Text(text = day, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))

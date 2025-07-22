@@ -16,7 +16,8 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.example.compose.TheComposeTheme
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
+import com.ismael.thecompose.ui.screens.TheComposeApp
 import org.jivesoftware.smack.android.AndroidSmackInitializer
 
 class MainActivity : ComponentActivity() {
@@ -50,19 +51,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        XmppManager.disconnect()
+        XmppService.disconnect()
     }
 }
 
 
+@SuppressLint("SuspiciousIndentation")
 private fun initializeXmpp() {
     val server = "NTB-33.doalti.corp"
     val username = "ismael"
     val password = "ismael221"
 
     try {
-      val config =  XmppManager.createXmppConfig(server, username, password)
-        XmppManager.connect(config)
+      val config =  XmppService.createXmppConfig(server, username, password)
+        XmppService.connect(config)
     } catch (e: Exception) {
         println("Erro ao conectar no XMPP: ${e.message}")
     }

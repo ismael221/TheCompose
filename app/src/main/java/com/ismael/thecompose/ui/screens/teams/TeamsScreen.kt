@@ -1,4 +1,4 @@
-package com.ismael.thecompose.ui.screens
+package com.ismael.thecompose.ui.screens.teams
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
@@ -18,7 +18,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.ui.components.SideNavBarItems

@@ -3,7 +3,7 @@ package com.ismael.thecompose.ui.screens.user
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.network.XmppManager
+import com.ismael.thecompose.network.XmppService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -12,7 +12,7 @@ import org.jivesoftware.smack.packet.PresenceBuilder
 
 class UserViewModel: ViewModel() {
 
-    private val xmppManager = XmppManager
+    private val xmppManager = XmppService
 
     private val _uiState = MutableStateFlow(UserUiState())
     val uiState = _uiState.asStateFlow()
