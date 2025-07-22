@@ -16,7 +16,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.example.compose.TheComposeTheme
-import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import com.ismael.thecompose.network.XmppManager
 import org.jivesoftware.smack.android.AndroidSmackInitializer
 
 class MainActivity : ComponentActivity() {
@@ -56,9 +56,9 @@ class MainActivity : ComponentActivity() {
 
 
 private fun initializeXmpp() {
-    val server = "ismael"
-    val username = "yasmin"
-    val password = "1234"
+    val server = "NTB-33.doalti.corp"
+    val username = "ismael"
+    val password = "ismael221"
 
     try {
       val config =  XmppManager.createXmppConfig(server, username, password)

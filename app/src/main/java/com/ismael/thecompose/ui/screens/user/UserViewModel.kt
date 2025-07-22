@@ -3,7 +3,7 @@ package com.ismael.thecompose.ui.screens.user
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import com.ismael.thecompose.network.XmppManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

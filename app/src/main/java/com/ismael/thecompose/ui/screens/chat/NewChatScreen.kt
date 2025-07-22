@@ -35,14 +35,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.ismael.thecompose.R
-import com.ismael.thecompose.data.local.LocalAccountsDataProvider
 import com.ismael.thecompose.data.local.LocalChatsDataProvider
-import com.ismael.thecompose.data.model.ChatType
-import com.ismael.thecompose.data.model.NavigationRoutes
-import com.ismael.thecompose.data.model.User
-import com.ismael.thecompose.data.model.UserChat
+import com.ismael.thecompose.model.ChatType
+import com.ismael.thecompose.model.NavigationRoutes
+import com.ismael.thecompose.model.User
+import com.ismael.thecompose.model.UserChat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

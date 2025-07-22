@@ -1,6 +1,6 @@
 package com.ismael.thecompose.data.local
 
-import com.ismael.thecompose.data.model.UserChat
+import com.ismael.thecompose.model.UserChat
 import kotlin.random.Random
 
 object LocalChatsDataProvider {

@@ -1,6 +1,6 @@
 package com.ismael.thecompose.ui.screens.user
 
-import com.ismael.thecompose.data.model.User
+import com.ismael.thecompose.model.User
 import org.jivesoftware.smack.packet.Presence.Mode
 
 data class UserUiState(

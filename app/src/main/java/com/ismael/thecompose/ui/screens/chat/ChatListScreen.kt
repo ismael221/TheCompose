@@ -38,11 +38,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ismael.thecompose.R
-import com.ismael.thecompose.data.model.Chat
-import com.ismael.thecompose.data.model.ChatType
-import com.ismael.thecompose.data.model.NavigationRoutes
-import com.ismael.thecompose.data.model.UserChat
-import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import com.ismael.thecompose.model.Chat
+import com.ismael.thecompose.model.ChatType
+import com.ismael.thecompose.model.NavigationRoutes
+import com.ismael.thecompose.model.UserChat
+import com.ismael.thecompose.network.XmppManager
 import com.ismael.thecompose.ui.utils.createInitialsBitmap
 import com.ismael.thecompose.ui.utils.toChatPreviewDateString
 

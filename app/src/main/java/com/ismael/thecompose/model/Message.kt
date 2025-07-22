@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.model
+package com.ismael.thecompose.model
 
 import com.ismael.thecompose.ui.utils.MessageType
 import java.util.UUID

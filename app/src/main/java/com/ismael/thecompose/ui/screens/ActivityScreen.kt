@@ -1,7 +1,6 @@
 package com.ismael.thecompose.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,10 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.data.model.NavigationRoutes
+import com.ismael.thecompose.model.NavigationRoutes
 import com.ismael.thecompose.ui.components.FilterSwitch
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar

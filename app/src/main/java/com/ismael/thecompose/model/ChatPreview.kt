@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.model
+package com.ismael.thecompose.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

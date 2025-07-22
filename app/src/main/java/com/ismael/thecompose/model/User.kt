@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.model
+package com.ismael.thecompose.model
 
 data class User(
     val id: String,

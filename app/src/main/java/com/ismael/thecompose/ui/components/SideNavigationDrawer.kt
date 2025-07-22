@@ -34,11 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.ismael.thecompose.ui.theme.AppTypography
 import com.ismael.thecompose.R
-import com.ismael.thecompose.data.model.NavigationRoutes
-import com.ismael.thecompose.data.model.User
+import com.ismael.thecompose.model.NavigationRoutes
+import com.ismael.thecompose.model.User
 import com.ismael.thecompose.ui.screens.chat.UserIconWithStatus
 import com.ismael.thecompose.ui.screens.user.UserUiState
 import org.jivesoftware.smack.packet.Presence

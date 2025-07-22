@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.model
+package com.ismael.thecompose.model
 
 data class UserChat(
     override val jid: String,

@@ -2,7 +2,7 @@ package com.ismael.thecompose.ui.utils
 
 
 import android.util.Log
-import com.ismael.thecompose.data.model.Message
+import com.ismael.thecompose.model.Message
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import android.graphics.Bitmap

@@ -9,11 +9,11 @@ import com.ismael.thecompose.data.local.LocalAccountsDataProvider
 import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.local.LocalLoggedAccounts._messages
-import com.ismael.thecompose.data.model.Chat
-import com.ismael.thecompose.data.model.ChatType
-import com.ismael.thecompose.data.model.Message
-import com.ismael.thecompose.data.model.UserChat
-import com.ismael.thecompose.data.remote.xmpp.XmppManager
+import com.ismael.thecompose.model.Chat
+import com.ismael.thecompose.model.ChatType
+import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.model.UserChat
+import com.ismael.thecompose.network.XmppManager
 import com.ismael.thecompose.data.repository.NotificationRepository
 import com.ismael.thecompose.ui.utils.MessageType
 import com.ismael.thecompose.ui.utils.addMessageToMap

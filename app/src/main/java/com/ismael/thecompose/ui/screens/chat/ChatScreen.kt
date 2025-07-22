@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -113,12 +112,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.ismael.thecompose.R
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.data.model.Chat
-import com.ismael.thecompose.data.model.GroupChat
-import com.ismael.thecompose.data.model.Message
-import com.ismael.thecompose.data.model.NavigationRoutes
-import com.ismael.thecompose.data.model.UserChat
-import com.ismael.thecompose.data.remote.xmpp.XmppManager.sendChatState
+import com.ismael.thecompose.model.Chat
+import com.ismael.thecompose.model.GroupChat
+import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.model.NavigationRoutes
+import com.ismael.thecompose.model.UserChat
+import com.ismael.thecompose.network.XmppManager.sendChatState
 import com.ismael.thecompose.ui.components.SideNavBarItems
 import com.ismael.thecompose.ui.components.TeamsBottomNavigationBar
 import com.ismael.thecompose.ui.components.TeamsTopAppBar

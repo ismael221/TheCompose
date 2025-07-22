@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.model
+package com.ismael.thecompose.model
 
 object NavigationRoutes {
     const val NEWCHAT =  "NEWCHAT"

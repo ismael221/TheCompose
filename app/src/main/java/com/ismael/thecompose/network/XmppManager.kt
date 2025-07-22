@@ -1,4 +1,4 @@
-package com.ismael.thecompose.data.remote.xmpp
+package com.ismael.thecompose.network
 
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,8 +91,8 @@ object XmppManager {
     fun createXmppConfig(server: String, username: String, password: String): XMPPTCPConnectionConfiguration {
         return XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(username, password)
-            .setXmppDomain("ismael")
-            .setHost("192.168.100.12")
+            .setXmppDomain(server)
+            .setHost("192.168.0.172")
             .setPort(5222)
             .addEnabledSaslMechanism("PLAIN")
             .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)

@@ -1,6 +1,6 @@
 package com.ismael.thecompose.data.local
 
-import com.ismael.thecompose.data.model.User
+import com.ismael.thecompose.model.User
 
 object LocalAccountsDataProvider {
 

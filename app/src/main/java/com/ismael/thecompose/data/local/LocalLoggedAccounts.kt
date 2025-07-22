@@ -1,8 +1,8 @@
 package com.ismael.thecompose.data.local
 
 import androidx.core.app.NotificationCompat
-import com.ismael.thecompose.data.model.Message
-import com.ismael.thecompose.data.model.User
+import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.model.User
 
 object LocalLoggedAccounts {
     val account = User(
