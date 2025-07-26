@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.ismael.thecompose.ui.AppViewModelProvider
 import com.ismael.thecompose.ui.navigation.TheComposeNavHost
 import com.ismael.thecompose.ui.screens.chat.ChatViewModel
 import com.ismael.thecompose.ui.screens.chat.UserSearchViewModel
@@ -29,7 +30,7 @@ fun TheComposeApp(
     windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
-    val chatViewModel: ChatViewModel = viewModel()
+    val chatViewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val userViewModel: UserViewModel = viewModel()
     val searchViewModel: UserSearchViewModel = viewModel()
 

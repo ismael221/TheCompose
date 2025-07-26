@@ -7,6 +7,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,6 +38,7 @@ import com.ismael.thecompose.ui.screens.chat.ExpandedChatScreen
 import com.ismael.thecompose.ui.screens.chat.MediumChatScreen
 import com.ismael.thecompose.ui.screens.chat.NewChatScreen
 import androidx.navigation.NavType
+import com.ismael.thecompose.ui.AppViewModelProvider
 import com.ismael.thecompose.ui.screens.chat.ChatUiState
 import com.ismael.thecompose.ui.screens.chat.ChatViewModel
 import com.ismael.thecompose.ui.screens.chat.UserSearchUiState
@@ -58,7 +60,7 @@ fun TheComposeNavHost(
     userUiState: UserUiState,
     searchUiState: UserSearchUiState,
     userViewModel: UserViewModel,
-    chatViewModel: ChatViewModel,
+    chatViewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current

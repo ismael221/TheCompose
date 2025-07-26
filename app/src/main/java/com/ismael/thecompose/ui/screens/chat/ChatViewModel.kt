@@ -12,6 +12,7 @@ import com.ismael.thecompose.data.local.LocalLoggedAccounts._messages
 import com.ismael.thecompose.model.Chat
 import com.ismael.thecompose.model.ChatType
 import com.ismael.thecompose.data.Message
+import com.ismael.thecompose.data.MessageRepository
 import com.ismael.thecompose.model.UserChat
 import com.ismael.thecompose.network.XmppService
 import com.ismael.thecompose.data.repository.NotificationRepository
@@ -34,7 +35,9 @@ import java.io.File
 import java.util.UUID
 
 
-class ChatViewModel : ViewModel() {
+class ChatViewModel(
+    private  val messageRepository: MessageRepository
+) : ViewModel() {
 
     private val xmppManager = XmppService
 
@@ -137,7 +140,7 @@ class ChatViewModel : ViewModel() {
                     val recipientJid = JidCreate.entityBareFrom(message.to)
                     Log.i("Mensagem", "Sending message to ${message.to}: $message")
                     xmppManager.sendMessage(recipientJid, message.content)
-
+                    messageRepository.insertMessage(message)
                 }
                 val itemToUpdate = LocalChatsDataProvider.chats.find { it.jid == chatId }
                 itemToUpdate?.lastMessage = "You: ${message.content}"
