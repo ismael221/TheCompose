@@ -11,9 +11,9 @@ class NetworkXmppRepository(
     private val xmppService: XmppService
 
 ) : XmppRepository {
-    val server = "NTB-33.doalti.corp"
-    val username = "ismael"
-    val password = "ismael221"
+    val server = "ismael"
+    val username = "ismael221"
+    val password = "Ismuca18@"
     val config = XmppService.createXmppConfig(server, username, password)
 
     override suspend fun connect() = xmppService.connect(config)

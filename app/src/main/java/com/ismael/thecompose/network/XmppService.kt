@@ -92,7 +92,7 @@ object XmppService {
         return XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(username, password)
             .setXmppDomain(server)
-            .setHost("192.168.0.172")
+            .setHost("192.168.100.12")
             .setPort(5222)
             .addEnabledSaslMechanism("PLAIN")
             .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)

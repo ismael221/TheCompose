@@ -1,7 +1,7 @@
 package com.ismael.thecompose.ui.screens.chat
 
 import com.ismael.thecompose.model.Chat
-import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.data.Message
 import com.ismael.thecompose.model.User
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.Presence.Mode

@@ -58,9 +58,9 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("SuspiciousIndentation")
 private fun initializeXmpp() {
-    val server = "NTB-33.doalti.corp"
-    val username = "ismael"
-    val password = "ismael221"
+    val server = "ismael"
+    val username = "ismael221"
+    val password = "Ismuca18@"
 
     try {
       val config =  XmppService.createXmppConfig(server, username, password)

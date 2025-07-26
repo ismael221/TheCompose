@@ -11,7 +11,7 @@ import com.ismael.thecompose.data.local.LocalLoggedAccounts
 import com.ismael.thecompose.data.local.LocalLoggedAccounts._messages
 import com.ismael.thecompose.model.Chat
 import com.ismael.thecompose.model.ChatType
-import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.data.Message
 import com.ismael.thecompose.model.UserChat
 import com.ismael.thecompose.network.XmppService
 import com.ismael.thecompose.data.repository.NotificationRepository

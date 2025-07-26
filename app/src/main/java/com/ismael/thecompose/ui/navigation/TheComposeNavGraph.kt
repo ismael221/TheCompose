@@ -14,7 +14,7 @@ import com.ismael.thecompose.model.NavigationRoutes
 import androidx.navigation.navArgument
 import com.ismael.thecompose.data.local.LocalChatsDataProvider
 import com.ismael.thecompose.data.local.LocalLoggedAccounts
-import com.ismael.thecompose.model.Message
+import com.ismael.thecompose.data.Message
 import com.ismael.thecompose.ui.screens.activity.ActivityExpandedScreen
 import com.ismael.thecompose.ui.screens.activity.ActivityMediumScreen
 import com.ismael.thecompose.ui.screens.activity.ActivityScreen
